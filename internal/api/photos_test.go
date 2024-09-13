@@ -56,6 +56,19 @@ func TestUpdatePhoto(t *testing.T) {
 		assert.Equal(t, i18n.Msg(i18n.ErrEntityNotFound), val.String())
 		assert.Equal(t, http.StatusNotFound, r.Code)
 	})
+
+	t.Run("GeoLocation", func(t *testing.T) {
+		app, router, _ := NewApiTest()
+		UpdatePhoto(router)
+		r := PerformRequestWithBody(app, "PUT", "/api/v1/photos/ps6sg6be2lvl0y13", `{"Lat": -33.704229, "Lng": 22.047637, "PlaceSrc": "manual"}`)
+		val := gjson.Get(r.Body.String(), "Lat")
+		assert.Equal(t, -33.704229, val.Float())
+		val2 := gjson.Get(r.Body.String(), "Lng")
+		assert.Equal(t, 22.047637, val2.Float())
+		val3 := gjson.Get(r.Body.String(), "Place.Label")
+		assert.Equal(t, "Oudtshoorn, Western Cape, South Africa", val3.String())
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
 }
 
 func TestGetPhotoDownload(t *testing.T) {

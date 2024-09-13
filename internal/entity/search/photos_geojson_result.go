@@ -14,8 +14,8 @@ type GeoResult struct {
 	ID               string    `json:"-" select:"photos.id"`
 	PhotoUID         string    `json:"UID" select:"photos.photo_uid"`
 	PhotoType        string    `json:"Type,omitempty" select:"photos.photo_type"`
-	PhotoLat         float32   `json:"Lat" select:"photos.photo_lat"`
-	PhotoLng         float32   `json:"Lng" select:"photos.photo_lng"`
+	PhotoLat         float64   `json:"Lat" select:"photos.photo_lat"`
+	PhotoLng         float64   `json:"Lng" select:"photos.photo_lng"`
 	PhotoTitle       string    `json:"Title" select:"photos.photo_title"`
 	PhotoDescription string    `json:"Description,omitempty" select:"photos.photo_description"`
 	PhotoFavorite    bool      `json:"Favorite,omitempty" select:"photos.photo_favorite"`

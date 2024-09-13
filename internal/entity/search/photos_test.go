@@ -693,8 +693,8 @@ func TestPhotos(t *testing.T) {
 		}
 
 		for _, p := range photos {
-			assert.GreaterOrEqual(t, float32(49.519234), p.PhotoLat)
-			assert.LessOrEqual(t, float32(33.45343166666667), p.PhotoLat)
+			assert.GreaterOrEqual(t, float64(49.519234), p.PhotoLat)
+			assert.LessOrEqual(t, float64(33.45343166666667), p.PhotoLat)
 		}
 
 		assert.LessOrEqual(t, 2, len(photos))
@@ -714,10 +714,10 @@ func TestPhotos(t *testing.T) {
 		}
 
 		for _, p := range photos {
-			assert.GreaterOrEqual(t, float32(49.519234), p.PhotoLat)
-			assert.LessOrEqual(t, float32(0.00), p.PhotoLat)
-			assert.GreaterOrEqual(t, float32(9.1001234), p.PhotoLng)
-			assert.LessOrEqual(t, float32(-30.123), p.PhotoLng)
+			assert.GreaterOrEqual(t, float64(49.519234), p.PhotoLat)
+			assert.LessOrEqual(t, float64(0.00), p.PhotoLat)
+			assert.GreaterOrEqual(t, float64(9.1001234), p.PhotoLng)
+			assert.LessOrEqual(t, float64(-30.123), p.PhotoLng)
 		}
 
 		assert.LessOrEqual(t, 10, len(photos))

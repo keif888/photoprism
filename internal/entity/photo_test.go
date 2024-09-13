@@ -63,7 +63,7 @@ func TestSavePhotoForm(t *testing.T) {
 		assert.Equal(t, true, m.PhotoFavorite)
 		assert.Equal(t, true, m.PhotoPrivate)
 		assert.Equal(t, "image", m.PhotoType)
-		assert.Equal(t, float32(7.9999), m.PhotoLat)
+		assert.Equal(t, float64(7.9999), m.PhotoLat)
 		assert.NotNil(t, m.EditedAt)
 
 		t.Log(m.GetDetails().Keywords)

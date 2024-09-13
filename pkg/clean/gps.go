@@ -9,18 +9,18 @@ import (
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
-// gpsCeil converts a GPS coordinate to a rounded float32 for use in queries.
-func gpsCeil(f float64) float32 {
-	return float32((math.Ceil(f*10000) / 10000) + 0.0001)
+// gpsCeil converts a GPS coordinate to a rounded float64 for use in queries.
+func gpsCeil(f float64) float64 {
+	return float64((math.Ceil(f*10000) / 10000) + 0.0001)
 }
 
-// gpsFloor converts a GPS coordinate to a rounded float32 for use in queries.
-func gpsFloor(f float64) float32 {
-	return float32((math.Floor(f*10000) / 10000) - 0.0001)
+// gpsFloor converts a GPS coordinate to a rounded float64 for use in queries.
+func gpsFloor(f float64) float64 {
+	return float64((math.Floor(f*10000) / 10000) - 0.0001)
 }
 
 // GPSBounds parses the GPS bounds (Lat N, Lng E, Lat S, Lng W) and returns the coordinates if any.
-func GPSBounds(bounds string) (latN, lngE, latS, lngW float32, err error) {
+func GPSBounds(bounds string) (latN, lngE, latS, lngW float64, err error) {
 	// Bounds string not long enough?
 	if len(bounds) < 7 {
 		return 0, 0, 0, 0, fmt.Errorf("no coordinates found")
@@ -82,7 +82,7 @@ func GPSBounds(bounds string) (latN, lngE, latS, lngW float32, err error) {
 }
 
 // GPSLatRange returns a range based on the specified latitude and distance in km, or an error otherwise.
-func GPSLatRange(lat float64, km float64) (latN, latS float32, err error) {
+func GPSLatRange(lat float64, km float64) (latN, latS float64, err error) {
 	// Latitude (from +90 to -90 degrees).
 	if lat == 0 || lat < -90 || lat > 90 {
 		return 0, 0, fmt.Errorf("invalid latitude")
@@ -108,7 +108,7 @@ func GPSLatRange(lat float64, km float64) (latN, latS float32, err error) {
 }
 
 // GPSLngRange returns a range based on the specified longitude and distance in km, or an error otherwise.
-func GPSLngRange(lng float64, km float64) (lngE, lngW float32, err error) {
+func GPSLngRange(lng float64, km float64) (lngE, lngW float64, err error) {
 	// Longitude (from -180 to +180 degrees).
 	if lng == 0 || lng < -180 || lng > 180 {
 		return 0, 0, fmt.Errorf("invalid longitude")

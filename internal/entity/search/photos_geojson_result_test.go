@@ -23,7 +23,7 @@ func TestGeoResult_Lat(t *testing.T) {
 		FileHeight:    0,
 		TakenAtLocal:  time.Time{},
 	}
-	assert.Equal(t, 7.775000095367432, geo.Lat())
+	assert.Equal(t, 7.775, geo.Lat())
 }
 
 func TestGeoResult_Lng(t *testing.T) {
@@ -39,7 +39,7 @@ func TestGeoResult_Lng(t *testing.T) {
 		FileHeight:    0,
 		TakenAtLocal:  time.Time{},
 	}
-	assert.Equal(t, 8.774999618530273, geo.Lng())
+	assert.Equal(t, 8.775, geo.Lng())
 }
 
 func TestGeoResults_GeoJSON(t *testing.T) {
@@ -95,7 +95,7 @@ func TestGeoResults_GeoJSON(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []byte("{\"type\":\"FeatureCollection\",\"bbox\":[-5.775000095367432,-1.774999976158142,100.7750015258789,7.775000095367432]")
+	expected := []byte("{\"type\":\"FeatureCollection\",\"bbox\":[-5.775,-1.775,100.775,7.775]")
 
 	assert.Truef(t, bytes.Contains(b, expected), "GeoJSON not as expected")
 
