@@ -35,7 +35,7 @@ msgid "%{n} people found"
 msgstr ""
 
 #: src/page/album/photos.vue:258 src/page/album/photos.vue:414
-#: src/page/photos.vue:385 src/page/photos.vue:553
+#: src/page/photos.vue:398 src/page/photos.vue:566
 msgid "%{n} pictures found"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Can't access your authenticator app or device?"
 msgstr ""
 
-#: src/page/album/photos.vue:264 src/page/photos.vue:391
+#: src/page/album/photos.vue:264 src/page/photos.vue:404
 msgid "Can't load more, limit reached"
 msgstr ""
 
@@ -1133,12 +1133,12 @@ msgstr ""
 msgid "File Conversion"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:112
+#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:113
 #: src/component/photo/toolbar.vue:125 src/dialog/album/edit.vue:25
 msgid "File Name"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:113
+#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:114
 #: src/component/photo/toolbar.vue:126 src/dialog/album/edit.vue:26
 msgid "File Size"
 msgstr ""
@@ -1718,7 +1718,7 @@ msgstr ""
 msgid "New Password"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:108
+#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:109
 #: src/component/photo/toolbar.vue:120 src/dialog/album/edit.vue:21
 #: src/page/albums.vue:91
 msgid "Newest First"
@@ -1749,7 +1749,7 @@ msgstr ""
 #: src/common/viewer.js:253 src/component/photo/cards.vue:8
 #: src/component/photo/cards.vue:6 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:8 src/page/album/photos.vue:410
-#: src/page/library/browse.vue:34 src/page/photos.vue:549
+#: src/page/library/browse.vue:34 src/page/photos.vue:562
 #: src/page/places.vue:414 src/page/places.vue:500
 msgid "No pictures found"
 msgstr ""
@@ -1827,7 +1827,7 @@ msgstr ""
 msgid "OIDC"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:109
+#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:110
 #: src/component/photo/toolbar.vue:121 src/dialog/album/edit.vue:22
 #: src/page/albums.vue:92
 msgid "Oldest First"
@@ -1870,7 +1870,7 @@ msgstr ""
 msgid "One person found"
 msgstr ""
 
-#: src/page/album/photos.vue:412 src/page/photos.vue:551
+#: src/page/album/photos.vue:412 src/page/photos.vue:564
 msgid "One picture found"
 msgstr ""
 
@@ -1983,7 +1983,7 @@ msgstr ""
 msgid "Photos"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:111
+#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:112
 #: src/component/photo/toolbar.vue:124 src/dialog/album/edit.vue:24
 msgid "Picture Title"
 msgstr ""
@@ -2135,14 +2135,14 @@ msgstr ""
 msgid "Read-Only Mode"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:110
+#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:111
 #: src/component/photo/toolbar.vue:122 src/dialog/album/edit.vue:23
 #: src/page/albums.vue:93
 msgid "Recently Added"
 msgstr ""
 
 #: src/component/photo/toolbar.vue:99
-msgid "Recently Deleted"
+msgid "Recently Archived"
 msgstr ""
 
 #: src/component/photo/toolbar.vue:123 src/page/albums.vue:94
@@ -2860,7 +2860,7 @@ msgstr ""
 msgid "Video"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:114
+#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:115
 #: src/component/photo/toolbar.vue:127 src/dialog/album/edit.vue:27
 msgid "Video Duration"
 msgstr ""
@@ -2885,7 +2885,7 @@ msgstr ""
 msgid "Visitor"
 msgstr ""
 
-#: src/component/photo/toolbar.vue:115 src/component/photo/toolbar.vue:128
+#: src/component/photo/toolbar.vue:128
 msgid "Visual Similarity"
 msgstr ""
 

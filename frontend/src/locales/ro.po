@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: ci@photoprism.app\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-09-13 11:46+0000\n"
+"PO-Revision-Date: 2024-09-13 13:26+0000\n"
 "Last-Translator: DeepL <noreply-mt-deepl@weblate.org>\n"
 "Language-Team: Romanian <https://translate.photoprism.app/projects/photoprism/frontend/ro/>\n"
 "Language: ro\n"
@@ -36,7 +36,7 @@ msgid "%{n} people found"
 msgstr "%{n} persoane găsite"
 
 #: src/page/album/photos.vue:258 src/page/album/photos.vue:414
-#: src/page/photos.vue:385 src/page/photos.vue:553
+#: src/page/photos.vue:398 src/page/photos.vue:566
 msgid "%{n} pictures found"
 msgstr "%{n} imagini găsite"
 
@@ -473,7 +473,7 @@ msgstr "Numărul de serie a Camerei"
 msgid "Can't access your authenticator app or device?"
 msgstr "Nu vă puteți accesa aplicația sau dispozitivul de autentificare?"
 
-#: src/page/album/photos.vue:264 src/page/photos.vue:391
+#: src/page/album/photos.vue:264 src/page/photos.vue:404
 msgid "Can't load more, limit reached"
 msgstr "Nu se poate încărca mai mult, limita a fost atinsă"
 
@@ -1134,12 +1134,12 @@ msgstr "Browser de fișiere"
 msgid "File Conversion"
 msgstr "Conversia fișierelor"
 
-#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:112
+#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:113
 #: src/component/photo/toolbar.vue:125 src/dialog/album/edit.vue:25
 msgid "File Name"
 msgstr "Numele fișierului"
 
-#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:113
+#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:114
 #: src/component/photo/toolbar.vue:126 src/dialog/album/edit.vue:26
 msgid "File Size"
 msgstr "Dimensiunea fișierului"
@@ -1719,7 +1719,7 @@ msgstr "Nou"
 msgid "New Password"
 msgstr "Parolă nouă"
 
-#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:108
+#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:109
 #: src/component/photo/toolbar.vue:120 src/dialog/album/edit.vue:21
 #: src/page/albums.vue:91
 msgid "Newest First"
@@ -1750,7 +1750,7 @@ msgstr "Nu s-au găsit persoane"
 #: src/common/viewer.js:253 src/component/photo/cards.vue:8
 #: src/component/photo/cards.vue:6 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:8 src/page/album/photos.vue:410
-#: src/page/library/browse.vue:34 src/page/photos.vue:549
+#: src/page/library/browse.vue:34 src/page/photos.vue:562
 #: src/page/places.vue:414 src/page/places.vue:500
 msgid "No pictures found"
 msgstr "Nu s-au găsit imagini"
@@ -1828,7 +1828,7 @@ msgstr "Deconectat"
 msgid "OIDC"
 msgstr "OIDC"
 
-#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:109
+#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:110
 #: src/component/photo/toolbar.vue:121 src/dialog/album/edit.vue:22
 #: src/page/albums.vue:92
 msgid "Oldest First"
@@ -1871,7 +1871,7 @@ msgstr "O etichetă găsită"
 msgid "One person found"
 msgstr "O persoană găsită"
 
-#: src/page/album/photos.vue:412 src/page/photos.vue:551
+#: src/page/album/photos.vue:412 src/page/photos.vue:564
 msgid "One picture found"
 msgstr "O imagine găsită"
 
@@ -1984,7 +1984,7 @@ msgstr "Abonament PhotoPrism+"
 msgid "Photos"
 msgstr "Fotografii"
 
-#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:111
+#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:112
 #: src/component/photo/toolbar.vue:124 src/dialog/album/edit.vue:24
 msgid "Picture Title"
 msgstr "Titlu imagine"
@@ -2136,15 +2136,15 @@ msgstr "Reindexarea tuturor documentelor originale, inclusiv a fișierelor deja 
 msgid "Read-Only Mode"
 msgstr "Mod doar pentru citire"
 
-#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:110
+#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:111
 #: src/component/photo/toolbar.vue:122 src/dialog/album/edit.vue:23
 #: src/page/albums.vue:93
 msgid "Recently Added"
 msgstr "Adăugate recent"
 
 #: src/component/photo/toolbar.vue:99
-msgid "Recently Deleted"
-msgstr "Șterse recent"
+msgid "Recently Archived"
+msgstr "Arhivate recent"
 
 #: src/component/photo/toolbar.vue:123 src/page/albums.vue:94
 msgid "Recently Edited"
@@ -2861,7 +2861,7 @@ msgstr "Cod de verificare"
 msgid "Video"
 msgstr "Clip"
 
-#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:114
+#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:115
 #: src/component/photo/toolbar.vue:127 src/dialog/album/edit.vue:27
 msgid "Video Duration"
 msgstr "Durata Videoclipului"
@@ -2886,7 +2886,7 @@ msgstr "Vizualizator"
 msgid "Visitor"
 msgstr "Vizitator"
 
-#: src/component/photo/toolbar.vue:115 src/component/photo/toolbar.vue:128
+#: src/component/photo/toolbar.vue:128
 msgid "Visual Similarity"
 msgstr "Similaritate vizuală"
 
@@ -2996,6 +2996,9 @@ msgstr "Biblioteca dvs. este analizată în permanență pentru a crea automat a
 #: src/component/photo-viewer.vue:148
 msgid "Zoom in/out"
 msgstr "Măriți/micșorați"
+
+#~ msgid "Recently Deleted"
+#~ msgstr "Șterse recent"
 
 #~ msgid "Sign In with %{provider}"
 #~ msgstr "Conectați-vă cu %{provider}"

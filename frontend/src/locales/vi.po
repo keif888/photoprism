@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: ci@photoprism.app\n"
-"PO-Revision-Date: 2024-09-13 11:46+0000\n"
+"PO-Revision-Date: 2024-09-13 13:26+0000\n"
 "Last-Translator: Google Cloud Translation Basic <noreply-mt-google-translate@weblate.org>\n"
 "Language: vi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,7 +33,7 @@ msgid "%{n} people found"
 msgstr "Đã tìm thấy %{n} người"
 
 #: src/page/album/photos.vue:258 src/page/album/photos.vue:414
-#: src/page/photos.vue:385 src/page/photos.vue:553
+#: src/page/photos.vue:398 src/page/photos.vue:566
 msgid "%{n} pictures found"
 msgstr "Đã tìm thấy %{n} ảnh"
 
@@ -470,7 +470,7 @@ msgstr "Máy ảnh nối tiếp"
 msgid "Can't access your authenticator app or device?"
 msgstr "Không thể truy cập ứng dụng hoặc thiết bị xác thực của bạn?"
 
-#: src/page/album/photos.vue:264 src/page/photos.vue:391
+#: src/page/album/photos.vue:264 src/page/photos.vue:404
 msgid "Can't load more, limit reached"
 msgstr "Không thể tải thêm, đã đạt đến giới hạn"
 
@@ -1131,12 +1131,12 @@ msgstr "Trình duyệt tệp"
 msgid "File Conversion"
 msgstr "Chuyển đổi tập tin"
 
-#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:112
+#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:113
 #: src/component/photo/toolbar.vue:125 src/dialog/album/edit.vue:25
 msgid "File Name"
 msgstr "Tên tệp"
 
-#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:113
+#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:114
 #: src/component/photo/toolbar.vue:126 src/dialog/album/edit.vue:26
 msgid "File Size"
 msgstr "Kích thước tập tin"
@@ -1716,7 +1716,7 @@ msgstr "Mới"
 msgid "New Password"
 msgstr "mật khẩu mới"
 
-#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:108
+#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:109
 #: src/component/photo/toolbar.vue:120 src/dialog/album/edit.vue:21
 #: src/page/albums.vue:91
 msgid "Newest First"
@@ -1747,7 +1747,7 @@ msgstr "Không tìm thấy người nào"
 #: src/common/viewer.js:253 src/component/photo/cards.vue:8
 #: src/component/photo/cards.vue:6 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:8 src/page/album/photos.vue:410
-#: src/page/library/browse.vue:34 src/page/photos.vue:549
+#: src/page/library/browse.vue:34 src/page/photos.vue:562
 #: src/page/places.vue:414 src/page/places.vue:500
 msgid "No pictures found"
 msgstr "Không tìm thấy hình ảnh nào"
@@ -1825,7 +1825,7 @@ msgstr "Ngoại tuyến"
 msgid "OIDC"
 msgstr "OIDC"
 
-#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:109
+#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:110
 #: src/component/photo/toolbar.vue:121 src/dialog/album/edit.vue:22
 #: src/page/albums.vue:92
 msgid "Oldest First"
@@ -1868,7 +1868,7 @@ msgstr "Đã tìm thấy một nhãn"
 msgid "One person found"
 msgstr "Một người được tìm thấy"
 
-#: src/page/album/photos.vue:412 src/page/photos.vue:551
+#: src/page/album/photos.vue:412 src/page/photos.vue:564
 msgid "One picture found"
 msgstr "Một hình ảnh được tìm thấy"
 
@@ -1981,7 +1981,7 @@ msgstr "PhotoPrism+ Tư cách thành viên"
 msgid "Photos"
 msgstr "Ảnh"
 
-#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:111
+#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:112
 #: src/component/photo/toolbar.vue:124 src/dialog/album/edit.vue:24
 msgid "Picture Title"
 msgstr "Tiêu đề ảnh"
@@ -2133,15 +2133,15 @@ msgstr "Lập chỉ mục lại tất cả các bản gốc, bao gồm các tệ
 msgid "Read-Only Mode"
 msgstr "Chế độ chỉ đọc"
 
-#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:110
+#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:111
 #: src/component/photo/toolbar.vue:122 src/dialog/album/edit.vue:23
 #: src/page/albums.vue:93
 msgid "Recently Added"
 msgstr "Đã thêm gần đây"
 
 #: src/component/photo/toolbar.vue:99
-msgid "Recently Deleted"
-msgstr "Đã xóa gần đây"
+msgid "Recently Archived"
+msgstr "Lưu trữ gần đây"
 
 #: src/component/photo/toolbar.vue:123 src/page/albums.vue:94
 msgid "Recently Edited"
@@ -2858,7 +2858,7 @@ msgstr "Mã xác nhận"
 msgid "Video"
 msgstr "Băng hình"
 
-#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:114
+#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:115
 #: src/component/photo/toolbar.vue:127 src/dialog/album/edit.vue:27
 msgid "Video Duration"
 msgstr "Thời lượng video"
@@ -2883,7 +2883,7 @@ msgstr "Người xem"
 msgid "Visitor"
 msgstr "Khách thăm quan"
 
-#: src/component/photo/toolbar.vue:115 src/component/photo/toolbar.vue:128
+#: src/component/photo/toolbar.vue:128
 msgid "Visual Similarity"
 msgstr "Sự tương đồng về hình ảnh"
 
@@ -2995,6 +2995,9 @@ msgstr "Thư viện của bạn được phân tích liên tục để tự đ�
 #: src/component/photo-viewer.vue:148
 msgid "Zoom in/out"
 msgstr "Phóng to / thu nhỏ"
+
+#~ msgid "Recently Deleted"
+#~ msgstr "Đã xóa gần đây"
 
 #~ msgid "Sign In with %{provider}"
 #~ msgstr "Đăng nhập bằng %{provider}"

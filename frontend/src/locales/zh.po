@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: ci@photoprism.app\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-09-13 11:46+0000\n"
+"PO-Revision-Date: 2024-09-13 13:26+0000\n"
 "Last-Translator: DeepL <noreply-mt-deepl@weblate.org>\n"
 "Language-Team: Chinese (Simplified) <https://translate.photoprism.app/projects/photoprism/frontend/zh_Hans/>\n"
 "Language: zh\n"
@@ -36,7 +36,7 @@ msgid "%{n} people found"
 msgstr "已找到 %{n} 个人物"
 
 #: src/page/album/photos.vue:258 src/page/album/photos.vue:414
-#: src/page/photos.vue:385 src/page/photos.vue:553
+#: src/page/photos.vue:398 src/page/photos.vue:566
 msgid "%{n} pictures found"
 msgstr "已找到 %{n} 张图片"
 
@@ -473,7 +473,7 @@ msgstr "相机序列号"
 msgid "Can't access your authenticator app or device?"
 msgstr "无法访问您的身份验证应用程序或设备？"
 
-#: src/page/album/photos.vue:264 src/page/photos.vue:391
+#: src/page/album/photos.vue:264 src/page/photos.vue:404
 msgid "Can't load more, limit reached"
 msgstr "无法加载更多内容，已达上限"
 
@@ -1134,12 +1134,12 @@ msgstr "文件浏览器"
 msgid "File Conversion"
 msgstr "文件转换"
 
-#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:112
+#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:113
 #: src/component/photo/toolbar.vue:125 src/dialog/album/edit.vue:25
 msgid "File Name"
 msgstr "文件名"
 
-#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:113
+#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:114
 #: src/component/photo/toolbar.vue:126 src/dialog/album/edit.vue:26
 msgid "File Size"
 msgstr "文件大小"
@@ -1719,7 +1719,7 @@ msgstr "新"
 msgid "New Password"
 msgstr "新密码"
 
-#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:108
+#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:109
 #: src/component/photo/toolbar.vue:120 src/dialog/album/edit.vue:21
 #: src/page/albums.vue:91
 msgid "Newest First"
@@ -1750,7 +1750,7 @@ msgstr "找不到人物"
 #: src/common/viewer.js:253 src/component/photo/cards.vue:8
 #: src/component/photo/cards.vue:6 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:8 src/page/album/photos.vue:410
-#: src/page/library/browse.vue:34 src/page/photos.vue:549
+#: src/page/library/browse.vue:34 src/page/photos.vue:562
 #: src/page/places.vue:414 src/page/places.vue:500
 msgid "No pictures found"
 msgstr "找不到图片"
@@ -1828,7 +1828,7 @@ msgstr "离线"
 msgid "OIDC"
 msgstr "奥伊德数据中心"
 
-#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:109
+#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:110
 #: src/component/photo/toolbar.vue:121 src/dialog/album/edit.vue:22
 #: src/page/albums.vue:92
 msgid "Oldest First"
@@ -1871,7 +1871,7 @@ msgstr "已找到一个标签"
 msgid "One person found"
 msgstr "已找到一个人物"
 
-#: src/page/album/photos.vue:412 src/page/photos.vue:551
+#: src/page/album/photos.vue:412 src/page/photos.vue:564
 msgid "One picture found"
 msgstr "已发现一张图片"
 
@@ -1985,7 +1985,7 @@ msgstr "照片棱镜+会员资格"
 msgid "Photos"
 msgstr "照片"
 
-#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:111
+#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:112
 #: src/component/photo/toolbar.vue:124 src/dialog/album/edit.vue:24
 msgid "Picture Title"
 msgstr "图片标题"
@@ -2138,15 +2138,15 @@ msgstr "重新索引所有源文件，包括已索引和未更改的文件。"
 msgid "Read-Only Mode"
 msgstr "只读模式"
 
-#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:110
+#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:111
 #: src/component/photo/toolbar.vue:122 src/dialog/album/edit.vue:23
 #: src/page/albums.vue:93
 msgid "Recently Added"
 msgstr "最近添加"
 
 #: src/component/photo/toolbar.vue:99
-msgid "Recently Deleted"
-msgstr "最近删除"
+msgid "Recently Archived"
+msgstr "最近存档"
 
 #: src/component/photo/toolbar.vue:123 src/page/albums.vue:94
 msgid "Recently Edited"
@@ -2863,7 +2863,7 @@ msgstr "验证码"
 msgid "Video"
 msgstr "视频"
 
-#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:114
+#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:115
 #: src/component/photo/toolbar.vue:127 src/dialog/album/edit.vue:27
 msgid "Video Duration"
 msgstr "视频时长"
@@ -2888,7 +2888,7 @@ msgstr "浏览者"
 msgid "Visitor"
 msgstr "访客"
 
-#: src/component/photo/toolbar.vue:115 src/component/photo/toolbar.vue:128
+#: src/component/photo/toolbar.vue:128
 msgid "Visual Similarity"
 msgstr "视觉相似性"
 
@@ -2998,6 +2998,9 @@ msgstr "你的库被不断分析，以自动创建特殊时刻、旅行和地点
 #: src/component/photo-viewer.vue:148
 msgid "Zoom in/out"
 msgstr "缩放"
+
+#~ msgid "Recently Deleted"
+#~ msgstr "最近删除"
 
 #~ msgid "Sign In with %{provider}"
 #~ msgstr "使用 %{provider} 登录"

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: photoprism\n"
 "Report-Msgid-Bugs-To: ci@photoprism.app\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-09-13 11:46+0000\n"
+"PO-Revision-Date: 2024-09-13 13:26+0000\n"
 "Last-Translator: DeepL <noreply-mt-deepl@weblate.org>\n"
 "Language-Team: Hungarian <https://translate.photoprism.app/projects/photoprism/frontend/hu/>\n"
 "Language: hu\n"
@@ -35,7 +35,7 @@ msgid "%{n} people found"
 msgstr "%{n} ember találat"
 
 #: src/page/album/photos.vue:258 src/page/album/photos.vue:414
-#: src/page/photos.vue:385 src/page/photos.vue:553
+#: src/page/photos.vue:398 src/page/photos.vue:566
 msgid "%{n} pictures found"
 msgstr "%{n} kép találat"
 
@@ -472,7 +472,7 @@ msgstr "Kamera sorozat"
 msgid "Can't access your authenticator app or device?"
 msgstr "Nem tud hozzáférni az autentikátor alkalmazásához vagy eszközéhez?"
 
-#: src/page/album/photos.vue:264 src/page/photos.vue:391
+#: src/page/album/photos.vue:264 src/page/photos.vue:404
 msgid "Can't load more, limit reached"
 msgstr "Nem tölthet be többet, elérte a korlátot"
 
@@ -1133,12 +1133,12 @@ msgstr "Fájl böngésző"
 msgid "File Conversion"
 msgstr "Fájl átalakítás"
 
-#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:112
+#: src/component/photo/toolbar.vue:101 src/component/photo/toolbar.vue:113
 #: src/component/photo/toolbar.vue:125 src/dialog/album/edit.vue:25
 msgid "File Name"
 msgstr "Fájlnév"
 
-#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:113
+#: src/component/photo/toolbar.vue:102 src/component/photo/toolbar.vue:114
 #: src/component/photo/toolbar.vue:126 src/dialog/album/edit.vue:26
 msgid "File Size"
 msgstr "Fájl méret"
@@ -1718,7 +1718,7 @@ msgstr "Új"
 msgid "New Password"
 msgstr "Új jelszó"
 
-#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:108
+#: src/component/photo/toolbar.vue:96 src/component/photo/toolbar.vue:109
 #: src/component/photo/toolbar.vue:120 src/dialog/album/edit.vue:21
 #: src/page/albums.vue:91
 msgid "Newest First"
@@ -1749,7 +1749,7 @@ msgstr "Nem találhatók személyek"
 #: src/common/viewer.js:253 src/component/photo/cards.vue:8
 #: src/component/photo/cards.vue:6 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:8 src/page/album/photos.vue:410
-#: src/page/library/browse.vue:34 src/page/photos.vue:549
+#: src/page/library/browse.vue:34 src/page/photos.vue:562
 #: src/page/places.vue:414 src/page/places.vue:500
 msgid "No pictures found"
 msgstr "Nem találhatók képek"
@@ -1827,7 +1827,7 @@ msgstr "Offline"
 msgid "OIDC"
 msgstr "OIDC"
 
-#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:109
+#: src/component/photo/toolbar.vue:97 src/component/photo/toolbar.vue:110
 #: src/component/photo/toolbar.vue:121 src/dialog/album/edit.vue:22
 #: src/page/albums.vue:92
 msgid "Oldest First"
@@ -1870,7 +1870,7 @@ msgstr "Egy címkét találtunk"
 msgid "One person found"
 msgstr "Egy személyt találtak"
 
-#: src/page/album/photos.vue:412 src/page/photos.vue:551
+#: src/page/album/photos.vue:412 src/page/photos.vue:564
 msgid "One picture found"
 msgstr "Egy kép található"
 
@@ -1983,7 +1983,7 @@ msgstr "PhotoPrism+ tagság"
 msgid "Photos"
 msgstr "Fényképek"
 
-#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:111
+#: src/component/photo/toolbar.vue:100 src/component/photo/toolbar.vue:112
 #: src/component/photo/toolbar.vue:124 src/dialog/album/edit.vue:24
 msgid "Picture Title"
 msgstr "Kép címe"
@@ -2135,15 +2135,15 @@ msgstr "Indexelje újra az összes eredetit, beleértve a már indexelt és vál
 msgid "Read-Only Mode"
 msgstr "Csak olvasható mód"
 
-#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:110
+#: src/component/photo/toolbar.vue:98 src/component/photo/toolbar.vue:111
 #: src/component/photo/toolbar.vue:122 src/dialog/album/edit.vue:23
 #: src/page/albums.vue:93
 msgid "Recently Added"
 msgstr "Nemrég hozzáadott"
 
 #: src/component/photo/toolbar.vue:99
-msgid "Recently Deleted"
-msgstr "Nemrégiben törölve"
+msgid "Recently Archived"
+msgstr "Nemrégiben archiválva"
 
 #: src/component/photo/toolbar.vue:123 src/page/albums.vue:94
 msgid "Recently Edited"
@@ -2860,7 +2860,7 @@ msgstr "Ellenőrző kód"
 msgid "Video"
 msgstr "Videó"
 
-#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:114
+#: src/component/photo/toolbar.vue:103 src/component/photo/toolbar.vue:115
 #: src/component/photo/toolbar.vue:127 src/dialog/album/edit.vue:27
 msgid "Video Duration"
 msgstr "Időtartam"
@@ -2885,7 +2885,7 @@ msgstr "Viewer"
 msgid "Visitor"
 msgstr "Látogató"
 
-#: src/component/photo/toolbar.vue:115 src/component/photo/toolbar.vue:128
+#: src/component/photo/toolbar.vue:128
 msgid "Visual Similarity"
 msgstr "Csoportosítás hasonlóság szerint"
 
@@ -2995,6 +2995,9 @@ msgstr "Könyvtárát folyamatosan elemzi a rendszer, hogy automatikusan létreh
 #: src/component/photo-viewer.vue:148
 msgid "Zoom in/out"
 msgstr "Nagyítás/kicsinyítés"
+
+#~ msgid "Recently Deleted"
+#~ msgstr "Nemrégiben törölve"
 
 #~ msgid "Sign In with %{provider}"
 #~ msgstr "Bejelentkezés %{provider}"
