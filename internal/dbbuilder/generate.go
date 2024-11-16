@@ -277,6 +277,11 @@ func main() {
 
 	SetDbProvider(db)
 
+	// Disable journal to speed up.
+	if driver == SQLite3 {
+		Db().Exec("PRAGMA journal_mode=OFF")
+	}
+
 	start := time.Now()
 
 	log.Info("Create PhotoPrism tables if they don't exist")
@@ -636,7 +641,7 @@ func main() {
 			photoKeyword := entity.PhotoKeyword{PhotoID: photo.ID, KeywordID: keywordRandoms[rand.IntN(len(keywordRandoms))]}
 			keyword := entity.Keyword{}
 			Db().Model(entity.Keyword{}).Where("id = ?", photoKeyword.KeywordID).First(&keyword)
-			Db().Debug().FirstOrCreate(photoKeyword)
+			Db().FirstOrCreate(&photoKeyword)
 			if len(keywordStr) > 0 {
 				keywordStr = fmt.Sprintf("%s,%s", keywordStr, keyword.Keyword)
 			} else {
