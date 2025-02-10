@@ -367,15 +367,29 @@ test.meta("testID", "photos-007").meta({ mode: "public" })(
 );
 
 test.meta("testID", "photos-008").meta({ mode: "public" })(
-    "Common: Navigate from card view to photos taken at the same date",
+    "Proxy: Navigate from card view to photos taken at the same date",
     async (t) => {
+        var mainPage = await t.getCurrentWindow();
         await toolbar.setFilter("view", "Cards");
         await toolbar.search("flower")
         await t.click(page.cardTaken.nth(0));
 
+        // Work around a bug in testcafe where sometimes the open new page just doesn't happen.
+        // https://github.com/DevExpress/testcafe/issues/8270
+        var flowerPage = await t.getCurrentWindow();
+        // If the new page hasn't been opened, then the id will be the same.
+        if (flowerPage.id === mainPage.id) {
+          // Clicking again opens the page that should have opened before, as per issue listed above.
+          await t.click(page.cardTaken.nth(0));
+          flowerPage = await t.getCurrentWindow();
+        }
+
         const SearchTerm = await toolbar.search1.value;
 
         const PhotoCount = await photo.getPhotoCount("all");
+
+        // Make sure that the page opened.
+        await t.expect(flowerPage).notEql(mainPage);
 
         await t
             .expect(SearchTerm).eql("taken:2021-05-27")
