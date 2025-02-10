@@ -10,7 +10,7 @@ import Page from "../page-model/page";
 import PhotoEdit from "../page-model/photo-edit";
 
 const scroll = ClientFunction((x, y) => window.scrollTo(x, y));
-const getcurrentPosition = ClientFunction(() => window.pageYOffset);
+const getcurrentPosition = ClientFunction(() => window.scrollY);
 
 fixture`Test photos`.page`${testcafeconfig.url}`;
 
@@ -33,8 +33,23 @@ test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to to
     .expect(Selector("div.type-image.result").nth(0).visible)
     .ok();
 
-  await scroll(0, 1400);
-  await scroll(0, 900);
+  // For some reason testcafe sometimes "jitters" on the move, So build in 5 retries to make sure that the movement's haven't jittered.
+  var retryCounter = 0;
+  var moveOk = false;
+  while (!moveOk)
+  {
+    await scroll(0, 1400);
+    if (await getcurrentPosition() == 1400) {
+      await scroll(0, 900);
+      if (await getcurrentPosition() == 900) {
+        moveOk = true;
+      } else {
+        await t.expect(retryCounter++).lte(5);
+      }
+    } else {
+      await t.expect(retryCounter++).lte(5);
+    }
+  }
 
   await t.click(Selector("button.p-scroll")).expect(getcurrentPosition()).eql(0);
 });
