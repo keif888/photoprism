@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :model-value="show"
+    :model-value="visible"
     persistent
     max-width="500"
     class="p-dialog dialog-label-edit"
@@ -63,7 +63,10 @@ import Label from "model/label";
 export default {
   name: "PLabelEditDialog",
   props: {
-    show: Boolean,
+    visible: {
+      type: Boolean,
+      default: false,
+    },
     label: {
       type: Object,
       default: () => {},
@@ -77,9 +80,12 @@ export default {
     };
   },
   watch: {
-    show: function (show) {
+    visible: function (show) {
       if (show) {
+        this.$view.enter(this);
         this.model = this.label.clone();
+      } else {
+        this.$view.leave(this);
       }
     },
   },

@@ -1,25 +1,50 @@
-/* Photo/Video Viewer Styles */
+/* Media Viewer Styles */
 
-.p-viewer {
+.p-lightbox {
     position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100vw;
+    z-index: 2500;
+    border-radius: 0;
+}
+
+.p-lightbox__container {
+    position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 2500;
     display: flex;
     flex-wrap: nowrap;
     flex-direction: row;
     justify-content: space-between;
     align-items: stretch;
     overflow: hidden;
+    border-radius: 0;
+    z-index: 1;
+}
+
+.p-lightbox__underlay {
+    pointer-events: auto;
+    touch-action: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: inherit;
+    border-radius: 0;
+    opacity: 0;
+    z-index: -1;
 }
 
 .pswp {
     position: absolute;
 }
 
-.p-viewer .p-viewer__lightbox {
+.p-lightbox__container > .p-lightbox__content {
     position: relative;
     display: block;
     overflow: hidden;
@@ -28,7 +53,7 @@
     height: 100%;
 }
 
-.p-viewer .p-viewer__sidebar {
+.p-lightbox__container > .p-lightbox__sidebar {
     position: relative;
     display: block;
     overflow: auto;
@@ -37,7 +62,7 @@
     background: #1e1e1e;
 }
 
-/* Image and Video Content */
+/* Media Content */
 
 .pswp__content {
     display: flex;
@@ -65,7 +90,7 @@
     display: none;
 }
 
-/* Dynamic Content Captions */
+/* Dynamic Captions */
 
 .pswp__dynamic-caption {
     position: absolute;
@@ -77,15 +102,15 @@
     color: #f3f3f3;
 }
 
-.p-viewer__lightbox.slideshow-active .pswp__dynamic-caption {
+.p-lightbox__container > .p-lightbox__content.slideshow-active .pswp__dynamic-caption {
     opacity: 1 !important;
 }
 
-.p-viewer__lightbox.sidebar-visible .pswp__dynamic-caption {
+.p-lightbox__container > .p-lightbox__content.sidebar-visible .pswp__dynamic-caption {
     display: none !important;
 }
 
-.p-viewer__lightbox:not(.slideshow-active) .pswp__dynamic-caption--faded {
+.p-lightbox__container > .p-lightbox__content:not(.slideshow-active) .pswp__dynamic-caption--faded {
     opacity: 0 !important;
 }
 
@@ -116,7 +141,7 @@
     bottom: 0;
 }
 
-.p-viewer__lightbox.is-playable .pswp__dynamic-caption--mobile {
+.p-lightbox__container > .is-playable .pswp__dynamic-caption--mobile {
     background: transparent;
     padding: 0;
     width: auto;
@@ -175,7 +200,7 @@
     white-space: pre-wrap;
 }
 
-/* Top Bar Button and Toggle Controls */
+/* Top Bar Controls */
 
 .pswp__top-bar {
     align-items: center;
@@ -215,63 +240,78 @@
     height: 20px;
 }
 
-/* Zoom Button */
+/* Zoom Toggle */
 
-.p-viewer__lightbox.is-playable .pswp__button.pswp__button--zoom,
-.p-viewer__lightbox.slideshow-active .pswp__button.pswp__button--zoom {
+.p-lightbox__container > .is-playable .pswp__button.pswp__button--zoom,
+.p-lightbox__container > .p-lightbox__content.slideshow-active .pswp__button.pswp__button--zoom {
     display: none;
 }
 
-/* Slideshow Toggle Icon and Animation */
+/* Slideshow Toggle and Animation */
 
-.p-viewer__lightbox.slideshow-active .pswp__button--slideshow-toggle .pswp__icn-slideshow-off {
+.p-lightbox__container > .p-lightbox__content.slideshow-active .pswp__button--slideshow-toggle .pswp__icn-slideshow-off {
     display: none;
 }
 
-.p-viewer__lightbox:not(.slideshow-active) .pswp__button--slideshow-toggle .pswp__icn-slideshow-on {
+.p-lightbox__container > .p-lightbox__content:not(.slideshow-active) .pswp__button--slideshow-toggle .pswp__icn-slideshow-on {
     display: none;
 }
 
-.pswp__container.slideshow-active {
-    transition: transform 0.8s ease-in-out;
+.p-lightbox__container > .slideshow-active .pswp__container {
+    transition: transform .8s ease-in-out;
 }
 
-/* Fullscreen Toggle Icon */
+/* Fullscreen Toggle */
 
-.p-viewer__lightbox.is-fullscreen .pswp__button--fullscreen-toggle .pswp__icn-fullscreen-off {
+.p-lightbox__container > .p-lightbox__content.is-fullscreen .pswp__button--fullscreen-toggle .pswp__icn-fullscreen-off {
     display: none;
 }
 
-.p-viewer__lightbox:not(.is-fullscreen) .pswp__button--fullscreen-toggle .pswp__icn-fullscreen-on {
+.p-lightbox__container > .p-lightbox__content:not(.is-fullscreen) .pswp__button--fullscreen-toggle .pswp__icn-fullscreen-on {
     display: none;
 }
 
-/* Favorite Toggle Icon */
+/* Favorite/Dislike Toggle */
 
-.p-viewer__lightbox.is-favorite .pswp__button--favorite-toggle .pswp__icn-favorite-off {
+.p-lightbox__container > .p-lightbox__content.is-favorite .pswp__button--favorite-toggle .pswp__icn-favorite-off {
     display: none;
 }
 
-.p-viewer__lightbox:not(.is-favorite) .pswp__button--favorite-toggle .pswp__icn-favorite-on {
+.p-lightbox__container > .p-lightbox__content:not(.is-favorite) .pswp__button--favorite-toggle .pswp__icn-favorite-on {
     display: none;
 }
 
-/* Selection Toggle Icon */
+/* Sound Mute/Unmute Toggle */
 
-.p-viewer__lightbox.is-selected .pswp__button--select-toggle .pswp__icn-select-off {
+.p-lightbox__container > .p-lightbox__content:not(.is-playable) .pswp__button--sound-toggle {
     display: none;
 }
 
-.p-viewer__lightbox:not(.is-selected) .pswp__button--select-toggle .pswp__icn-select-on {
+.p-lightbox__container > .p-lightbox__content.is-muted .pswp__button--sound-toggle .pswp__icn-sound-on {
     display: none;
 }
 
-/* Navigation Arrows */
+.p-lightbox__container > .p-lightbox__content:not(.is-muted) .pswp__button--sound-toggle .pswp__icn-sound-off {
+    display: none;
+}
+
+/* Selection Toggle */
+
+.p-lightbox__container > .p-lightbox__content.is-selected .pswp__button--select-toggle .pswp__icn-select-off {
+    display: none;
+}
+
+.p-lightbox__container > .p-lightbox__content:not(.is-selected) .pswp__button--select-toggle .pswp__icn-select-on {
+    display: none;
+}
+
+/* Navigation Arrow Buttons */
 
 .pswp__button--arrow {
-    height: 220px;
-    margin-top: -110px;
+    height: 50vh;
+    margin-top: -25vh;
     width: 150px;
+    max-width: 16vw;
 }
 
 .pswp__button--arrow .pswp__icn {
@@ -279,6 +319,17 @@
     margin-top: -25px;
     top: 50%;
     width: 50px;
+    max-width: 16vw;
+}
+
+/* Allow navigation buttons on touch devices to be used without being visible. */
+
+.p-lightbox__container > .p-lightbox__content > .pswp--touch .pswp__button--arrow {
+    visibility: visible;
+}
+
+.p-lightbox__container > .p-lightbox__content > .pswp--touch .pswp__button--arrow .pswp__icn {
+    display: none;
 }
 
 /* Other / Unused Styles */

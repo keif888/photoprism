@@ -19,7 +19,7 @@
       <div v-else class="v-row search-results face-results cards-view d-flex">
         <div v-for="m in markers" :key="m.UID" class="v-col-12 v-col-sm-6 v-col-md-4 v-col-lg-3 d-flex">
           <v-card :data-id="m.UID" :class="m.classes()" class="result not-selectable flex-grow-1">
-            <v-img :src="m.thumbnailUrl('tile_320')" :transition="false" aspect-ratio="1" class="card">
+            <v-img :src="m.thumbnailUrl('tile_320')" aspect-ratio="1" class="card">
               <v-btn
                 v-if="!m.SubjUID && !m.Invalid"
                 :ripple="false"
@@ -78,7 +78,6 @@
                 hide-details
                 single-line
                 open-on-clear
-                focused
                 append-icon=""
                 prepend-inner-icon="mdi-account-plus"
                 density="comfortable"
@@ -94,7 +93,7 @@
       </div>
     </div>
     <p-confirm-action
-      :show="confirm.show"
+      :visible="confirm.visible"
       icon="mdi-account-plus"
       :icon-size="42"
       :text="confirm?.model?.Name ? $gettext('Add %{s}?', { s: confirm.model.Name }) : $gettext('Add person?')"
@@ -112,25 +111,22 @@ export default {
   name: "PTabPhotoPeople",
   components: { PConfirmAction },
   props: {
-    model: {
-      type: Object,
-      default: () => {},
-    },
     uid: {
       type: String,
       default: "",
     },
   },
   data() {
+    const view = this.$view.data();
     return {
+      view,
+      markers: view.model.getMarkers(true),
       busy: false,
-      markers: this.model.getMarkers(true),
-      imageUrl: this.model.thumbnailUrl("fit_720"),
       disabled: !this.$config.feature("edit"),
       config: this.$config.values,
       readonly: this.$config.get("readonly"),
       confirm: {
-        show: false,
+        visible: false,
         model: new Marker(),
         text: this.$gettext("Add person?"),
       },
@@ -151,14 +147,15 @@ export default {
     };
   },
   watch: {
-    model: function () {
+    uid: function () {
       this.refresh();
     },
   },
   methods: {
     refresh() {
-      this.markers = this.model.getMarkers(true);
-      this.imageUrl = this.model.thumbnailUrl("fit_720");
+      if (this.view.model) {
+        this.markers = this.view.model.getMarkers(true);
+      }
     },
     onReject(model) {
       if (this.busy || !model) return;
@@ -226,7 +223,7 @@ export default {
 
       model.Name = name;
       model.SubjUID = "";
-      this.confirm.show = true;
+      this.confirm.visible = true;
     },
     onConfirmSetName() {
       if (!this.confirm?.model?.Name) {
@@ -236,7 +233,7 @@ export default {
       this.setName(this.confirm.model);
     },
     onCancelSetName() {
-      this.confirm.show = false;
+      this.confirm.visible = false;
     },
     setName(model) {
       if (this.busy || !model) {
@@ -250,7 +247,7 @@ export default {
         this.$notify.unblockUI();
         this.busy = false;
         this.confirm.model = null;
-        this.confirm.show = false;
+        this.confirm.visible = false;
       });
     },
   },

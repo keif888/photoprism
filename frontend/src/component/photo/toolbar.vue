@@ -32,7 +32,7 @@
           prepend-inner-icon="mdi-magnify"
           color="surface-variant"
           class="input-search background-inherit elevation-0"
-          @update:modelValue="
+          @update:model-value="
             (v) => {
               updateFilter({ q: v });
             }
@@ -309,7 +309,7 @@
       </v-expand-transition>
     </div>
     <p-photo-delete-dialog
-      :show="dialog.delete"
+      :visible="dialog.delete"
       :text="$gettext('Are you sure you want to delete all archived pictures?')"
       :action="$gettext('Delete All')"
       @close="dialog.delete = false"
@@ -321,8 +321,8 @@
 <script>
 import Event from "pubsub-js";
 import * as options from "options/options";
-import Api from "common/api";
-import Notify from "common/notify";
+import $api from "common/api";
+import $notify from "common/notify";
 
 export default {
   name: "PPhotoToolbar",
@@ -523,10 +523,10 @@ export default {
 
       this.dialog.delete = false;
 
-      Api.post("batch/photos/delete", { all: true }).then(() => this.onDeleted());
+      $api.post("batch/photos/delete", { all: true }).then(() => this.onDeleted());
     },
     onDeleted() {
-      Notify.success(this.$gettext("Permanently deleted"));
+      $notify.success(this.$gettext("Permanently deleted"));
       this.$clipboard.clear();
     },
   },

@@ -2,7 +2,7 @@
   <div class="p-tab p-tab-photo-files">
     <v-expansion-panels v-model="expanded" class="pa-0 elevation-0" variant="accordion" multiple>
       <v-expansion-panel
-        v-for="file in model.fileModels().filter((f) => !f.Missing)"
+        v-for="file in view.model.fileModels().filter((f) => !f.Missing)"
         :key="file.UID"
         class="pa-0 elevation-0"
         style="margin-top: 1px"
@@ -361,7 +361,7 @@
       </v-expansion-panel>
     </v-expansion-panels>
     <p-file-delete-dialog
-      :show="deleteFile.dialog"
+      :visible="deleteFile.dialog"
       @close="closeDeleteDialog"
       @confirm="confirmDeleteFile"
     ></p-file-delete-dialog>
@@ -371,17 +371,13 @@
 <script>
 import Thumb from "model/thumb";
 import { DateTime } from "luxon";
-import Notify from "common/notify";
+import $notify from "common/notify";
 import Util from "common/util";
 import * as options from "options/options";
 
 export default {
   name: "PTabPhotoFiles",
   props: {
-    model: {
-      type: Object,
-      default: () => {},
-    },
     uid: {
       type: String,
       default: "",
@@ -389,6 +385,7 @@ export default {
   },
   data() {
     return {
+      view: this.$view.data(),
       expanded: [0],
       deleteFile: {
         dialog: false,
@@ -433,7 +430,6 @@ export default {
       ],
     };
   },
-  computed: {},
   methods: {
     orientationClass(file) {
       if (!file) {
@@ -463,7 +459,7 @@ export default {
       return Util.codecName(file.Codec);
     },
     openFile(file) {
-      this.$root.$refs.viewer.showThumbs([Thumb.fromFile(this.model, file)], 0);
+      this.$lightbox.openModels([Thumb.fromFile(this.view.model, file)], 0);
     },
     openFolder(file) {
       if (!file) {
@@ -490,7 +486,7 @@ export default {
       }
     },
     downloadFile(file) {
-      Notify.success(this.$gettext("Downloading…"));
+      $notify.success(this.$gettext("Downloading…"));
 
       file.download();
     },
@@ -504,25 +500,33 @@ export default {
     },
     confirmDeleteFile() {
       if (this.deleteFile.file && this.deleteFile.file.UID) {
-        this.model.deleteFile(this.deleteFile.file.UID).finally(() => this.closeDeleteDialog());
+        this.view.model.deleteFile(this.deleteFile.file.UID).finally(() => this.closeDeleteDialog());
       } else {
         this.closeDeleteDialog();
       }
     },
     unstackFile(file) {
-      this.model.unstackFile(file.UID);
+      if (!file || !this.view?.model) {
+        return;
+      }
+
+      this.view.model.unstackFile(file.UID);
     },
     setPrimaryFile(file) {
-      this.model.setPrimaryFile(file.UID);
+      if (!file || !this.view?.model) {
+        return;
+      }
+
+      this.view.model.setPrimaryFile(file.UID);
     },
     changeOrientation(file) {
-      if (!file) {
+      if (!file || !this.view?.model) {
         return;
       }
 
       this.busy = true;
 
-      this.model
+      this.view.model
         .changeFileOrientation(file)
         .then(() => {
           this.$notify.success(this.$gettext("Changes successfully saved"));

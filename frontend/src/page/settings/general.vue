@@ -1,6 +1,12 @@
 <template>
   <div class="p-tab p-settings-general py-2">
-    <v-form ref="form" validate-on="invalid-input" class="p-form-settings" accept-charset="UTF-8" @submit.prevent="onChange">
+    <v-form
+      ref="form"
+      validate-on="invalid-input"
+      class="p-form-settings"
+      accept-charset="UTF-8"
+      @submit.prevent="onChange"
+    >
       <v-card flat tile class="mt-0 px-1 bg-background">
         <v-card-title class="pb-2 text-subtitle-2">
           {{ $gettext(`User Interface`) }}
@@ -94,7 +100,9 @@
                 class="ma-0 pa-0 input-private"
                 density="compact"
                 :label="$gettext('Private')"
-                :hint="$gettext('Exclude content marked as private from search results, shared albums, labels, and places.')"
+                :hint="
+                  $gettext('Exclude content marked as private from search results, shared albums, labels, and places.')
+                "
                 prepend-icon="mdi-lock"
                 persistent-hint
                 @update:model-value="onChange"
@@ -396,7 +404,7 @@
       </v-card>
     </v-form>
     <p-about-footer></p-about-footer>
-    <p-confirm-sponsor :show="dialog.sponsor" @close="dialog.sponsor = false"></p-confirm-sponsor>
+    <p-confirm-sponsor :visible="dialog.sponsor" @close="dialog.sponsor = false"></p-confirm-sponsor>
   </div>
 </template>
 
@@ -404,7 +412,6 @@
 import Settings from "model/settings";
 import * as options from "options/options";
 import * as themes from "options/themes";
-import Event from "pubsub-js";
 import PAboutFooter from "component/about/footer.vue";
 import PConfirmSponsor from "component/confirm/sponsor.vue";
 
@@ -436,11 +443,13 @@ export default {
   },
   created() {
     this.load();
-    this.subscriptions.push(Event.subscribe("config.updated", (ev, data) => this.settings.setValues(data.config.settings)));
+    this.subscriptions.push(
+      this.$event.subscribe("config.updated", (ev, data) => this.settings.setValues(data.config.settings))
+    );
   },
   unmounted() {
     for (let i = 0; i < this.subscriptions.length; i++) {
-      Event.unsubscribe(this.subscriptions[i]);
+      this.$event.unsubscribe(this.subscriptions[i]);
     }
   },
   methods: {

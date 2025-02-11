@@ -91,20 +91,20 @@
       </v-speed-dial>
     </div>
     <p-photo-album-dialog
-      :show="dialog.album"
+      :visible="dialog.album"
       @close="dialog.album = false"
       @confirm="cloneAlbums"
     ></p-photo-album-dialog>
     <p-album-delete-dialog
-      :show="dialog.delete"
+      :visible="dialog.delete"
       @close="dialog.delete = false"
       @confirm="batchDelete"
     ></p-album-delete-dialog>
   </div>
 </template>
 <script>
-import Api from "common/api";
-import Notify from "common/notify";
+import $api from "common/api";
+import $notify from "common/notify";
 import Album from "model/album";
 import download from "common/download";
 
@@ -184,7 +184,7 @@ export default {
     cloneAlbums(ppid) {
       this.dialog.album = false;
 
-      Api.post(`albums/${ppid}/clone`, { albums: this.selection }).then(() => this.onCloned());
+      $api.post(`albums/${ppid}/clone`, { albums: this.selection }).then(() => this.onCloned());
     },
     onCloned() {
       this.clearClipboard();
@@ -192,19 +192,19 @@ export default {
     batchDelete() {
       this.dialog.delete = false;
 
-      Api.post("batch/albums/delete", { albums: this.selection }).then(this.onDeleted.bind(this));
+      $api.post("batch/albums/delete", { albums: this.selection }).then(this.onDeleted.bind(this));
     },
     onDeleted() {
-      Notify.success(this.$gettext("Albums deleted"));
+      $notify.success(this.$gettext("Albums deleted"));
       this.clearClipboard();
     },
     download() {
       if (this.selection.length !== 1) {
-        Notify.error(this.$gettext("You can only download one album"));
+        $notify.error(this.$gettext("You can only download one album"));
         return;
       }
 
-      Notify.success(this.$gettext("Downloading…"));
+      $notify.success(this.$gettext("Downloading…"));
 
       this.onDownload(`${this.$config.apiUri}/albums/${this.selection[0]}/dl?t=${this.$config.downloadToken}`);
 

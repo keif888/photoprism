@@ -553,7 +553,7 @@ func (m *MediaFile) ContentType() string {
 
 	// Generate normalized HTTP content type.
 	if m.IsVideo() {
-		m.contentType = video.ContentType(m.contentType, m.FileType().String(), m.MetaData().Codec)
+		m.contentType = video.ContentType(m.contentType, m.FileType().String(), m.MetaData().Codec, m.MetaData().IsHDR())
 	} else {
 		m.contentType = clean.ContentType(m.contentType)
 	}

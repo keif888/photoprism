@@ -73,7 +73,7 @@ func (info Info) VideoContentType() string {
 		return header.ContentTypeBinary
 	}
 
-	return ContentType(info.VideoMimeType, info.FileType.String(), info.VideoCodec)
+	return ContentType(info.VideoMimeType, info.FileType.String(), info.VideoCodec, false)
 }
 
 // VideoFileExt returns the appropriate video file extension based on the mime type and defaults to fs.ExtMp4 otherwise.

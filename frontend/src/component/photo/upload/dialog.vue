@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :model-value="show"
+    :model-value="visible"
     :fullscreen="$vuetify.display.mdAndDown"
     scrim
     scrollable
@@ -124,8 +124,8 @@
   </v-dialog>
 </template>
 <script>
-import Api from "common/api";
-import Notify from "common/notify";
+import $api from "common/api";
+import $notify from "common/notify";
 import Album from "model/album";
 import Util from "common/util";
 import { Duration } from "luxon";
@@ -133,7 +133,7 @@ import { Duration } from "luxon";
 export default {
   name: "PPhotoUploadDialog",
   props: {
-    show: Boolean,
+    visible: Boolean,
     data: {
       type: Object,
       default: () => {},
@@ -173,10 +173,9 @@ export default {
     },
   },
   watch: {
-    show: function (show) {
+    visible: function (show) {
       if (show) {
-        // Disable the browser scrollbar.
-        this.$scrollbar.hide();
+        this.$view.enter(this);
         this.reset();
         this.isDemo = this.$config.get("demo");
         this.fileLimit = this.isDemo ? 3 : 0;
@@ -195,7 +194,7 @@ export default {
       } else {
         this.reset();
         // Re-enable the browser scrollbar.
-        this.$scrollbar.show();
+        this.$view.leave(this);
       }
     },
   },
@@ -233,7 +232,7 @@ export default {
     },
     close() {
       if (this.busy) {
-        Notify.info(this.$gettext("Uploading photos…"));
+        $notify.info(this.$gettext("Uploading photos…"));
         return;
       }
 
@@ -241,7 +240,7 @@ export default {
     },
     confirm() {
       if (this.busy) {
-        Notify.info(this.$gettext("Uploading photos…"));
+        $notify.info(this.$gettext("Uploading photos…"));
         return;
       }
 
@@ -319,7 +318,7 @@ export default {
 
       // Too many files selected for upload?
       if (this.isDemo && files && files.length > this.fileLimit) {
-        Notify.error(this.$gettext("Too many files selected"));
+        $notify.error(this.$gettext("Too many files selected"));
         return;
       }
 
@@ -355,7 +354,7 @@ export default {
 
       let userUid = this.$session.getUserUID();
 
-      Notify.info(this.$gettext("Uploading photos…"));
+      $notify.info(this.$gettext("Uploading photos…"));
 
       let addToAlbums = [];
 
@@ -378,12 +377,13 @@ export default {
 
           formData.append("files", file);
 
-          await Api.post(`users/${userUid}/upload/${ctx.token}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            onUploadProgress: ctx.onUploadProgress,
-          })
+          await $api
+            .post(`users/${userUid}/upload/${ctx.token}`, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              onUploadProgress: ctx.onUploadProgress,
+            })
             .then(() => {
               ctx.onUploadComplete(file);
             })
@@ -397,7 +397,7 @@ export default {
       performUpload(this).then(() => {
         if (this.totalFailed >= this.total) {
           this.reset();
-          Notify.error(this.$gettext("Upload failed"));
+          $notify.error(this.$gettext("Upload failed"));
           return;
         }
 
@@ -405,17 +405,18 @@ export default {
         this.eta = "";
 
         const ctx = this;
-        Api.put(`users/${userUid}/upload/${ctx.token}`, {
-          albums: addToAlbums,
-        })
+        $api
+          .put(`users/${userUid}/upload/${ctx.token}`, {
+            albums: addToAlbums,
+          })
           .then(() => {
             ctx.reset();
-            Notify.success(ctx.$gettext("Upload complete"));
+            $notify.success(ctx.$gettext("Upload complete"));
             ctx.$emit("confirm");
           })
           .catch(() => {
             ctx.reset();
-            Notify.error(ctx.$gettext("Upload failed"));
+            $notify.error(ctx.$gettext("Upload failed"));
           });
       });
     },

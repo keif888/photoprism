@@ -65,8 +65,8 @@
                     v-else
                     :style="`background-image: url(${m.thumbnailUrl('tile_224')})`"
                     class="preview"
-                    @touchstart="onMouseDown($event, index)"
-                    @touchend.stop.prevent="onClick($event, index)"
+                    @touchstart.passive="onMouseDown($event, index)"
+                    @touchend.stop="onClick($event, index)"
                     @mousedown="onMouseDown($event, index)"
                     @contextmenu.stop="onContextMenu($event, index)"
                     @click.stop.prevent="onClick($event, index)"
@@ -162,7 +162,7 @@
 </template>
 <script>
 import download from "common/download";
-import Notify from "common/notify";
+import $notify from "common/notify";
 import { virtualizationTools } from "common/virtualization-tools";
 import IconLivePhoto from "component/icon/live-photo.vue";
 
@@ -293,7 +293,7 @@ export default {
       this.lastVisibleElementIndex = largestIndex + 4;
     },
     downloadFile(index) {
-      Notify.success(this.$gettext("Downloading…"));
+      $notify.success(this.$gettext("Downloading…"));
 
       const photo = this.photos[index];
       download(`${this.$config.apiUri}/dl/${photo.Hash}?t=${this.$config.downloadToken}`, photo.FileName);

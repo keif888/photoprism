@@ -58,15 +58,15 @@
       </v-speed-dial>
     </div>
     <p-photo-album-dialog
-      :show="dialog.album"
+      :visible="dialog.album"
       @close="dialog.album = false"
       @confirm="addToAlbum"
     ></p-photo-album-dialog>
   </div>
 </template>
 <script>
-import Api from "common/api";
-import Notify from "common/notify";
+import $api from "common/api";
+import $notify from "common/notify";
 import download from "common/download";
 import PPhotoAlbumDialog from "component/photo/album/dialog.vue";
 
@@ -112,20 +112,20 @@ export default {
     addToAlbum(ppid) {
       this.dialog.album = false;
 
-      Api.post(`albums/${ppid}/photos`, { subjects: this.selection }).then(() => this.onAdded());
+      $api.post(`albums/${ppid}/photos`, { subjects: this.selection }).then(() => this.onAdded());
     },
     onAdded() {
       this.clearClipboard();
     },
     download() {
       if (this.selection.length !== 1) {
-        Notify.error(this.$gettext("You can only download one album"));
+        $notify.error(this.$gettext("You can only download one album"));
         return;
       }
 
-      Notify.success(this.$gettext("Downloading…"));
+      $notify.success(this.$gettext("Downloading…"));
 
-      Api.post("zip", { subjects: this.selection }).then((r) => {
+      $api.post("zip", { subjects: this.selection }).then((r) => {
         this.onDownload(`${this.$config.apiUri}/zip/${r.data.filename}?t=${this.$config.downloadToken}`);
       });
 

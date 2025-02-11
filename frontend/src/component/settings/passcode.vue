@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :model-value="show"
+    :model-value="visible"
     persistent
     max-width="500"
     class="p-dialog modal-dialog p-settings-passcode"
@@ -253,7 +253,7 @@
 export default {
   name: "PSettingsPasscode",
   props: {
-    show: Boolean,
+    visible: Boolean,
     model: {
       type: Object,
       default: () => this.$session.getUser(),
@@ -295,9 +295,12 @@ export default {
     },
   },
   watch: {
-    show: function (show) {
+    visible: function (show) {
       if (show) {
+        this.$view.enter(this);
         this.reset();
+      } else {
+        this.$view.leave(this);
       }
     },
   },

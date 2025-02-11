@@ -86,24 +86,24 @@
     </div>
 
     <p-share-dialog
-      :show="dialog.share"
+      :visible="dialog.share"
       :model="album"
       @upload="webdavUpload"
       @close="dialog.share = false"
     ></p-share-dialog>
     <p-service-upload
-      :show="dialog.upload"
+      :visible="dialog.upload"
       :items="{ albums: album.getId() }"
       :model="album"
       @close="dialog.upload = false"
       @confirm="dialog.upload = false"
     ></p-service-upload>
-    <p-album-edit-dialog :show="dialog.edit" :album="album" @close="dialog.edit = false"></p-album-edit-dialog>
+    <p-album-edit-dialog :visible="dialog.edit" :album="album" @close="dialog.edit = false"></p-album-edit-dialog>
   </v-form>
 </template>
 <script>
 import Event from "pubsub-js";
-import Notify from "common/notify";
+import $notify from "common/notify";
 import download from "common/download";
 import { T } from "common/gettext";
 
@@ -207,7 +207,7 @@ export default {
       this.onDownload(`${this.$config.apiUri}/albums/${this.album.UID}/dl?t=${this.$config.downloadToken}`);
     },
     onDownload(path) {
-      Notify.success(this.$gettext("Downloading…"));
+      $notify.success(this.$gettext("Downloading…"));
 
       download(path, "album.zip");
     },

@@ -128,8 +128,11 @@ class PhotoSwipeDynamicCaption {
       if (slide.captionFadeTimeout) {
         clearTimeout(slide.captionFadeTimeout);
       }
+
       slide.captionFadeTimeout = setTimeout(() => {
-        captionElement.style.visibility = "hidden";
+        if (captionElement) {
+          captionElement.style.visibility = "hidden";
+        }
         delete slide.captionFadeTimeout;
       }, 400);
     }
@@ -150,9 +153,14 @@ class PhotoSwipeDynamicCaption {
       slide.dynamicCaption.hidden = false;
       captionElement.style.visibility = "visible";
 
-      clearTimeout(slide.captionFadeTimeout);
+      if (slide.captionFadeTimeout) {
+        clearTimeout(slide.captionFadeTimeout);
+      }
+
       slide.captionFadeTimeout = setTimeout(() => {
-        captionElement.classList.remove("pswp__dynamic-caption--faded");
+        if (captionElement) {
+          captionElement.classList.remove("pswp__dynamic-caption--faded");
+        }
         delete slide.captionFadeTimeout;
       }, 50);
     }
@@ -162,7 +170,7 @@ class PhotoSwipeDynamicCaption {
     const isOnHorizontalEdge = x <= this.options.horizontalEdgeThreshold;
     captionEl.classList[isOnHorizontalEdge ? "add" : "remove"]("pswp__dynamic-caption--on-hor-edge");
 
-    if (document.dir === "rtl" && isOnHorizontalEdge) {
+    if (document.dir === "rtl") {
       captionEl.style.right = x + "px";
     } else {
       captionEl.style.left = x + "px";
@@ -304,18 +312,18 @@ class PhotoSwipeDynamicCaption {
         slide.panAreaSize.y -= captionHeight;
         this.recalculateZoomLevelAndBounds(slide);
       } else {
-        // Lift up the image only by caption height
+        // Lift the image by the height of the caption only.
 
-        // vertical ending of the image
+        // Get vertical ending of the image.
         const verticalEnding = imageHeight + slide.bounds.center.y;
 
-        // height between bottom of the screen and ending of the image
-        // (before any adjustments applied)
+        // Get height between bottom of the screen and ending of the image,
+        // before any adjustments applied.
         const verticalLeftover = slide.panAreaSize.y - verticalEnding;
         const initialPanAreaHeight = slide.panAreaSize.y;
 
         if (verticalLeftover <= captionHeight) {
-          // lift up the image to give more space for caption
+          // Lift the image to make more room for the caption.
           slide.panAreaSize.y -= Math.min((captionHeight - verticalLeftover) * 2, captionHeight);
 
           // we reduce viewport size, thus we need to update zoom level and pan bounds

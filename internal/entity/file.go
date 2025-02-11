@@ -885,12 +885,10 @@ func (m *File) SetOrientation(val int, src string) *File {
 // ContentType returns the HTTP content type of the file including the codec as a parameter, if known.
 func (m *File) ContentType() (contentType string) {
 	if m.FileVideo {
-		contentType = video.ContentType(m.FileMime, m.FileType, m.FileCodec)
+		contentType = video.ContentType(m.FileMime, m.FileType, m.FileCodec, m.IsHDR())
 	} else {
 		contentType = clean.ContentType(m.FileMime)
 	}
-
-	log.Debugf("file: %s has content type %s", clean.Log(m.FileName), clean.LogQuote(contentType))
 
 	return contentType
 }

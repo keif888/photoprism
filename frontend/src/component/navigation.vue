@@ -10,11 +10,11 @@
           class="nav-small elevation-2"
           @click.stop.prevent
         >
-          <v-btn icon variant="text" class="bg-transparent nav-logo" @click.stop.prevent="showNavigation()">
+          <v-btn icon variant="text" class="bg-transparent nav-logo" @click.stop.prevent="toggleDrawer">
             <img :src="appIcon" :alt="appName" :class="{ 'animate-hue': indexing }" />
           </v-btn>
           <v-toolbar-title class="nav-toolbar-title">
-            <span :class="{ clickable: auth }" @click.stop.prevent="showNavigation()">{{ page.title }}</span>
+            <span :class="{ clickable: auth }" @click.stop.prevent="toggleDrawer">{{ page.title }}</span>
           </v-toolbar-title>
           <v-btn
             icon="mdi-dots-vertical"
@@ -61,7 +61,13 @@
       >
         <div class="nav-container">
           <v-toolbar flat :density="$vuetify.display.smAndDown ? 'compact' : 'default'">
-            <v-list class="navigation-home elevation-0" bg-color="navigation-home" width="100%" density="compact">
+            <v-list
+              class="navigation-home elevation-0"
+              bg-color="navigation-home"
+              width="100%"
+              density="compact"
+              @click.capture="toggleDrawer"
+            >
               <v-list-item class="px-3" :elevation="0" :ripple="false" @click.stop.prevent="goHome">
                 <template #prepend>
                   <div class="v-avatar bg-transparent nav-logo">
@@ -377,15 +383,33 @@
               <span v-show="config.count.favorites > 0" class="nav-count-item">{{ config.count.favorites }}</span>
             </v-list-item>
 
-            <v-list-item
-              v-if="isRestricted && $config.feature('places')"
-              :to="{ name: 'states' }"
-              variant="text"
-              class="nav-states nav-regions"
-              @click.stop=""
-            >
-              <v-icon class="ma-auto">mdi-near-me</v-icon>
-            </v-list-item>
+            <template v-if="isRestricted && $config.feature('places')">
+              <v-list-item
+                v-if="isMini"
+                :to="{ name: 'states' }"
+                variant="text"
+                class="nav-states nav-regions"
+                :ripple="false"
+                @click.stop=""
+              >
+                <v-icon class="ma-auto">mdi-near-me</v-icon>
+              </v-list-item>
+              <v-list-item
+                v-else-if="!isMini"
+                :to="{ name: 'states' }"
+                variant="text"
+                class="nav-states nav-regions"
+                :ripple="false"
+                @click.stop=""
+              >
+                <v-list-item-title class="nav-menu-item">
+                  <v-icon>mdi-near-me</v-icon>
+                  <p class="nav-item-title">
+                    {{ $gettext(`Regions`) }}
+                  </p>
+                </v-list-item-title>
+              </v-list-item>
+            </template>
 
             <template v-if="canSearchPlaces">
               <v-list-item
@@ -709,7 +733,7 @@
               class="nav-upgrade"
               @click.stop=""
             >
-              <v-icon v-if="isPro" class="ma-auto">mdi-check-circle</v-icon>
+              <v-icon v-if="isPro" class="ma-auto">mdi-check-decagram</v-icon>
               <v-icon v-else class="ma-auto">mdi-diamond</v-icon>
             </v-list-item>
             <v-list-item
@@ -720,7 +744,7 @@
               @click.stop=""
             >
               <v-list-item-title v-if="isPro" class="nav-menu-item">
-                <v-icon>mdi-check-circle</v-icon>
+                <v-icon>mdi-check-decagram</v-icon>
                 <p class="nav-item-title">
                   {{ $gettext(`Upgrade`) }}
                 </p>
@@ -879,13 +903,9 @@
           </div>
           <div v-if="featUpgrade" class="menu-action nav-upgrade">
             <router-link :to="{ name: 'upgrade' }">
-              <template #default="{ href, navigate, isActive }">
-                <a :href="href" :class="{ active: isActive }" @click="navigate">
-                  <v-icon v-if="isPro">mdi-check-circle</v-icon>
-                  <v-icon v-else>mdi-diamond</v-icon>
-                  {{ $gettext(`Upgrade`) }}
-                </a>
-              </template>
+              <v-icon v-if="isPro">mdi-check-decagram</v-icon>
+              <v-icon v-else>mdi-diamond</v-icon>
+              {{ $gettext(`Upgrade`) }}
             </router-link>
           </div>
           <div v-if="config.legalUrl" class="menu-action nav-legal">
@@ -897,38 +917,14 @@
         </div>
       </div>
     </div>
-    <p-update :show="reload.dialog" @close="reload.dialog = false"></p-update>
-    <p-photo-upload-dialog
-      :show="upload.dialog"
-      :data="upload.data"
-      @close="upload.dialog = false"
-      @confirm="upload.dialog = false"
-    ></p-photo-upload-dialog>
-    <p-photo-edit-dialog
-      :show="edit.dialog"
-      :selection="edit.selection"
-      :index="edit.index"
-      :album="edit.album"
-      :tab="edit.tab"
-      @close="edit.dialog = false"
-    ></p-photo-edit-dialog>
   </div>
 </template>
 
 <script>
 import Event from "pubsub-js";
-import Album from "model/album";
-import PUpdate from "component/update.vue";
-import PPhotoEditDialog from "component/photo/edit/dialog.vue";
-import PPhotoUploadDialog from "component/photo/upload/dialog.vue";
 
 export default {
   name: "PNavigation",
-  components: {
-    PUpdate,
-    PPhotoEditDialog,
-    PPhotoUploadDialog,
-  },
   data() {
     const appName = this.$config.getName();
 
@@ -978,20 +974,6 @@ export default {
       config: this.$config.values,
       page: this.$config.page,
       user: this.$session.getUser(),
-      reload: {
-        dialog: false,
-      },
-      upload: {
-        dialog: false,
-        data: {},
-      },
-      edit: {
-        dialog: false,
-        album: null,
-        selection: [],
-        index: 0,
-        tab: "",
-      },
       speedDial: false,
       rtl: this.$rtl,
       subscriptions: [],
@@ -1027,28 +1009,6 @@ export default {
   created() {
     this.subscriptions.push(Event.subscribe("index", this.onIndex));
     this.subscriptions.push(Event.subscribe("import", this.onIndex));
-    this.subscriptions.push(Event.subscribe("dialog.reload", () => (this.reload.dialog = true)));
-    this.subscriptions.push(
-      Event.subscribe("dialog.upload", (ev, data) => {
-        if (data) {
-          this.upload.data = data;
-        } else {
-          this.upload.data = {};
-        }
-        this.upload.dialog = true;
-      })
-    );
-    this.subscriptions.push(
-      Event.subscribe("dialog.edit", (ev, data) => {
-        if (!this.edit.dialog) {
-          this.edit.dialog = true;
-          this.edit.index = data.index;
-          this.edit.selection = data.selection;
-          this.edit.album = data.album;
-          this.edit.tab = data?.tab ? data.tab : "";
-        }
-      })
-    );
   },
   unmounted() {
     for (let i = 0; i < this.subscriptions.length; i++) {
@@ -1069,38 +1029,44 @@ export default {
       setTimeout(() => window.location.reload(), 100);
     },
     openUpload() {
-      if (this.auth && !this.isReadOnly && this.$config.feature("upload")) {
-        if (this.$route.name === "album" && this.$route.params?.album) {
-          return new Album()
-            .find(this.$route.params?.album)
-            .then((m) => {
-              this.upload.dialog = true;
-              this.upload.data = { albums: [m] };
-            })
-            .catch(() => {
-              this.upload.dialog = true;
-              this.upload.data = { albums: [] };
-            });
-        } else {
-          this.upload.dialog = true;
-          this.upload.data = { albums: [] };
-        }
-      } else {
-        this.goHome();
-      }
+      this.$event.publish("dialog.upload");
     },
     goHome() {
       if (this.$route.name !== "home") {
         this.$router.push({ name: "home" });
       }
     },
-    showNavigation() {
+    showDrawer() {
       if (this.auth) {
         this.drawer = true;
         this.isMini = this.isRestricted;
       }
     },
+    hideDrawer() {
+      if (this.auth) {
+        this.drawer = false;
+        this.isMini = this.isRestricted;
+      }
+    },
+    toggleDrawer(ev) {
+      ev?.preventDefault();
+      ev?.stopPropagation();
+
+      if (this.$vuetify.display.smAndDown) {
+        if (this.drawer) {
+          this.hideDrawer();
+        } else {
+          this.showDrawer();
+        }
+      } else {
+        this.toggleIsMini();
+      }
+    },
     toggleIsMini() {
+      if (this.isRestricted) {
+        return;
+      }
+
       this.isMini = !this.isMini;
       localStorage.setItem("last_navigation_mode", `${this.isMini}`);
     },

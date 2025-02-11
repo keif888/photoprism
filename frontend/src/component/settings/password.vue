@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :model-value="show"
+    :model-value="visible"
     persistent
     max-width="500"
     class="p-dialog modal-dialog p-settings-password"
@@ -96,7 +96,7 @@ import User from "model/user";
 export default {
   name: "PSettingsPassword",
   props: {
-    show: Boolean,
+    visible: Boolean,
     model: {
       type: Object,
       default: () => new User(null),
@@ -125,6 +125,15 @@ export default {
       const sessionUser = this.$session.getUser();
 
       return !sessionUser.SuperAdmin || this.model.getId() === sessionUser.getId();
+    },
+  },
+  watch: {
+    visible: function (show) {
+      if (show) {
+        this.$view.enter(this);
+      } else {
+        this.$view.leave(this);
+      }
     },
   },
   created() {

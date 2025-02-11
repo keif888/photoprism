@@ -19,7 +19,7 @@
           color="surface-variant"
           density="compact"
           class="input-search background-inherit elevation-0"
-          @update:modelValue="
+          @update:model-value="
             (v) => {
               updateFilter({ q: v });
             }
@@ -112,11 +112,10 @@
             <v-img
               :src="m.thumbnailUrl('tile_320')"
               :alt="m.Name"
-              :transition="false"
               aspect-ratio="1"
               class="preview not-selectable"
               @touchstart.passive="input.touchStart($event, index)"
-              @touchend.stop.prevent="onClick($event, index)"
+              @touchend.stop="onClick($event, index)"
               @mousedown.stop.prevent="input.mouseDown($event, index)"
               @click.stop.prevent="onClick($event, index)"
             >
@@ -128,8 +127,8 @@
                 variant="text"
                 density="comfortable"
                 position="absolute"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="onToggleHidden($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="onToggleHidden($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="onToggleHidden($event, index)"
               >
@@ -142,8 +141,8 @@
                 variant="text"
                 position="absolute"
                 class="input-select"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="onSelect($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="onSelect($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="onSelect($event, index)"
               >
@@ -157,8 +156,8 @@
                 variant="text"
                 position="absolute"
                 class="input-favorite"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="toggleLike($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="toggleLike($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="toggleLike($event, index)"
               >
@@ -192,13 +191,13 @@
     </div>
 
     <p-people-edit-dialog
-      :show="dialog.edit"
+      :visible="dialog.edit"
       :person="model"
       @close="dialog.edit = false"
       @confirm="onSave"
     ></p-people-edit-dialog>
     <p-people-merge-dialog
-      :show="merge.show"
+      :visible="merge.visible"
       :subj1="merge.subj1"
       :subj2="merge.subj2"
       @close="onCancelMerge"
@@ -209,10 +208,9 @@
 
 <script>
 import Subject from "model/subject";
-import Event from "pubsub-js";
 import RestModel from "model/rest";
 import { MaxItems } from "common/clipboard";
-import Notify from "common/notify";
+import $notify from "common/notify";
 import { ClickLong, ClickShort, Input, InputInvalid } from "common/input";
 
 export default {
@@ -256,9 +254,9 @@ export default {
       input: new Input(),
       lastId: "",
       merge: {
+        visible: false,
         subj1: null,
         subj2: null,
-        show: false,
       },
       dialog: {
         edit: false,
@@ -292,14 +290,14 @@ export default {
   created() {
     this.search();
 
-    this.subscriptions.push(Event.subscribe("subjects", (ev, data) => this.onUpdate(ev, data)));
+    this.subscriptions.push(this.$event.subscribe("subjects", (ev, data) => this.onUpdate(ev, data)));
 
-    this.subscriptions.push(Event.subscribe("touchmove.top", () => this.refresh()));
-    this.subscriptions.push(Event.subscribe("touchmove.bottom", () => this.loadMore()));
+    this.subscriptions.push(this.$event.subscribe("touchmove.top", () => this.refresh()));
+    this.subscriptions.push(this.$event.subscribe("touchmove.bottom", () => this.loadMore()));
   },
   unmounted() {
     for (let i = 0; i < this.subscriptions.length; i++) {
-      Event.unsubscribe(this.subscriptions[i]);
+      this.$event.unsubscribe(this.subscriptions[i]);
     }
   },
   methods: {
@@ -336,11 +334,11 @@ export default {
         this.merge.subj1 = m;
         this.merge.subj2 = existing;
         this.dialog.edit = false;
-        this.merge.show = true;
+        this.merge.visible = true;
       }
     },
     onCancelMerge() {
-      this.merge.show = false;
+      this.merge.visible = false;
       this.merge.subj1 = null;
       this.merge.subj2 = null;
     },
@@ -350,7 +348,7 @@ export default {
       }
 
       this.busy = true;
-      this.merge.show = false;
+      this.merge.visible = false;
       this.dialog.edit = false;
       this.$notify.blockUI();
       this.merge.subj1.update().finally(() => {
@@ -511,7 +509,7 @@ export default {
 
       if (pos === -1) {
         if (this.selection.length >= MaxItems) {
-          Notify.warn(this.$gettext("Can't select more items"));
+          $notify.warn(this.$gettext("Can't select more items"));
           return;
         }
 
@@ -527,7 +525,7 @@ export default {
         this.lastId = "";
       } else {
         if (this.selection.length >= MaxItems) {
-          Notify.warn(this.$gettext("Can't select more items"));
+          $notify.warn(this.$gettext("Can't select more items"));
           return;
         }
 

@@ -107,7 +107,7 @@
 
 <script>
 import * as options from "options/options";
-import Api from "common/api";
+import $api from "common/api";
 import PAboutFooter from "component/about/footer.vue";
 
 export default {
@@ -132,10 +132,16 @@ export default {
       rtl: this.$rtl,
     };
   },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
+  },
   methods: {
     send() {
       if (this.$refs.form.validate()) {
-        Api.post("feedback", this.form).then(() => {
+        $api.post("feedback", this.form).then(() => {
           this.$notify.success(this.$gettext("Message sent"));
           this.sent = true;
         });

@@ -1,9 +1,8 @@
 <template>
   <v-dialog
     ref="dialog"
-    :model-value="show"
+    :model-value="visible"
     :fullscreen="$vuetify.display.smAndDown"
-    :transition="false"
     persistent
     scrim
     scrollable
@@ -69,37 +68,30 @@
           <v-badge v-if="model.Files.length" color="surface-variant" inline :content="model.Files.length"></v-badge>
         </v-tab>
 
-        <v-tab v-if="$config.feature('edit')" id="tab-info" value="info" ripple>
+        <v-tab v-if="canEdit" id="tab-info" value="info" ripple>
           <v-icon>mdi-cog</v-icon>
         </v-tab>
       </v-tabs>
 
       <v-tabs-window v-model="active">
         <v-tabs-window-item value="details">
-          <p-tab-photo-details
-            ref="details"
-            :model="model"
-            :uid="uid"
-            @close="close"
-            @prev="prev"
-            @next="next"
-          ></p-tab-photo-details>
+          <p-tab-photo-details ref="details" :uid="uid" @close="close" @prev="prev" @next="next"></p-tab-photo-details>
         </v-tabs-window-item>
 
         <v-tabs-window-item value="labels">
-          <p-tab-photo-labels :model="model" :uid="uid" @close="close"></p-tab-photo-labels>
+          <p-tab-photo-labels :uid="uid" @close="close"></p-tab-photo-labels>
         </v-tabs-window-item>
 
         <v-tabs-window-item value="people">
-          <p-tab-photo-people :model="model" :uid="uid" @close="close"></p-tab-photo-people>
+          <p-tab-photo-people :uid="uid" @close="close"></p-tab-photo-people>
         </v-tabs-window-item>
 
         <v-tabs-window-item value="files">
-          <p-tab-photo-files :model="model" :uid="uid" @close="close"></p-tab-photo-files>
+          <p-tab-photo-files :uid="uid" @close="close"></p-tab-photo-files>
         </v-tabs-window-item>
 
-        <v-tabs-window-item v-if="$config.feature('edit')" value="info">
-          <p-tab-photo-info :model="model" :uid="uid" @close="close"></p-tab-photo-info>
+        <v-tabs-window-item v-if="canEdit" value="info">
+          <p-tab-photo-info :uid="uid" @close="close"></p-tab-photo-info>
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -107,12 +99,13 @@
 </template>
 <script>
 import Photo from "model/photo";
+import Event from "pubsub-js";
+
 import PhotoDetails from "component/photo/edit/details.vue";
 import PhotoLabels from "component/photo/edit/labels.vue";
 import PhotoPeople from "component/photo/edit/people.vue";
 import PhotoFiles from "component/photo/edit/files.vue";
 import PhotoInfo from "component/photo/edit/info.vue";
-import Event from "pubsub-js";
 
 export default {
   name: "PPhotoEditDialog",
@@ -124,11 +117,11 @@ export default {
     "p-tab-photo-info": PhotoInfo,
   },
   props: {
+    visible: Boolean,
     index: {
       type: Number,
       default: 0,
     },
-    show: Boolean,
     selection: {
       type: Array,
       default: () => [],
@@ -151,6 +144,7 @@ export default {
       loading: false,
       search: null,
       items: [],
+      canEdit: this.$config.feature("edit"),
       readonly: this.$config.get("readonly"),
       active: this.tab,
       rtl: this.$rtl,
@@ -174,17 +168,15 @@ export default {
     },
   },
   watch: {
-    show: function (show) {
+    visible: function (show) {
       if (show) {
-        // Disable the browser scrollbar.
-        this.$scrollbar.hide();
+        this.$view.enter(this);
         if (this.tab) {
           this.active = this.tab;
         }
         this.find(this.index);
       } else {
-        // Re-enable the browser scrollbar.
-        this.$scrollbar.show();
+        this.$view.leave(this);
       }
     },
   },
@@ -249,19 +241,19 @@ export default {
     },
     find(index) {
       if (this.loading) {
-        return;
+        return Promise.reject();
       }
 
       if (!this.selection || !this.selection[index]) {
         this.$notify.error(this.$gettext("Invalid photo selected"));
-        return;
+        return Promise.reject();
       }
 
       this.loading = true;
       this.selected = index;
       this.selectedId = this.selection[index];
 
-      this.model
+      return this.model
         .find(this.selectedId)
         .then((model) => {
           model.refreshFileAttr();

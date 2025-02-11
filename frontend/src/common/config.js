@@ -23,8 +23,8 @@ Additional information can be found in our Developer Guide:
 
 */
 
-import Api from "api.js";
-import Event from "pubsub-js";
+import $api from "common/api";
+import $event from "pubsub-js";
 import * as themes from "options/themes";
 import translations from "locales/translations.json";
 import { Languages } from "options/options";
@@ -121,10 +121,10 @@ export default class Config {
 
     this.updateTokens();
 
-    Event.subscribe("config.updated", (ev, data) => this.setValues(data.config));
-    Event.subscribe("config.tokens", (ev, data) => this.setTokens(data));
-    Event.subscribe("count", (ev, data) => this.onCount(ev, data));
-    Event.subscribe("people", (ev, data) => this.onPeople(ev, data));
+    $event.subscribe("config.updated", (ev, data) => this.setValues(data.config));
+    $event.subscribe("config.tokens", (ev, data) => this.setTokens(data));
+    $event.subscribe("count", (ev, data) => this.onCount(ev, data));
+    $event.subscribe("people", (ev, data) => this.onPeople(ev, data));
 
     if (this.has("settings")) {
       this.setTheme(this.get("settings").ui.theme);
@@ -150,7 +150,8 @@ export default class Config {
       return this.updating;
     }
 
-    this.updating = Api.get("config")
+    this.updating = $api
+      .get("config")
       .then(
         (resp) => {
           return this.setValues(resp.data);
@@ -173,7 +174,7 @@ export default class Config {
     }
 
     if (values.jsUri && this.values.jsUri !== values.jsUri) {
-      Event.publish("dialog.reload", { values });
+      $event.publish("dialog.update", { values });
     }
 
     for (let key in values) {
@@ -239,7 +240,12 @@ export default class Config {
             .filter((m) => m.UID === values.UID)
             .forEach((m) => {
               for (let key in values) {
-                if (key !== "UID" && values.hasOwnProperty(key) && values[key] != null && typeof values[key] !== "object") {
+                if (
+                  key !== "UID" &&
+                  values.hasOwnProperty(key) &&
+                  values[key] != null &&
+                  typeof values[key] !== "object"
+                ) {
                   m[key] = values[key];
                 }
               }
@@ -422,8 +428,8 @@ export default class Config {
     }
 
     // Update the Accept-Language header for XHR requests.
-    if (Api) {
-      Api.defaults.headers.common["Accept-Language"] = locale;
+    if ($api) {
+      $api.defaults.headers.common["Accept-Language"] = locale;
     }
 
     // Update the language-specific attributes of the <html> and <body> elements.
@@ -499,7 +505,7 @@ export default class Config {
       this.values.settings.ui.theme = this.themeName;
     }
 
-    Event.publish("view.refresh", this);
+    $event.publish("view.refresh", this);
 
     this.theme = theme;
 
@@ -539,10 +545,8 @@ export default class Config {
       return;
     }
 
-    const tags = document.getElementsByTagName("html");
-
-    if (tags && tags.length > 0) {
-      tags[0].setAttribute("data-color-mode", value);
+    if (document.documentElement) {
+      document.documentElement.setAttribute("data-color-mode", value);
     }
 
     if (value === "dark") {

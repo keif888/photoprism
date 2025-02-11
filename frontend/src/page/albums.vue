@@ -24,7 +24,7 @@
           prepend-inner-icon="mdi-magnify"
           color="surface-variant"
           class="input-search background-inherit elevation-0"
-          @update:modelValue="
+          @update:model-value="
             (v) => {
               updateFilter({ q: v });
             }
@@ -220,7 +220,7 @@
               :style="`background-image: url(${album.thumbnailUrl('tile_500')})`"
               class="preview"
               @touchstart.passive="input.touchStart($event, index)"
-              @touchend.stop.prevent="onClick($event, index)"
+              @touchend.stop="onClick($event, index)"
               @mousedown.stop.prevent="input.mouseDown($event, index)"
               @click.stop.prevent="onClick($event, index)"
             >
@@ -228,8 +228,8 @@
               <button
                 v-if="canShare && album.LinkCount > 0"
                 class="action-share"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="onShare($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="onShare($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="onShare($event, index)"
               >
@@ -237,8 +237,8 @@
               </button>
               <button
                 class="input-select"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="onSelect($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="onSelect($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="onSelect($event, index)"
               >
@@ -247,8 +247,8 @@
               </button>
               <button
                 class="input-favorite"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="toggleLike($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="toggleLike($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="toggleLike($event, index)"
               >
@@ -258,8 +258,8 @@
               <button
                 v-if="canManage && experimental && featPrivate && album.Private"
                 class="input-private"
-                @touchstart.stop.prevent="input.touchStart($event, index)"
-                @touchend.stop.prevent="onEdit($event, index)"
+                @touchstart.stop="input.touchStart($event, index)"
+                @touchend.stop="onEdit($event, index)"
                 @touchmove.stop.prevent
                 @click.stop.prevent="onEdit($event, index)"
               >
@@ -344,29 +344,28 @@
       </div>
     </div>
     <p-share-dialog
-      :show="dialog.share"
+      :visible="dialog.share"
       :model="model"
       @upload="webdavUpload"
       @close="dialog.share = false"
     ></p-share-dialog>
     <p-service-upload
-      :show="dialog.upload"
+      :visible="dialog.upload"
       :items="{ albums: selection }"
       :model="model"
       @close="dialog.upload = false"
       @confirm="dialog.upload = false"
     ></p-service-upload>
-    <p-album-edit-dialog :show="dialog.edit" :album="model" @close="dialog.edit = false"></p-album-edit-dialog>
+    <p-album-edit-dialog :visible="dialog.edit" :album="model" @close="dialog.edit = false"></p-album-edit-dialog>
   </div>
 </template>
 
 <script>
 import Album from "model/album";
 import { DateTime } from "luxon";
-import Event from "pubsub-js";
 import RestModel from "model/rest";
 import { MaxItems } from "common/clipboard";
-import Notify from "common/notify";
+import $notify from "common/notify";
 import { Input, InputInvalid, ClickShort, ClickLong } from "common/input";
 import * as options from "options/options";
 
@@ -493,15 +492,21 @@ export default {
   created() {
     this.search();
 
-    this.subscriptions.push(Event.subscribe("albums", (ev, data) => this.onUpdate(ev, data)));
-    this.subscriptions.push(Event.subscribe("touchmove.top", () => this.refresh()));
-    this.subscriptions.push(Event.subscribe("touchmove.bottom", () => this.loadMore()));
-    this.subscriptions.push(Event.subscribe("config.updated", (ev, data) => this.onConfigUpdated(data)));
+    this.subscriptions.push(this.$event.subscribe("albums", (ev, data) => this.onUpdate(ev, data)));
+    this.subscriptions.push(this.$event.subscribe("touchmove.top", () => this.refresh()));
+    this.subscriptions.push(this.$event.subscribe("touchmove.bottom", () => this.loadMore()));
+    this.subscriptions.push(this.$event.subscribe("config.updated", (ev, data) => this.onConfigUpdated(data)));
   },
   beforeUnmount() {
     for (let i = 0; i < this.subscriptions.length; i++) {
-      Event.unsubscribe(this.subscriptions[i]);
+      this.$event.unsubscribe(this.subscriptions[i]);
     }
+  },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
   },
   methods: {
     toggleExpansionPanel() {
@@ -596,10 +601,10 @@ export default {
       if (this.context === "album" && this.selection && this.selection.length === 1) {
         return this.model
           .find(this.selection[0])
-          .then((m) => Event.publish("dialog.upload", { albums: [m] }))
-          .catch(() => Event.publish("dialog.upload", { albums: [] }));
+          .then((m) => this.$event.publish("dialog.upload", { albums: [m] }))
+          .catch(() => this.$event.publish("dialog.upload", { albums: [] }));
       } else {
-        Event.publish("dialog.upload", { albums: [] });
+        this.$event.publish("dialog.upload", { albums: [] });
       }
     },
     toggleLike(ev, index) {
@@ -950,7 +955,7 @@ export default {
 
       if (pos === -1) {
         if (this.selection.length >= MaxItems) {
-          Notify.warn(this.$gettext("Can't select more items"));
+          $notify.warn(this.$gettext("Can't select more items"));
           return;
         }
 
@@ -966,7 +971,7 @@ export default {
         this.lastId = "";
       } else {
         if (this.selection.length >= MaxItems) {
-          Notify.warn(this.$gettext("Can't select more items"));
+          $notify.warn(this.$gettext("Can't select more items"));
           return;
         }
 

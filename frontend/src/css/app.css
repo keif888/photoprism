@@ -28,7 +28,7 @@ Additional information can be found in our Developer Guide:
 @import url("splash.css");
 @import url("body.css");
 @import url("text.css");
-@import url("viewer.css");
+@import url("lightbox.css");
 @import url("controls.css");
 @import url("wallpapers.css");
 @import url("themes.css");
@@ -91,7 +91,7 @@ main {
     top: 16px;
     left: 50%;
     transform: translate(-50%, 0);
-    padding: .4rem .8rem;
+    padding: .5rem 1rem;
     margin: auto;
     opacity: 0.87;
     color: rgb(var(--v-theme-on-button, #333333));
@@ -104,7 +104,7 @@ main {
     cursor: pointer;
     display: block;
     font-family: inherit;
-    font-size: .875rem;
+    font-size: 1rem;
     outline: none;
     user-select: none;
     text-decoration: none;

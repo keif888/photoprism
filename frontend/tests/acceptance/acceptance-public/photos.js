@@ -65,7 +65,7 @@ test.meta("testID", "photos-002").meta({ mode: "public" })(
     await photoviewer.checkPhotoViewerActionAvailability("download-button", true);
 
     await photoviewer.triggerPhotoViewerAction("close");
-    await t.expect(Selector("div.media-viewer-lightbox").visible).notOk();
+    await t.expect(Selector("div.p-lightbox__pswp").visible).notOk();
     await photo.triggerHoverAction("uid", FirstPhotoUid, "select");
     await photo.triggerHoverAction("uid", FirstVideoUid, "select");
     await contextmenu.checkContextMenuCount("2");
@@ -171,7 +171,7 @@ test.meta("testID", "photos-004").meta({ type: "short", mode: "public" })(
     await photoviewer.openPhotoViewer("uid", FirstPhotoUid);
     await photoviewer.triggerPhotoViewerAction("favorite-toggle");
     await photoviewer.triggerPhotoViewerAction("close");
-    await t.expect(Selector("div.media-viewer-lightbox").visible).notOk();
+    await t.expect(Selector("div.p-lightbox__pswp").visible).notOk();
       if (t.browser.platform === "mobile") {
       await t.eval(() => location.reload());
     } else {
@@ -202,9 +202,18 @@ test.meta("testID", "photos-005").meta({ type: "short", mode: "public" })(
     await photoviewer.triggerPhotoViewerAction("edit-button");
     const FirstPhotoTitle = await photoedit.title.value;
     const FirstPhotoLocalTime = await photoedit.localTime.value;
-    const FirstPhotoDay = await photoedit.dayValue.innerText;
-    const FirstPhotoMonth = await photoedit.monthValue.innerText;
-    const FirstPhotoYear = await photoedit.yearValue.innerText;
+    let FirstPhotoDay = await photoedit.day.innerText;
+    if(!FirstPhotoDay) {
+      FirstPhotoDay = "Unknown"
+    }
+    let FirstPhotoMonth = await photoedit.month.innerText;
+    if(!FirstPhotoMonth) {
+      FirstPhotoMonth = "Unknown"
+    }
+    let FirstPhotoYear = await photoedit.year.innerText
+    if(!FirstPhotoYear) {
+      FirstPhotoYear = "Unknown"
+    }
     const FirstPhotoTimezone = await photoedit.timezoneValue.innerText;
     const FirstPhotoLatitude = await photoedit.latitude.value;
     const FirstPhotoLongitude = await photoedit.longitude.value;
@@ -304,16 +313,16 @@ test.meta("testID", "photos-005").meta({ type: "short", mode: "public" })(
   }
 );
 
-test.skip.meta("testID", "photos-006").meta({ mode: "public" })(
-  "Common: Navigate from card view to place",
+test.meta("testID", "photos-006").meta({ mode: "public" })(
+  "Multi-Window: Navigate from card view to place",
   async (t) => {
     await toolbar.setFilter("view", "Cards");
     await t.click(page.cardLocation.nth(0));
 
     await t
-      .expect(Selector("#map").exists, { timeout: 15000 })
+      .expect(Selector("div.map-loaded").exists, { timeout: 15000 })
       .ok()
-      .expect(Selector("div.p-map-control").visible)
+      .expect(Selector("div.map-control").visible)
       .ok()
       .expect(Selector(".input-search input").value)
       .notEql("");
@@ -382,7 +391,7 @@ test.meta("testID", "photos-007").meta({ mode: "public" })(
 );
 
 test.meta("testID", "photos-008").meta({ mode: "public" })(
-    "Proxy: Navigate from card view to photos taken at the same date",
+    "Multi-Window: Navigate from card view to photos taken at the same date",
     async (t) => {
         var mainPage = await t.getCurrentWindow();
         await toolbar.setFilter("view", "Cards");

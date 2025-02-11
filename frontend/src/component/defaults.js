@@ -107,6 +107,7 @@ export default {
     color: "background",
     flat: true,
     ripple: false,
+    transition: false,
   },
   VTab: {
     color: "on-surface",
@@ -126,6 +127,7 @@ export default {
   },
   VToolbar: {
     flat: true,
+    transition: false,
   },
   VListItem: {
     ripple: false,
@@ -135,11 +137,21 @@ export default {
     itemsPerPage: -1,
     hover: true,
   },
+  VImg: {
+    transition: false,
+  },
   VDialog: {
     scrim: true,
     scrollable: true,
     retainFocus: true,
     transition: false,
+    persistent: true,
+    attach: document.body,
+  },
+  VOverlay: {
+    scrim: true,
+    transition: false,
+    attach: document.body,
   },
   VExpansionPanel: {
     tile: true,

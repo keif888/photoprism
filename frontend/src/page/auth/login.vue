@@ -214,15 +214,17 @@ export default {
     },
   },
   created() {
-    this.$scrollbar.hide(this.$isMobile);
     const authError = window.localStorage.getItem("authError");
     if (authError) {
       this.$notify.error(authError);
       window.localStorage.removeItem("authError");
     }
   },
+  mounted() {
+    this.$view.enter(this);
+  },
   unmounted() {
-    this.$scrollbar.show();
+    this.$view.leave(this);
   },
   methods: {
     wallpaper() {

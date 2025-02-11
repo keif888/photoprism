@@ -27,10 +27,10 @@ import memoizeOne from "memoize-one";
 import RestModel from "model/rest";
 import File from "model/file";
 import Marker from "model/marker";
-import Api from "common/api";
+import $api from "common/api";
 import { DateTime } from "luxon";
 import Util from "common/util";
-import { config } from "app/session";
+import { $config } from "app/session";
 import countries from "options/countries.json";
 import { $gettext } from "common/gettext";
 import { PhotoClipboard } from "common/clipboard";
@@ -494,7 +494,7 @@ export class Photo extends RestModel {
       return false;
     }
 
-    let file = files.find((f) => f.Codec === media.CodecAvc);
+    let file = files.find((f) => f.Codec === media.CodecAvc1);
 
     if (!file) {
       file = files.find((f) => f.FileType === media.FormatMp4);
@@ -681,9 +681,9 @@ export class Photo extends RestModel {
     return this.generateThumbnailUrl(
       this.primaryFileHash(),
       this.videoFile(),
-      config.staticUri,
-      config.contentUri,
-      config.previewToken,
+      $config.staticUri,
+      $config.contentUri,
+      $config.previewToken,
       size
     );
   }
@@ -703,25 +703,25 @@ export class Photo extends RestModel {
   });
 
   getDownloadUrl() {
-    return `${config.apiUri}/dl/${this.primaryFileHash()}?t=${config.downloadToken}`;
+    return `${$config.apiUri}/dl/${this.primaryFileHash()}?t=${$config.downloadToken}`;
   }
 
   downloadAll() {
-    const s = config.getSettings();
+    const s = $config.getSettings();
 
     if (!s || !s.features || !s.download || !s.features.download || s.download.disabled) {
       console.log("download: disabled in settings", s.features, s.download);
       return;
     }
 
-    const token = config.downloadToken;
+    const token = $config.downloadToken;
 
     if (!this.Files) {
       const hash = this.primaryFileHash();
 
       if (hash) {
-        download(`/${config.apiUri}/dl/${hash}?t=${token}`, this.baseName(false));
-      } else if (config.debug) {
+        download(`/${$config.apiUri}/dl/${hash}?t=${token}`, this.baseName(false));
+      } else if ($config.debug) {
         console.log("download: failed, empty file hash", this);
       }
 
@@ -736,31 +736,31 @@ export class Photo extends RestModel {
       // Originals only?
       if (s.download.originals && file.Root.length > 1) {
         // Don't download broken files and sidecars.
-        if (config.debug) console.log(`download: skipped ${file.Root} file ${file.Name}`);
+        if ($config.debug) console.log(`download: skipped ${file.Root} file ${file.Name}`);
         return;
       }
 
       // Skip metadata sidecar files?
       if (!s.download.mediaSidecar && (file.MediaType === media.Sidecar || file.Sidecar)) {
         // Don't download broken files and sidecars.
-        if (config.debug) console.log(`download: skipped sidecar file ${file.Name}`);
+        if ($config.debug) console.log(`download: skipped sidecar file ${file.Name}`);
         return;
       }
 
       // Skip RAW images?
       if (!s.download.mediaRaw && (file.MediaType === media.Raw || file.FileType === media.Raw)) {
-        if (config.debug) console.log(`download: skipped raw file ${file.Name}`);
+        if ($config.debug) console.log(`download: skipped raw file ${file.Name}`);
         return;
       }
 
       // If this is a video, always skip stacked images...
       // see https://github.com/photoprism/photoprism/issues/1436
       if (this.Type === media.Video && !(file.MediaType === media.Video || file.Video)) {
-        if (config.debug) console.log(`download: skipped video sidecar ${file.Name}`);
+        if ($config.debug) console.log(`download: skipped video sidecar ${file.Name}`);
         return;
       }
 
-      download(`${config.apiUri}/dl/${file.Hash}?t=${token}`, this.fileBase(file.Name));
+      download(`${$config.apiUri}/dl/${file.Hash}?t=${token}`, this.fileBase(file.Name));
     });
   }
 
@@ -1065,11 +1065,11 @@ export class Photo extends RestModel {
   }
 
   archive() {
-    return Api.post("batch/photos/archive", { photos: [this.getId()] });
+    return $api.post("batch/photos/archive", { photos: [this.getId()] });
   }
 
   approve() {
-    return Api.post(this.getEntityResource() + "/approve");
+    return $api.post(this.getEntityResource() + "/approve");
   }
 
   toggleLike() {
@@ -1078,35 +1078,35 @@ export class Photo extends RestModel {
 
     if (favorite) {
       elements.forEach((el) => el.classList.add("is-favorite"));
-      return Api.post(this.getEntityResource() + "/like");
+      return $api.post(this.getEntityResource() + "/like");
     } else {
       elements.forEach((el) => el.classList.remove("is-favorite"));
-      return Api.delete(this.getEntityResource() + "/like");
+      return $api.delete(this.getEntityResource() + "/like");
     }
   }
 
   togglePrivate() {
     this.Private = !this.Private;
 
-    return Api.put(this.getEntityResource(), { Private: this.Private });
+    return $api.put(this.getEntityResource(), { Private: this.Private });
   }
 
   setPrimaryFile(fileUID) {
-    return Api.post(`${this.getEntityResource()}/files/${fileUID}/primary`).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .post(`${this.getEntityResource()}/files/${fileUID}/primary`)
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   unstackFile(fileUID) {
-    return Api.post(`${this.getEntityResource()}/files/${fileUID}/unstack`).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .post(`${this.getEntityResource()}/files/${fileUID}/unstack`)
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   deleteFile(fileUID) {
-    return Api.delete(`${this.getEntityResource()}/files/${fileUID}`).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .delete(`${this.getEntityResource()}/files/${fileUID}`)
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   changeFileOrientation(file) {
@@ -1124,41 +1124,41 @@ export class Photo extends RestModel {
     }
 
     // Change file orientation.
-    return Api.put(`${this.getEntityResource()}/files/${file.UID}/orientation`, values).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .put(`${this.getEntityResource()}/files/${file.UID}/orientation`, values)
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   like() {
     this.Favorite = true;
-    return Api.post(this.getEntityResource() + "/like");
+    return $api.post(this.getEntityResource() + "/like");
   }
 
   unlike() {
     this.Favorite = false;
-    return Api.delete(this.getEntityResource() + "/like");
+    return $api.delete(this.getEntityResource() + "/like");
   }
 
   addLabel(name) {
-    return Api.post(this.getEntityResource() + "/label", { Name: name, Priority: 10 }).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .post(this.getEntityResource() + "/label", { Name: name, Priority: 10 })
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   activateLabel(id) {
-    return Api.put(this.getEntityResource() + "/label/" + id, { Uncertainty: 0 }).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .put(this.getEntityResource() + "/label/" + id, { Uncertainty: 0 })
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   renameLabel(id, name) {
-    return Api.put(this.getEntityResource() + "/label/" + id, { Label: { Name: name } }).then((r) =>
-      Promise.resolve(this.setValues(r.data))
-    );
+    return $api
+      .put(this.getEntityResource() + "/label/" + id, { Label: { Name: name } })
+      .then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   removeLabel(id) {
-    return Api.delete(this.getEntityResource() + "/label/" + id).then((r) => Promise.resolve(this.setValues(r.data)));
+    return $api.delete(this.getEntityResource() + "/label/" + id).then((r) => Promise.resolve(this.setValues(r.data)));
   }
 
   getMarkers(valid) {
@@ -1210,34 +1210,34 @@ export class Photo extends RestModel {
 
     // Update details source if needed.
     if (values.Details) {
-      if (values.Details.Keywords) {
+      if (values.Details.Keywords !== this.__originalValues.Details.Keywords) {
         values.Details.KeywordsSrc = src.Manual;
       }
 
-      if (values.Details.Notes) {
+      if (values.Details.Notes !== this.__originalValues.Details.Notes) {
         values.Details.NotesSrc = src.Manual;
       }
 
-      if (values.Details.Subject) {
+      if (values.Details.Subject !== this.__originalValues.Details.Subject) {
         values.Details.SubjectSrc = src.Manual;
       }
 
-      if (values.Details.Artist) {
+      if (values.Details.Artist !== this.__originalValues.Details.Artist) {
         values.Details.ArtistSrc = src.Manual;
       }
 
-      if (values.Details.Copyright) {
+      if (values.Details.Copyright !== this.__originalValues.Details.Copyright) {
         values.Details.CopyrightSrc = src.Manual;
       }
 
-      if (values.Details.License) {
+      if (values.Details.License !== this.__originalValues.Details.License) {
         values.Details.LicenseSrc = src.Manual;
       }
     }
 
-    return Api.put(this.getEntityResource(), values).then((resp) => {
+    return $api.put(this.getEntityResource(), values).then((resp) => {
       if (values.Type || values.Lat) {
-        config.update();
+        $config.update();
       }
 
       return Promise.resolve(this.setValues(resp.data));

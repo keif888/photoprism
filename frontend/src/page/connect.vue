@@ -123,7 +123,6 @@
               v-model="form.token"
               single-line
               hide-details
-              return-masked-value
               autocomplete="off"
               :placeholder="$gettext('Activation Code')"
             ></v-text-field>
@@ -201,7 +200,7 @@
 
 <script>
 import * as options from "options/options";
-import Api from "common/api";
+import $api from "common/api";
 import { restart } from "common/server";
 import PAboutFooter from "component/about/footer.vue";
 
@@ -240,6 +239,12 @@ export default {
       }
     });
   },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
+  },
   methods: {
     onRestart() {
       restart(this.$router.resolve({ name: "about" }).href);
@@ -265,7 +270,8 @@ export default {
       if (values.Token.length >= 4) {
         this.busy = true;
         this.$notify.blockUI();
-        Api.put("connect/hub", values)
+        $api
+          .put("connect/hub", values)
           .then(() => {
             this.$notify.success(this.$gettext("Connected"));
             this.success = true;

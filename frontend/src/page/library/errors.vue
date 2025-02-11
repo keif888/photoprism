@@ -23,7 +23,7 @@
         prepend-inner-icon="mdi-magnify"
         color="surface-variant"
         class="input-search background-inherit elevation-0"
-        @update:modelValue="
+        @update:model-value="
           (v) => {
             updateFilter({ q: v });
           }
@@ -63,20 +63,24 @@
         :loading="loading"
       ></p-scroll>
 
-      <v-list lines="one" bg-color="table" density="compact">
+      <v-list lines="one" bg-color="table" density="compact" class="py-0">
         <v-list-item
           v-for="err in errors"
           :key="err.ID"
           :prepend-icon="err.Level === 'error' ? 'mdi-alert-circle-outline' : 'mdi-alert'"
-          density="compact"
+          density="default"
           :title="err.Message"
           :subtitle="formatTime(err.Time)"
+          class="py-2"
           @click="showDetails(err)"
         >
           <template #prepend>
             <v-icon v-if="err.Level === 'error'" icon="mdi-alert-circle-outline" color="error"></v-icon>
             <v-icon v-else-if="err.Level === 'warning'" icon="mdi-alert" color="warning"></v-icon>
             <v-icon v-else icon="mdi-information-outline" color="info"></v-icon>
+          </template>
+          <template #title="{ title }">
+            <div class="text-body-2 text-truncate">{{ title }}</div>
           </template>
         </v-list-item>
       </v-list>
@@ -96,12 +100,12 @@
       </v-alert>
     </div>
     <p-confirm-action
-      :show="dialog.delete"
+      :visible="dialog.delete"
       icon="mdi-delete-outline"
       @close="dialog.delete = false"
       @confirm="onConfirmDelete"
     ></p-confirm-action>
-    <v-dialog v-model="details.show" max-width="550" class="p-dialog">
+    <v-dialog :model-value="details.visible" max-width="550" class="p-dialog">
       <v-card>
         <v-card-title class="d-flex justify-start align-center ga-3">
           <v-icon v-if="details.err.Level === 'error'" icon="mdi-alert-circle-outline" color="error"></v-icon>
@@ -111,14 +115,14 @@
         </v-card-title>
 
         <v-card-text>
-          <p :class="'p-log-' + details.err.Level" class="p-log-message text-body-2 text-selectable" dir="ltr">
+          <div :class="'p-log-' + details.err.Level" class="p-log-message text-body-2 text-selectable" dir="ltr">
             <span class="font-weight-medium">{{ formatTime(details.err.Time) }}</span
             >&puncsp;<span class="text-break">{{ details.err.Message }}</span>
-          </p>
+          </div>
         </v-card-text>
 
         <v-card-actions>
-          <v-btn color="button" variant="flat" class="action-close" @click="details.show = false">
+          <v-btn color="button" variant="flat" class="action-close" @click="details.visible = false">
             {{ $gettext(`Close`) }}
           </v-btn>
         </v-card-actions>
@@ -129,7 +133,7 @@
 
 <script>
 import { DateTime } from "luxon";
-import Api from "common/api";
+import $api from "common/api";
 import PConfirmAction from "component/confirm/action.vue";
 
 export default {
@@ -156,7 +160,7 @@ export default {
         delete: false,
       },
       details: {
-        show: false,
+        visible: false,
         err: { Level: "", Message: "", Time: "" },
       },
     };
@@ -180,6 +184,12 @@ export default {
     }
 
     this.loadMore();
+  },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
   },
   methods: {
     updateFilter(props) {
@@ -223,7 +233,7 @@ export default {
     },
     showDetails(err) {
       this.details.err = err;
-      this.details.show = true;
+      this.details.visible = true;
     },
     onDelete() {
       if (this.loading) {
@@ -243,7 +253,8 @@ export default {
       this.scrollDisabled = true;
 
       // Delete error logs.
-      Api.delete("errors")
+      $api
+        .delete("errors")
         .then((resp) => {
           if (resp && resp.data.code && resp.data.code === 200) {
             this.errors = [];
@@ -284,7 +295,8 @@ export default {
       const params = { count, offset, q };
 
       // Fetch error logs.
-      Api.get("errors", { params })
+      $api
+        .get("errors", { params })
         .then((resp) => {
           if (!resp.data) {
             resp.data = [];

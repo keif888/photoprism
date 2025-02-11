@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :model-value="show"
+    :model-value="visible"
     persistent
     max-width="500"
     class="dialog-album-edit"
@@ -119,7 +119,7 @@ import Album from "model/album";
 export default {
   name: "PAlbumEditDialog",
   props: {
-    show: Boolean,
+    visible: Boolean,
     album: {
       type: Object,
       default: () => {},
@@ -149,10 +149,13 @@ export default {
     };
   },
   watch: {
-    show: function (show) {
+    visible: function (show) {
       if (show) {
+        this.$view.enter(this);
         this.model = this.album.clone();
         this.category = this.model.Category ? this.model.Category : null;
+      } else {
+        this.$view.leave(this);
       }
     },
   },

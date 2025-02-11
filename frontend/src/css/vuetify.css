@@ -73,8 +73,20 @@ body.dark-theme {
 
 /* Dialogs & Overlays */
 
+.v-overlay-container {
+    transition: none !important;
+}
+
 .v-overlay {
     border-radius: 8px;
+}
+
+.v-dialog,
+.v-dialog > *,
+.v-overlay,
+.v-overlay > *,
+.v-overlay .v-overlay__scrim {
+    transition: none !important;
 }
 
 .v-overlay.v-dialog.v-dialog--sidepanel:not(.v-dialog--fullscreen) {
@@ -111,8 +123,6 @@ div.v-dialog.v-dialog--fullscreen > div.v-card {
 
 .v-overlay.v-dialog.v-dialog--sidepanel:not(.v-dialog--fullscreen) > .v-overlay__content > .v-card {
     border-radius: 8px 0 0 8px;
-    /* border-radius: 8px 0 0 8px; */
-    /* border-radius: 0; */
     border-color: rgba(var(--v-border-color), var(--v-border-opacity));
     border-left-style: solid;
     border-left-width: thin;
@@ -234,12 +244,18 @@ div.v-dialog.v-dialog--fullscreen > div.v-card {
 }
 
 .v-input--density-compact {
-    --v-input-control-height: 32x;
+    --v-input-control-height: 32px;
     --v-input-padding-top: 8px;
 }
 
 .v-input--density-comfortable {
-    --v-input-control-height: 40px;
+    --v-input-control-height: 48px;
+    --v-input-padding-top: 12px;
+}
+
+.v-input--density-comfortable .v-field {
+    --v-field-padding-start: 12px;
+    --v-field-padding-end: 12px;
 }
 
 .v-selection-control--density-compact .v-label {

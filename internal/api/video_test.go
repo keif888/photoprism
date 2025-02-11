@@ -17,7 +17,7 @@ func TestGetVideo(t *testing.T) {
 	t.Run("ContentTypeAVC", func(t *testing.T) {
 		assert.Equal(t, header.ContentTypeMp4AvcMain, clean.ContentType("video/mp4; codecs=\"avc1\""))
 		mimeType := fmt.Sprintf("video/mp4; codecs=\"%s\"", clean.Codec("avc1"))
-		assert.Equal(t, header.ContentTypeMp4AvcMain, video.ContentType(mimeType, "mp4", "avc1"))
+		assert.Equal(t, header.ContentTypeMp4AvcMain, video.ContentType(mimeType, "mp4", "avc1", false))
 	})
 
 	t.Run("NoHash", func(t *testing.T) {

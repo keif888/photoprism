@@ -200,7 +200,7 @@ func (m *Photo) MediaInfo() (mediaHash, mediaCodec, mediaMime string) {
 	if m.PhotoType == entity.MediaVideo || m.PhotoType == entity.MediaLive {
 		for _, f := range m.Files {
 			if f.FileVideo && f.FileHash != "" {
-				return f.FileHash, f.FileCodec, video.ContentType(f.FileMime, f.FileType, f.FileCodec)
+				return f.FileHash, f.FileCodec, video.ContentType(f.FileMime, f.FileType, f.FileCodec, f.IsHDR())
 			}
 		}
 	} else if m.PhotoType == entity.MediaVector {

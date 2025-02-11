@@ -1,4 +1,24 @@
-/* Global Font Presets */
+/*  Inline <HTML>, <Body>, and Splash Screen Styles */
+
+html.loading {
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+}
+
+html.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+[data-color-mode=light][data-light-theme*=dark],
+[data-color-mode=dark][data-dark-theme*=dark] {
+    color-scheme: dark;
+}
+
+:root,
+[data-color-mode=light][data-light-theme*=light],
+[data-color-mode=dark][data-dark-theme*=light] {
+    color-scheme: light;
+}
 
 body {
     color: #333333;
@@ -28,14 +48,30 @@ body {
     font-feature-settings: 'kern', 'liga';
 }
 
+body.nojs::-webkit-scrollbar,
+body.hide-scrollbar::-webkit-scrollbar,
+html.hide-scrollbar ::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+    z-index: -1000;
+}
+
+body.nojs,
+body.hide-scrollbar,
+html.hide-scrollbar body {
+    -ms-overflow-style: none;
+}
+
 /* Loading Animation Styles */
 
 #busy-overlay {
     display: none;
     position: fixed;
+    touch-action: none;
+    transition: none;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
     height: 100%;
     z-index: 100;
     background-color: rgba(0, 0, 0, 0.2);

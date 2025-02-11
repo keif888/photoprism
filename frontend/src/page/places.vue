@@ -56,7 +56,7 @@
 
 <script>
 import maplibregl from "maplibre-gl";
-import Api from "common/api";
+import $api from "common/api";
 import Thumb from "model/thumb";
 import PPagePhotos from "page/photos.vue";
 import MapStyleControl from "component/places/style-control";
@@ -134,6 +134,7 @@ export default {
     },
   },
   mounted() {
+    this.$view.enter(this);
     this.initMap()
       .then(() => {
         this.renderMap();
@@ -142,6 +143,9 @@ export default {
       .catch((err) => {
         this.mapError = err;
       });
+  },
+  unmounted() {
+    this.$view.leave(this);
   },
   methods: {
     noWebGlSupport() {
@@ -494,13 +498,14 @@ export default {
       this.loading = true;
 
       // Perform get request to find nearby photos.
-      return Api.get("geo/view", options)
+      return $api
+        .get("geo/view", options)
         .then((r) => {
           if (r && r.data && r.data.length > 0) {
             // Show photos.
-            this.$root.$refs.viewer.showThumbs(Thumb.wrap(r.data), 0);
+            this.$lightbox.openModels(Thumb.wrap(r.data), 0);
           } else {
-            // Don't open viewer if nothing was found.
+            // Don't open lightbox if nothing was found.
             this.$notify.warn(this.$gettext("No pictures found"));
           }
         })
@@ -582,7 +587,8 @@ export default {
       };
 
       // Fetch results from server.
-      return Api.get("geo", options)
+      return $api
+        .get("geo", options)
         .then((response) => {
           if (!response.data.features || response.data.features.length === 0) {
             this.loading = false;
@@ -631,7 +637,7 @@ export default {
         controlPos
       );
 
-      // Add terrain control, if supported.
+      // Add 3D terrain toggle control, if supported.
       if (this.terrain[this.style]) {
         this.map.addControl(
           new maplibregl.TerrainControl({
@@ -641,11 +647,16 @@ export default {
         );
       }
 
-      // Add 3D globe control.
+      // Add 3D globe toggle control.
       this.map.addControl(new maplibregl.GlobeControl());
 
-      // Add fullscreen control.
-      this.map.addControl(new maplibregl.FullscreenControl({ container: document.querySelector("body") }), controlPos);
+      // Add fullscreen toggle control, except on mobile devices.
+      if (!this.$isMobile) {
+        this.map.addControl(
+          new maplibregl.FullscreenControl({ container: document.querySelector("body") }),
+          controlPos
+        );
+      }
 
       // Add locate position control.
       this.map.addControl(

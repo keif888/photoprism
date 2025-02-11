@@ -12,7 +12,7 @@
       </v-main>
     </v-app>
 
-    <p-viewer ref="viewer"></p-viewer>
+    <p-dialogs></p-dialogs>
   </div>
 </template>
 
@@ -21,7 +21,7 @@ import Event from "pubsub-js";
 import PLoadingBar from "component/loading-bar.vue";
 import PNotify from "component/notify.vue";
 import PNavigation from "component/navigation.vue";
-import PViewer from "component/viewer.vue";
+import PDialogs from "component/dialogs.vue";
 
 export default {
   name: "App",
@@ -29,7 +29,7 @@ export default {
     PLoadingBar,
     PNotify,
     PNavigation,
-    PViewer,
+    PDialogs,
   },
   data() {
     return {
@@ -48,42 +48,38 @@ export default {
     },
   },
   created() {
-    window.addEventListener("touchstart", (ev) => this.onTouchStart(ev), { passive: false });
-    window.addEventListener("touchmove", (ev) => this.onTouchMove(ev), { passive: true });
+    // TODO: Find a better solution that plays nice with modal dialogs.
+    // document.addEventListener("touchstart", this.onTouchStart.bind(this), { passive: true });
+    // document.addEventListener("touchmove", this.onTouchMove.bind(this), { passive: true });
 
     this.subscriptions["view.refresh"] = Event.subscribe("view.refresh", (ev, data) => this.onRefresh(data));
     this.$config.setVuetify(this.$vuetify);
+  },
+  mounted() {
+    this.$view.enter(this);
   },
   unmounted() {
     for (let i = 0; i < this.subscriptions.length; i++) {
       Event.unsubscribe(this.subscriptions[i]);
     }
 
-    window.removeEventListener("touchstart", (ev) => this.onTouchStart(ev), { passive: false });
-    window.removeEventListener("touchmove", (ev) => this.onTouchMove(ev), { passive: true });
+    // TODO: Find a better solution that plays nice with modal dialogs.
+    // document.removeEventListener("touchstart", this.onTouchStart.bind(this), false);
+    // document.removeEventListener("touchmove", this.onTouchMove.bind(this), false);
   },
   methods: {
     onRefresh(config) {
       this.themeName = config.themeName;
     },
     onTouchStart(ev) {
-      // Block navigation gestures in iOS Safari to avoid interfering with swipes in full-screen viewer,
-      // see https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/:
-      const x = ev.touches[0].pageX;
-      if ((x <= 16 || x >= window.innerWidth - 16) && this.$scrollbar.disabled()) {
-        this.touchStart = 0;
-        ev.preventDefault();
-        return;
-      }
-
       this.touchStart = ev.touches[0].pageY;
     },
     onTouchMove(ev) {
-      if (!this.touchStart || this.$scrollbar.disabled()) {
+      if (!this.touchStart /* || this.$view.isDialog() */) {
         return;
       }
 
-      // Don't fire event when a dialog or the photo/video viewer is open.
+      // Don't fire event when a dialog or the photo/video lightbox is open.
       if (document.querySelector(".v-overlay--active, .pswp--open") !== null) {
         return;
       }
