@@ -19,7 +19,8 @@ test.meta("testID", "places-001").meta({ mode: "public" })("Common: Test places"
   await menu.openPage("places");
 
   await t
-    .expect(Selector("#map").exists, { timeout: 15000 })
+    .expect(Selector('canvas').withAttribute('aria-label','Map').exists, { timeout: 15000 })
+    //.expect(Selector("#map").exists, { timeout: 15000 })
     .ok()
     .expect(Selector("div.map-control").visible)
     .ok();
@@ -31,7 +32,8 @@ test.meta("testID", "places-001").meta({ mode: "public" })("Common: Test places"
   await menu.openPage("places");
 
   await t
-    .expect(Selector("#map").exists, { timeout: 15000 })
+    .expect(Selector('canvas').withAttribute('aria-label','Map').exists, { timeout: 15000 })
+    //.expect(Selector("#map").exists, { timeout: 15000 })
     .ok()
     .expect(Selector("div.map-control").visible)
     .ok()
