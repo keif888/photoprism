@@ -97,6 +97,7 @@ func (c *Config) Report() (rows [][]string, cols []string) {
 
 		// Feature Flags.
 		{"read-only", fmt.Sprintf("%t", c.ReadOnly())},
+		{"develop", fmt.Sprintf("%t", c.Develop())},
 		{"experimental", fmt.Sprintf("%t", c.Experimental())},
 		{"disable-settings", fmt.Sprintf("%t", c.DisableSettings())},
 		{"disable-backups", fmt.Sprintf("%t", c.DisableBackups())},

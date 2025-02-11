@@ -21,3 +21,29 @@
 .p-page .h70 {
     min-height: 70vh;
 }
+
+.toolbar-details-panel {
+    padding: 10px 14px 12px 14px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    font-size: .75rem;
+    line-height: normal !important;
+    letter-spacing: normal !important;
+    margin-bottom: 2px;
+    user-select: text;
+    overflow: hidden;
+    color: rgb(var(--v-theme-on-secondary-light));
+    background-color: rgb(var(--v-theme-secondary-light));
+}
+
+@media only screen and (min-width: 960px) {
+    .toolbar-details-panel {
+        font-size: .875rem;
+        line-height: normal !important;
+        letter-spacing: normal !important;
+        padding: 12px 16px 14px 16px;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        margin-bottom: 4px;
+    }
+}

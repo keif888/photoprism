@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This installs the heif-convert, heif-enc, heif-info, and heif-thumbnailer binaries on Linux.
+# Installs the heif-convert, heif-enc, heif-info, and heif-thumbnailer binaries on Linux.
 # bash <(curl -s https://raw.githubusercontent.com/photoprism/photoprism/develop/scripts/dist/install-libheif.sh)
 
 set -e

@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2018 - 2024 PhotoPrism UG. All rights reserved.
+Copyright (c) 2018 - 2025 PhotoPrism UG. All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
     it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -23,6 +23,15 @@ Additional information can be found in our Developer Guide:
 
 */
 
+import { $config } from "app/session";
+import { DATE_FULL } from "model/photo";
+import sanitizeHtml from "sanitize-html";
+import { DateTime } from "luxon";
+import { $gettext } from "common/gettext";
+import $notify from "common/notify";
+import * as media from "common/media";
+import * as can from "common/can";
+
 const Nanosecond = 1;
 const Microsecond = 1000 * Nanosecond;
 const Millisecond = 1000 * Microsecond;
@@ -32,11 +41,21 @@ const Hour = 60 * Minute;
 let start = new Date();
 
 export default class Util {
-  static fps(fps) {
-    return `${fps.toFixed(1)} FPS`;
+  formatDate(s) {
+    if (!s || !s.length) {
+      return s;
+    }
+
+    const l = s.length;
+
+    if (l !== 20 || s[l - 1] !== "Z") {
+      return s;
+    }
+
+    return DateTime.fromISO(s, { zone: "UTC" }).toLocaleString(DATE_FULL);
   }
 
-  static duration(d) {
+  static formatDuration(d) {
     let u = d;
 
     let neg = d < 0;
@@ -69,13 +88,32 @@ export default class Util {
     let min = Math.floor(u / Minute) % 60;
     let sec = Math.ceil(u / Second) % 60;
 
-    result.push(h.toString().padStart(2, "0"));
-    result.push(min.toString().padStart(2, "0"));
+    if (h && h > 0) {
+      result.push(h.toString());
+      result.push(min.toString().padStart(2, "0"));
+    } else {
+      result.push(min.toString());
+    }
+
     result.push(sec.toString().padStart(2, "0"));
 
     // return `${h}h${min}m${sec}s`
 
     return result.join(":");
+  }
+
+  static formatNs(d) {
+    if (!d || typeof d !== "number") {
+      return "";
+    }
+
+    const ms = Math.round(d / 1000000).toLocaleString();
+
+    return `${ms} ms`;
+  }
+
+  static formatFPS(fps) {
+    return `${fps.toFixed(1)} FPS`;
   }
 
   static arabicToRoman(number) {
@@ -126,8 +164,49 @@ export default class Util {
     }
   }
 
+  static sanitizeHtml(html) {
+    if (!html) {
+      return "";
+    }
+
+    return sanitizeHtml(html);
+  }
+
   static encodeHTML(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+    const linkRegex = /(https?:\/\/)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&;/=]*)/g;
+
+    function linkFunc(matched) {
+      if (!matched) {
+        return "";
+      }
+
+      // Strip query parameters for added security and shorter links.
+      matched = matched.split("?")[0];
+
+      // Ampersand characters (&) should generally be ok in the link URL (though it should already be stripped as it may only be part of the query).
+      let url = matched.replace(/&amp;/g, "&");
+
+      // Make sure the URL starts with "http://" or "https://".
+      if (!url.startsWith("https")) {
+        url = "https://" + matched;
+      }
+
+      // Return HTML link markup.
+      return `<a href="${url}" target="_blank">${matched}</a>`;
+    }
+
+    // Escape HTML control characters.
+    text = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+
+    // Make URLs clickable.
+    text = text.replace(linkRegex, linkFunc);
+
+    return text;
   }
 
   static resetTimer() {
@@ -168,7 +247,7 @@ export default class Util {
     switch (value) {
       case "jpg":
         return "JPEG";
-      case "jxl":
+      case media.FormatJpegXL:
         return "JPEG XL";
       case "raw":
         return "Unprocessed Sensor Data (RAW)";
@@ -190,18 +269,26 @@ export default class Util {
         return "GIF";
       case "dng":
         return "Adobe Digital Negative";
-      case "avc":
-      case "avc1":
+      case media.CodecAvc1:
+      case media.FormatAvc:
         return "Advanced Video Coding (AVC) / H.264";
+      case media.CodecAvc3:
+        return "Advanced Video Coding (AVC) Bitstream";
       case "avif":
         return "AOMedia Video 1 (AV1)";
       case "avifs":
         return "AVIF Image Sequence";
+      case "hev":
       case "hvc":
-      case "hevc":
-      case "hev1":
-      case "hvc1":
+      case media.CodecHvc1:
+      case media.FormatHvc:
         return "High Efficiency Video Coding (HEVC) / H.265";
+      case media.CodecHev1:
+      case media.FormatHev:
+        return "High Efficiency Video Coding (HEVC) Bitstream";
+      case media.FormatEvc:
+      case media.CodecEvc1:
+        return "Essential Video Coding (MPEG-5 Part 1)";
       case "m4v":
         return "Apple iTunes Multimedia Container";
       case "mkv":
@@ -212,8 +299,14 @@ export default class Util {
         return "Blu-ray MPEG-2 Transport Stream";
       case "webp":
         return "Google WebP";
-      case "webm":
+      case media.FormatWebm:
         return "Google WebM";
+      case media.CodecVp08:
+      case media.FormatVp8:
+        return "Google VP8";
+      case media.CodecVp09:
+      case media.FormatVp9:
+        return "Google VP9";
       case "flv":
         return "Flash";
       case "mpg":
@@ -226,9 +319,9 @@ export default class Util {
       case "wmv":
         return "Windows Media";
       case "svg":
-        return "Scalable Vector Graphics";
+        return "SVG";
       case "pdf":
-        return "Portable Document Format";
+        return "PDF";
       case "ai":
         return "Adobe Illustrator";
       case "ps":
@@ -240,26 +333,63 @@ export default class Util {
     }
   }
 
+  static formatCamera(camera, cameraID, cameraMake, cameraModel) {
+    if (camera) {
+      if (camera.Model.length > 7) {
+        return camera.Model;
+      } else {
+        return camera.Make + " " + camera.Model;
+      }
+    } else if (cameraMake && cameraModel) {
+      if (cameraModel.length > 7) {
+        return cameraModel;
+      } else {
+        return cameraMake + " " + cameraModel;
+      }
+    } else if (cameraID > 1 && cameraModel) {
+      return cameraModel;
+    }
+
+    return "";
+  }
+
   static formatCodec(codec) {
     if (!codec) {
       return "";
     }
 
     switch (codec) {
-      case "webp":
-      case "extended webp":
-        return "WebP";
-      case "webm":
-        return "WebM";
-      case "av1c":
-      case "av01":
+      case media.CodecAv1C:
+      case media.CodecAv1:
         return "AV1";
-      case "avc1":
+      case media.CodecAvc1:
+      case media.CodecAvc3:
+      case media.CodecAvc4:
+      case media.FormatAvc:
         return "AVC";
       case "hvc":
-      case "hev1":
-      case "hvc1":
+      case media.CodecHev1:
+      case media.FormatHev:
+      case media.CodecHvc1:
+      case media.FormatHvc:
         return "HEVC";
+      case media.CodecVvc1:
+      case media.FormatVvc:
+        return "VVC";
+      case media.CodecEvc1:
+      case media.FormatEvc:
+        return "EVC";
+      case media.FormatWebm:
+        return "WebM";
+      case media.CodecVp08:
+      case media.FormatVp8:
+        return "VP8";
+      case media.CodecVp09:
+      case media.FormatVp9:
+        return "VP9";
+      case "extended webp":
+      case media.FormatWebp:
+        return "WebP";
       default:
         return codec.toUpperCase();
     }
@@ -278,20 +408,27 @@ export default class Util {
       case "qt  ":
         return "Apple QuickTime (MOV)";
       case "avc":
-      case "avc1":
+      case media.CodecAvc1:
         return "Advanced Video Coding (AVC) / H.264";
+      case media.CodecAvc3:
+        return "Advanced Video Coding (AVC) Bitstream";
       case "hvc":
-      case "hevc":
-      case "hev1":
-      case "hvc1":
+      case "hev":
+      case media.CodecHvc1:
+      case media.FormatHvc:
         return "High Efficiency Video Coding (HEVC) / H.265";
-      case "vvc":
-      case "vvc1":
+      case media.CodecHev1:
+      case media.FormatHev:
+        return "High Efficiency Video Coding (HEVC) Bitstream";
+      case media.FormatVvc:
+      case media.CodecVvc1:
         return "Versatile Video Coding (VVC) / H.266";
-      case "evc":
-      case "evc1":
+      case media.FormatEvc:
+      case media.CodecEvc1:
         return "Essential Video Coding (MPEG-5 Part 1)";
+      case "av1":
       case "av1c":
+      case "av1C":
       case "av01":
         return "AOMedia Video 1 (AV1)";
       case "gif":
@@ -318,6 +455,8 @@ export default class Util {
         return "High Efficiency Image Container (HEIC)";
       case "heics":
         return "HEIC Image Sequence";
+      case media.FormatJpegXL:
+        return "JPEG XL";
       case "1":
         return "Uncompressed";
       case "2":
@@ -419,6 +558,116 @@ export default class Util {
       default:
         return value.toUpperCase();
     }
+  }
+
+  static thumbSize(pixelsWidth, pixelsHeight) {
+    const thumbs = $config.values.thumbs;
+
+    for (let i = 0; i < thumbs.length; i++) {
+      let t = thumbs[i];
+
+      if (t.w >= pixelsWidth && t.h >= pixelsHeight) {
+        return t.size;
+      }
+    }
+
+    return "fit_7680";
+  }
+
+  static videoFormat(codec, mime) {
+    if ((!codec && !mime) || mime?.startsWith('video/mp4; codecs="avc')) {
+      return media.FormatAvc;
+    } else if (can.useMp4Hvc && (codec === media.CodecHvc1 || mime?.startsWith('video/mp4; codecs="hvc'))) {
+      return media.FormatHvc; // HEVC video with parameter sets not in the Samples
+    } else if (can.useMp4Hev && (codec === media.CodecHev1 || mime?.startsWith('video/mp4; codecs="hev'))) {
+      return media.FormatHev; // HEVC video with parameter sets also in the Samples, won't play on macOS
+    } else if (can.useMp4Vvc && (codec === media.CodecVvc1 || mime?.startsWith('video/mp4; codecs="vvc'))) {
+      return media.FormatVvc;
+    } else if (can.useMp4Evc && (codec === media.CodecEvc1 || mime?.startsWith('video/mp4; codecs="evc'))) {
+      return media.FormatEvc;
+    } else if (can.useVP8 && (codec === media.CodecVp08 || mime?.startsWith('video/mp4; codecs="vp8'))) {
+      return media.FormatVp8;
+    } else if (can.useVP9 && (codec === media.CodecVp09 || mime?.startsWith('video/mp4; codecs="vp09'))) {
+      return media.FormatVp9;
+    } else if (can.useMp4Av1 && (mime?.startsWith('video/mp4; codecs="av01') || mime?.startsWith("video/AV1"))) {
+      return media.FormatAv1;
+    } else if (can.useWebmAv1 && mime?.startsWith('video/webm; codecs="av01')) {
+      return media.FormatWebmAv1;
+    } else if (can.useMkvAv1 && mime?.startsWith('video/matroska; codecs="av01')) {
+      return media.FormatMkvAv1;
+    } else if (can.useWebM && (codec === media.FormatWebm || mime === media.ContentTypeWebm)) {
+      return media.FormatWebm;
+    } else if (can.useTheora && (codec === media.CodecTheora || mime === media.ContentTypeOgg)) {
+      return media.FormatTheora;
+    }
+
+    return media.FormatAvc;
+  }
+
+  static videoFormatUrl(hash, format) {
+    if (!hash) {
+      return "";
+    }
+
+    if (!format) {
+      format = media.FormatAvc;
+    }
+
+    return `${$config.videoUri}/videos/${hash}/${$config.previewToken}/${format}`;
+  }
+
+  static videoUrl(hash, codec, mime) {
+    return this.videoFormatUrl(hash, this.videoFormat(codec, mime));
+  }
+
+  static videoContentType(codec, mime) {
+    switch (this.videoFormat(codec, mime)) {
+      case media.FormatAvc:
+        return media.ContentTypeMp4AvcMain;
+      case media.FormatHvc:
+        return media.ContentTypeMp4HvcMain;
+      case media.FormatHev:
+        return media.ContentTypeMp4HevMain;
+      case media.FormatVvc:
+        return media.ContentTypeMp4Vvc;
+      case media.FormatVp8:
+        return media.ContentTypeWebmVp8;
+      case media.FormatVp9:
+        return media.ContentTypeWebmVp9;
+      case media.FormatWebmAv1:
+        return media.ContentTypeWebmAv1Main10;
+      case media.FormatMkvAv1:
+        return media.ContentTypeMkvAv1Main10;
+      case media.FormatWebm:
+        return media.ContentTypeWebm;
+      case media.FormatTheora:
+        return media.ContentTypeOgg;
+      default:
+        return "video/mp4";
+    }
+  }
+
+  static async copyText(text) {
+    if (!text) {
+      return false;
+    }
+
+    // Join additional text arguments, if any.
+    for (let i = 1; i < arguments.length; i++) {
+      if (typeof arguments[i] === "string" && arguments[i].length > 0) {
+        text += " " + arguments[i];
+      }
+    }
+
+    try {
+      await Util.copyToMachineClipboard(text);
+      $notify.success($gettext("Copied to clipboard"));
+      return true;
+    } catch (_) {
+      $notify.error($gettext("Cannot copy to clipboard"));
+    }
+
+    return false;
   }
 
   static async copyToMachineClipboard(text) {

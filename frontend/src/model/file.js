@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2018 - 2024 PhotoPrism UG. All rights reserved.
+Copyright (c) 2018 - 2025 PhotoPrism UG. All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
     it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -24,13 +24,13 @@ Additional information can be found in our Developer Guide:
 */
 
 import RestModel from "model/rest";
-import Api from "common/api";
+import $api from "common/api";
 import { DateTime } from "luxon";
 import Util from "common/util";
-import { config } from "app/session";
-import { $gettext } from "common/vm";
+import { $config } from "app/session";
+import { $gettext } from "common/gettext";
 import download from "common/download";
-import { MediaImage } from "./photo";
+import * as media from "common/media";
 
 export class File extends RestModel {
   getDefaults() {
@@ -120,16 +120,16 @@ export class File extends RestModel {
 
   thumbnailUrl(size) {
     if (this.Error || this.Missing) {
-      return `${config.contentUri}/svg/broken`;
+      return `${$config.contentUri}/svg/broken`;
     } else if (this.Sidecar) {
-      return `${config.contentUri}/svg/file`;
+      return `${$config.contentUri}/svg/file`;
     }
 
-    return `${config.contentUri}/t/${this.Hash}/${config.previewToken}/${size}`;
+    return `${$config.contentUri}/t/${this.Hash}/${$config.previewToken}/${size}`;
   }
 
   getDownloadUrl() {
-    return `${config.apiUri}/dl/${this.Hash}?t=${config.downloadToken}`;
+    return `${$config.apiUri}/dl/${this.Hash}?t=${$config.downloadToken}`;
   }
 
   download() {
@@ -174,11 +174,11 @@ export class File extends RestModel {
     }
 
     if (this.Duration > 0) {
-      info.push(Util.duration(this.Duration));
+      info.push(Util.formatDuration(this.Duration));
     }
 
     if (this.FPS > 0) {
-      info.push(Util.fps(this.FPS));
+      info.push(Util.formatFPS(this.FPS));
     }
 
     this.addSizeInfo(info);
@@ -199,7 +199,11 @@ export class File extends RestModel {
   }
 
   isAnimated() {
-    return this.MediaType && this.MediaType === MediaImage && ((this.Frames && this.Frames > 1) || (this.Duration && this.Duration > 1));
+    return (
+      this.MediaType &&
+      this.MediaType === media.Image &&
+      ((this.Frames && this.Frames > 1) || (this.Duration && this.Duration > 1))
+    );
   }
 
   typeInfo() {
@@ -263,9 +267,9 @@ export class File extends RestModel {
     this.Favorite = !this.Favorite;
 
     if (this.Favorite) {
-      return Api.post(this.getPhotoResource() + "/like");
+      return $api.post(this.getPhotoResource() + "/like");
     } else {
-      return Api.delete(this.getPhotoResource() + "/like");
+      return $api.delete(this.getPhotoResource() + "/like");
     }
   }
 
@@ -275,12 +279,12 @@ export class File extends RestModel {
 
   like() {
     this.Favorite = true;
-    return Api.post(this.getPhotoResource() + "/like");
+    return $api.post(this.getPhotoResource() + "/like");
   }
 
   unlike() {
     this.Favorite = false;
-    return Api.delete(this.getPhotoResource() + "/like");
+    return $api.delete(this.getPhotoResource() + "/like");
   }
 
   static getCollectionResource() {

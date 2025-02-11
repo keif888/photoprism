@@ -27,10 +27,10 @@ test.meta("testID", "stacks-001").meta({ type: "short", mode: "public" })(
     if (t.browser.platform === "desktop") {
       console.log(t.browser.platform);
       await photo.triggerHoverAction("nth", 0, "open");
-      await photoviewer.triggerPhotoViewerAction("next");
-      await photoviewer.triggerPhotoViewerAction("previous");
+      await photoviewer.triggerPhotoViewerAction("arrow--next");
+      await photoviewer.triggerPhotoViewerAction("arrow--prev");
       await photoviewer.triggerPhotoViewerAction("close");
-      await t.expect(Selector("#photo-viewer").visible).notOk();
+      await t.expect(Selector("div.p-lightbox__pswp").visible).notOk();
     }
     await photo.checkHoverActionAvailability("uid", SequentialPhotoUid, "open", true);
   }
@@ -45,8 +45,7 @@ test.meta("testID", "stacks-002").meta({ type: "short", mode: "public" })(
     await t
       .click(page.cardTitle.withAttribute("data-uid", SequentialPhotoUid))
       .click(photoedit.filesTab);
-    const FirstFileName = await Selector("div.caption").nth(0).innerText;
-
+    const FirstFileName = await Selector("td").withText("Filename").nextSibling(0).innerText;
     await t.expect(FirstFileName).contains("photos8_1_ski.jpg");
 
     await t
@@ -54,9 +53,9 @@ test.meta("testID", "stacks-002").meta({ type: "short", mode: "public" })(
       .click(photoedit.makeFilePrimary)
       .click(photoedit.dialogClose)
       .click(page.cardTitle.withAttribute("data-uid", SequentialPhotoUid));
-    const FirstFileNameAfterChange = await Selector("div.caption").nth(0).innerText;
+    const FirstFileNameAfterChange = await Selector("td").withText("Filename").nextSibling(0).innerText;
 
-    await t
+      await t
       .expect(FirstFileNameAfterChange)
       .notContains("photos8_1_ski.jpg")
       .expect(FirstFileNameAfterChange)

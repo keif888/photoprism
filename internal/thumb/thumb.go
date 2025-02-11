@@ -1,7 +1,7 @@
 /*
 Package thumb provides JPEG resampling and thumbnail generation.
 
-Copyright (c) 2018 - 2024 PhotoPrism UG. All rights reserved.
+Copyright (c) 2018 - 2025 PhotoPrism UG. All rights reserved.
 
 	This program is free software: you can redistribute it and/or modify
 	it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -26,11 +26,10 @@ package thumb
 
 import (
 	"fmt"
-	"math"
-
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"math"
 
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/tiff"

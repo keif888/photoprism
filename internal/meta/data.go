@@ -34,7 +34,7 @@ type Data struct {
 	Frames           int           `meta:"FrameCount,AnimationFrames"`
 	Codec            string        `meta:"CompressorID,VideoCodecID,CodecID,OtherFormat,FileType"`
 	Title            string        `meta:"Title,Headline" xmp:"dc:title" dc:"title,title.Alt"`
-	Description      string        `meta:"Description,ImageDescription,Caption,Caption-Abstract" xmp:"Description,Description.Alt"`
+	Caption          string        `meta:"Description,ImageDescription,Caption,Caption-Abstract" xmp:"Description,Description.Alt"`
 	Subject          string        `meta:"Subject,PersonInImage,ObjectName,HierarchicalSubject,CatalogSets" xmp:"Subject"`
 	Keywords         Keywords      `meta:"Keywords"`
 	Favorite         bool          `meta:"Favorite"`

@@ -1,38 +1,44 @@
 import { timeZonesNames } from "@vvo/tzdb";
-import { $gettext } from "common/vm";
+import { $gettext } from "common/gettext";
 import { Info } from "luxon";
-import { config } from "app/session";
-import { MediaImage, MediaLive, MediaVideo, MediaAnimated, MediaVector, MediaRaw } from "model/photo";
+import { $config } from "app/session";
+import * as media from "common/media";
 
-export const UtcOffsets = [
-  { ID: "UTC-12", Name: "UTC-12:00" },
-  { ID: "UTC-11", Name: "UTC-11:00" },
-  { ID: "UTC-10", Name: "UTC-10:00" },
-  { ID: "UTC-9", Name: "UTC-09:00" },
-  { ID: "UTC-8", Name: "UTC-08:00" },
-  { ID: "UTC-7", Name: "UTC-07:00" },
-  { ID: "UTC-6", Name: "UTC-06:00" },
-  { ID: "UTC-5", Name: "UTC-05:00" },
-  { ID: "UTC-4", Name: "UTC-04:00" },
-  { ID: "UTC-3", Name: "UTC-03:00" },
-  { ID: "UTC-2", Name: "UTC-02:00" },
-  { ID: "UTC-1", Name: "UTC-01:00" },
-  { ID: "UTC", Name: "UTC" },
-  { ID: "UTC+1", Name: "UTC+01:00" },
-  { ID: "UTC+2", Name: "UTC+02:00" },
-  { ID: "UTC+3", Name: "UTC+03:00" },
-  { ID: "UTC+4", Name: "UTC+04:00" },
-  { ID: "UTC+5", Name: "UTC+05:00" },
-  { ID: "UTC+6", Name: "UTC+06:00" },
-  { ID: "UTC+7", Name: "UTC+07:00" },
-  { ID: "UTC+8", Name: "UTC+08:00" },
-  { ID: "UTC+9", Name: "UTC+09:00" },
-  { ID: "UTC+10", Name: "UTC+10:00" },
-  { ID: "UTC+11", Name: "UTC+11:00" },
-  { ID: "UTC+12", Name: "UTC+12:00" },
+export const GmtOffsets = [
+  { ID: "GMT", Name: "Etc/GMT" },
+  { ID: "UTC+1", Name: "Etc/GMT+01:00" },
+  { ID: "UTC+2", Name: "Etc/GMT+02:00" },
+  { ID: "UTC+3", Name: "Etc/GMT+03:00" },
+  { ID: "UTC+4", Name: "Etc/GMT+04:00" },
+  { ID: "UTC+5", Name: "Etc/GMT+05:00" },
+  { ID: "UTC+6", Name: "Etc/GMT+06:00" },
+  { ID: "UTC+7", Name: "Etc/GMT+07:00" },
+  { ID: "UTC+8", Name: "Etc/GMT+08:00" },
+  { ID: "UTC+9", Name: "Etc/GMT+09:00" },
+  { ID: "UTC+10", Name: "Etc/GMT+10:00" },
+  { ID: "UTC+11", Name: "Etc/GMT+11:00" },
+  { ID: "UTC+12", Name: "Etc/GMT+12:00" },
+  { ID: "UTC-1", Name: "Etc/GMT-01:00" },
+  { ID: "UTC-2", Name: "Etc/GMT-02:00" },
+  { ID: "UTC-3", Name: "Etc/GMT-03:00" },
+  { ID: "UTC-4", Name: "Etc/GMT-04:00" },
+  { ID: "UTC-5", Name: "Etc/GMT-05:00" },
+  { ID: "UTC-6", Name: "Etc/GMT-06:00" },
+  { ID: "UTC-7", Name: "Etc/GMT-07:00" },
+  { ID: "UTC-8", Name: "Etc/GMT-08:00" },
+  { ID: "UTC-9", Name: "Etc/GMT-09:00" },
+  { ID: "UTC-10", Name: "Etc/GMT-10:00" },
+  { ID: "UTC-11", Name: "Etc/GMT-11:00" },
+  { ID: "UTC-12", Name: "Etc/GMT-12:00" },
 ];
 
-export const TimeZones = () => [{ ID: "", Name: $gettext("Local Time") }].concat(UtcOffsets).concat(timeZonesNames);
+export const TimeZones = () =>
+  [
+    { ID: "", Name: $gettext("Local Time") },
+    { ID: "UTC", Name: "UTC" },
+  ]
+    .concat(timeZonesNames)
+    .concat(GmtOffsets);
 
 export const Days = () => {
   let result = [];
@@ -46,12 +52,16 @@ export const Days = () => {
   return result;
 };
 
-export const Years = () => {
+export const Years = (start) => {
+  if (!start) {
+    start = 1000;
+  }
+
   let result = [];
 
   const currentYear = new Date().getUTCFullYear();
 
-  for (let i = currentYear; i >= 1000; i--) {
+  for (let i = currentYear; i >= start; i--) {
     result.push({ value: i, text: i.toString().padStart(4, "0") });
   }
 
@@ -63,11 +73,11 @@ export const Years = () => {
 export const IndexedYears = () => {
   let result = [];
 
-  if (config.values.years) {
-    for (let i = 0; i < config.values.years.length; i++) {
+  if ($config.values.years) {
+    for (let i = 0; i < $config.values.years.length; i++) {
       result.push({
-        value: parseInt(config.values.years[i]),
-        text: config.values.years[i].toString(),
+        value: parseInt($config.values.years[i]),
+        text: $config.values.years[i].toString(),
       });
     }
   }
@@ -224,7 +234,7 @@ export const Languages = () => [
     value: "ro",
   },
   {
-    text: "Türk", // Turkish
+    text: "Türkçe", // Turkish
     value: "tr",
   },
   {
@@ -348,27 +358,27 @@ export const MapsStyle = (experimental) => {
 export const PhotoTypes = () => [
   {
     text: $gettext("Image"),
-    value: MediaImage,
+    value: media.Image,
   },
   {
     text: $gettext("Raw"),
-    value: MediaRaw,
+    value: media.Raw,
   },
   {
     text: $gettext("Animated"),
-    value: MediaAnimated,
+    value: media.Animated,
   },
   {
     text: $gettext("Live"),
-    value: MediaLive,
+    value: media.Live,
   },
   {
     text: $gettext("Video"),
-    value: MediaVideo,
+    value: media.Video,
   },
   {
     text: $gettext("Vector"),
-    value: MediaVector,
+    value: media.Vector,
   },
 ];
 
@@ -467,6 +477,23 @@ export const FeedbackCategories = () => [
   { value: "other", text: $gettext("Other") },
 ];
 
+export const Thumbs = () => {
+  return $config.values.thumbs;
+};
+
+export const ThumbSizes = () => {
+  const thumbs = Thumbs();
+  const result = [{ text: $gettext("Originals"), value: "" }];
+
+  for (let i = 0; i < thumbs.length; i++) {
+    let t = thumbs[i];
+
+    result.push({ text: t.w + " × " + t.h, value: t.size });
+  }
+
+  return result;
+};
+
 export const ThumbFilters = () => [
   { value: "blackman", text: $gettext("Blackman: Lanczos Modification, Less Ringing Artifacts") },
   { value: "lanczos", text: $gettext("Lanczos: Detail Preservation, Minimal Artifacts") },
@@ -481,8 +508,10 @@ export const Gender = () => [
 ];
 
 export const Orientations = () => [
-  { value: 1, text: "" },
+  { value: 1, text: "0°" },
   { value: 6, text: "90°" },
   { value: 3, text: "180°" },
   { value: 8, text: "270°" },
 ];
+
+export const AccountTypes = () => [{ value: "webdav", text: $gettext("WebDAV") }];

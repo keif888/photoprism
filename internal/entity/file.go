@@ -21,6 +21,7 @@ import (
 	"github.com/photoprism/photoprism/pkg/media"
 	"github.com/photoprism/photoprism/pkg/media/colors"
 	"github.com/photoprism/photoprism/pkg/media/projection"
+	"github.com/photoprism/photoprism/pkg/media/video"
 	"github.com/photoprism/photoprism/pkg/rnd"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
@@ -238,24 +239,59 @@ func (m *File) OriginalBase(seq int) string {
 
 // ShareBase returns a meaningful file name for sharing.
 func (m *File) ShareBase(seq int) string {
+	// Return fallback share name if the file hash is empty.
+	if len(m.FileHash) < 8 {
+		return fmt.Sprintf("%s.%s", rnd.UUID(), m.FileType)
+	}
+
 	photo := m.RelatedPhoto()
 
+	// Return fallback share name if the related photo could not be found.
 	if photo == nil {
 		return fmt.Sprintf("%s.%s", m.FileHash, m.FileType)
-	} else if len(m.FileHash) < 8 {
-		return fmt.Sprintf("%s.%s", rnd.UUID(), m.FileType)
-	} else if photo.TakenAtLocal.IsZero() || photo.PhotoTitle == "" {
-		return fmt.Sprintf("%s.%s", m.FileHash, m.FileType)
 	}
 
-	name := txt.Title(slug.MakeLang(photo.PhotoTitle, "en"))
-	taken := photo.TakenAtLocal.Format("20060102-150405")
+	var (
+		takenAt   time.Time
+		fileTitle string
+	)
 
+	// Get time when the photo was taken.
+	if !photo.TakenAtLocal.IsZero() {
+		takenAt = photo.TakenAtLocal
+	} else if !photo.TakenAt.IsZero() {
+		takenAt = photo.TakenAt
+	} else if !m.PhotoTakenAt.IsZero() {
+		takenAt = m.PhotoTakenAt
+	} else {
+		takenAt = time.Unix(m.ModTime, 0)
+	}
+
+	// Get title to use in the share file name.
+	if photo.PhotoTitle != "" {
+		fileTitle = photo.PhotoTitle
+	} else if m.OriginalName != "" && fs.NonCanonical(m.OriginalName) {
+		fileTitle = m.OriginalName
+	} else if m.FileName != "" && fs.NonCanonical(m.FileName) {
+		fileTitle = m.FileName
+	} else if photo.OriginalName != "" && fs.NonCanonical(photo.OriginalName) {
+		fileTitle = photo.OriginalName
+	} else if photo.PhotoName != "" && fs.NonCanonical(photo.PhotoName) {
+		fileTitle = photo.PhotoName
+	} else {
+		fileTitle = m.FileHash
+	}
+
+	// Compose a file share name based on time and title.
+	fileTime := takenAt.Format("20060102-150405")
+	fileTitle = txt.Title(slug.MakeLang(fileTitle, "en"))
+
+	// Append file sequence number if requested.
 	if seq > 0 {
-		return fmt.Sprintf("%s-%s (%d).%s", taken, name, seq, m.FileType)
+		return fmt.Sprintf("%s-%s (%d).%s", fileTime, fileTitle, seq, m.FileType)
 	}
 
-	return fmt.Sprintf("%s-%s.%s", taken, name, m.FileType)
+	return fmt.Sprintf("%s-%s.%s", fileTime, fileTitle, m.FileType)
 }
 
 // Changed returns true if new and old file size or modified time are different.
@@ -324,7 +360,7 @@ func (m *File) ReplaceHash(newHash string) error {
 	m.FileHash = newHash
 
 	// Ok to skip updating related tables?
-	if m.NoJPEG() || m.FileHash == "" {
+	if m.NoJpeg() || m.FileHash == "" {
 		return nil
 	}
 
@@ -554,13 +590,13 @@ func (m *File) RelatedPhoto() *Photo {
 }
 
 // NoJPEG returns true if the file is not a JPEG image.
-func (m *File) NoJPEG() bool {
-	return fs.ImageJPEG.NotEqual(m.FileType)
+func (m *File) NoJpeg() bool {
+	return fs.ImageJpeg.NotEqual(m.FileType)
 }
 
 // NoPNG returns true if the file is not a PNG image.
-func (m *File) NoPNG() bool {
-	return fs.ImagePNG.NotEqual(m.FileType)
+func (m *File) NoPng() bool {
+	return fs.ImagePng.NotEqual(m.FileType)
 }
 
 // Type returns the file type.
@@ -844,4 +880,15 @@ func (m *File) SetOrientation(val int, src string) *File {
 	}
 
 	return m
+}
+
+// ContentType returns the HTTP content type of the file including the codec as a parameter, if known.
+func (m *File) ContentType() (contentType string) {
+	if m.FileVideo {
+		contentType = video.ContentType(m.FileMime, m.FileType, m.FileCodec, m.IsHDR())
+	} else {
+		contentType = clean.ContentType(m.FileMime)
+	}
+
+	return contentType
 }

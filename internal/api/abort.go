@@ -1,6 +1,7 @@
 package api
 
 import (
+	_ "embed"
 	"net/http"
 	"strings"
 
@@ -11,7 +12,11 @@ import (
 	"github.com/photoprism/photoprism/pkg/authn"
 	"github.com/photoprism/photoprism/pkg/clean"
 	"github.com/photoprism/photoprism/pkg/i18n"
+	"github.com/photoprism/photoprism/pkg/media/http/header"
 )
+
+//go:embed embed/video.mp4
+var brokenVideo []byte
 
 func Abort(c *gin.Context, code int, id i18n.Message, params ...interface{}) {
 	resp := i18n.NewResponse(code, id, params...)
@@ -105,8 +110,24 @@ func AbortBusy(c *gin.Context) {
 	Abort(c, http.StatusTooManyRequests, i18n.ErrBusy)
 }
 
+func AbortInvalidName(c *gin.Context) {
+	Abort(c, http.StatusBadRequest, i18n.ErrInvalidName)
+}
+
 func AbortInvalidCredentials(c *gin.Context) {
 	if c != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": authn.ErrInvalidCredentials.Error(), "code": i18n.ErrInvalidCredentials, "message": i18n.Msg(i18n.ErrInvalidCredentials)})
+	}
+}
+
+func AbortVideo(c *gin.Context) {
+	if c != nil {
+		AbortVideoWithStatus(c, http.StatusOK)
+	}
+}
+
+func AbortVideoWithStatus(c *gin.Context, code int) {
+	if c != nil {
+		c.Data(code, header.ContentTypeMp4AvcMain, brokenVideo)
 	}
 }

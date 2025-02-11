@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This installs JPEG XL on Linux.
+# Installs JPEG XL on Linux.
 # bash <(curl -s https://raw.githubusercontent.com/photoprism/photoprism/develop/scripts/dist/install-jxl.sh)
 
 PATH="/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/scripts:$PATH"

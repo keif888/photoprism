@@ -63,7 +63,7 @@ test.meta("testID", "library-index-001").meta({ type: "short", mode: "public" })
     await menu.openPage("library");
     await t
       .click(library.indexTab)
-      .click(library.indexFolderSelect)
+      .click(library.indexFolderSelect).typeText(library.indexFolderSelect, "/mo", { replace: true })
       .click(page.selectOption.withText("/moment"))
       .click(library.index)
       //TODO replace wait
@@ -87,7 +87,7 @@ test.meta("testID", "library-index-001").meta({ type: "short", mode: "public" })
     await t
       .expect(MomentCountAfterIndex)
       .gt(MomentCount)
-      .click(Selector("a").withText("South Africa 2013"))
+      .click(Selector('div[title="South Africa 2013"]'))
       .expect(Selector(".is-photo").visible)
       .ok();
 

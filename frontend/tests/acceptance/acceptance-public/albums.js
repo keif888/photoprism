@@ -177,7 +177,7 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })(
 
     await photo.selectPhotoFromUID(SecondPhotoUid);
     await photoviewer.openPhotoViewer("uid", FirstPhotoUid);
-    await photoviewer.triggerPhotoViewerAction("select");
+    await photoviewer.triggerPhotoViewerAction("select-toggle");
     await photoviewer.triggerPhotoViewerAction("close");
     await contextmenu.triggerContextMenuAction("album", "Holiday");
     await menu.openPage("albums");

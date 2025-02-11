@@ -51,7 +51,7 @@ test.meta("testID", "people-001").meta({ type: "short", mode: "public" })(
     const JaneUID = await subject.getNthSubjectUid(0);
 
     await t
-      .expect(Selector("a[data-uid=" + JaneUID + "] div.caption").innerText)
+      .expect(Selector("div[data-uid=" + JaneUID + "] div.meta-count").innerText)
       .contains(PhotosInFaceCount.toString());
 
     await subject.openSubjectWithUid(JaneUID);
@@ -69,10 +69,14 @@ test.meta("testID", "people-001").meta({ type: "short", mode: "public" })(
 
     await t.click(photoedit.dialogClose);
     await menu.openPage("people");
+    await subject.renameSubject(JaneUID, "Otto Visible");
+    await t
+      .expect(Selector('p').withText("Merge Jane Doe with Otto Visible").visible).ok()
+      .click(Selector("div.dialog-merge button.action-cancel"));
     await subject.renameSubject(JaneUID, "Max Mu");
 
     await t
-      .expect(Selector("a[data-uid=" + JaneUID + "] div.v-card__title").innerText)
+      .expect(Selector("div[data-uid=" + JaneUID + "] div.meta-title").innerText)
       .contains("Max Mu");
 
     await subject.openSubjectWithUid(JaneUID);
@@ -168,13 +172,13 @@ test.meta("testID", "people-004").meta({ mode: "public" })(
     await subject.triggerToolbarAction("reload");
     const FirstFaceID = await subject.getNthFaceUid(0);
     await t
-      .expect(Selector("div.menuable__content__active").nth(0).visible)
+      .expect(Selector('div[role="option"]').nth(0).visible)
       .notOk()
       .click(Selector("div[data-id=" + FirstFaceID + "] div.input-name input"))
       .typeText(Selector("div[data-id=" + FirstFaceID + "] div.input-name input"), "Otto");
 
     await t
-      .expect(Selector("div.menuable__content__active").nth(0).withText("Otto Visible").visible)
+      .expect(Selector('div[role="option"]').nth(0).withText("Otto Visible").visible)
       .ok();
   }
 );

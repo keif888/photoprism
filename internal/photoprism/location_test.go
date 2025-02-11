@@ -4,9 +4,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/pkg/geo/s2"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMediaFile_Location(t *testing.T) {
@@ -29,7 +30,10 @@ func TestMediaFile_Location(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, "姫路市", location.City())
+		// nominatim and photon disagree on Himeji (姫路市) and Takasago (高砂市), but both contain Shi.
+		// The photo is within 90m of the boundary of the two cities.
+		// And as this test is to validate Unicode, it's ok.
+		assert.Contains(t, location.City(), "市")
 		assert.Equal(t, "兵庫県", location.State())
 		assert.Equal(t, "Japan", location.CountryName())
 		assert.Equal(t, "", location.Category())
@@ -44,7 +48,7 @@ func TestMediaFile_Location(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, "姫路市", location2.City())
+		assert.Contains(t, location2.City(), "市")
 		assert.Equal(t, "兵庫県", location2.State())
 	})
 	t.Run("iphone_15_pro.heic", func(t *testing.T) {
@@ -83,6 +87,42 @@ func TestMediaFile_Location(t *testing.T) {
 
 		assert.Equal(t, "Berlin", location2.City())
 		assert.Equal(t, "Berlin", location2.State())
+	})
+	t.Run("iphone_xr.jpg", func(t *testing.T) {
+		mediaFile, err := NewMediaFile(c.ExamplesPath() + "/iphone_xr.jpg")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		location, err := mediaFile.Location()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err = location.Find("places"); err != nil {
+			t.Fatal(err)
+		}
+
+		// Test Unicode and City is correct.
+		assert.Equal(t, "白川村", location.City())
+		assert.Equal(t, "岐阜県", location.State())
+		assert.Equal(t, "Japan", location.CountryName())
+		assert.Equal(t, "visitor center", location.Category())
+		assert.True(t, strings.HasPrefix(location.ID, s2.TokenPrefix+"5ff871bf"))
+		location2, err := mediaFile.Location()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err = location.Find("places"); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, "白川村", location2.City())
+		assert.Equal(t, "岐阜県", location2.State())
 	})
 	t.Run("cat_brown.jpg", func(t *testing.T) {
 		f, err := NewMediaFile(c.ExamplesPath() + "/cat_brown.jpg")

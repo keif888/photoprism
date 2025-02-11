@@ -1,7 +1,7 @@
 /*
 Package config provides global options, command-line flags, and user settings.
 
-Copyright (c) 2018 - 2024 PhotoPrism UG. All rights reserved.
+Copyright (c) 2018 - 2025 PhotoPrism UG. All rights reserved.
 
 	This program is free software: you can redistribute it and/or modify
 	it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -42,7 +42,7 @@ import (
 	"github.com/klauspost/cpuid/v2"
 	"github.com/pbnjay/memory"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	"github.com/photoprism/photoprism/internal/ai/face"
 	"github.com/photoprism/photoprism/internal/config/customize"
@@ -323,13 +323,13 @@ func (c *Config) CliContext() *cli.Context {
 	return c.cliCtx
 }
 
-// CliGlobalString returns a global cli string flag value if set.
-func (c *Config) CliGlobalString(name string) string {
+// CliContextString returns a global cli string flag value if set.
+func (c *Config) CliContextString(name string) string {
 	if c.cliCtx == nil {
 		return ""
 	}
 
-	return c.cliCtx.GlobalString(name)
+	return c.cliCtx.String(name)
 }
 
 // readSerial reads and returns the current storage serial.
@@ -485,7 +485,12 @@ func (c *Config) Sponsor() bool {
 	return Sponsor
 }
 
-// Experimental checks if experimental features should be enabled.
+// Develop checks if features under development should be enabled.
+func (c *Config) Develop() bool {
+	return Develop || Env(EnvDevelop)
+}
+
+// Experimental checks if new features that may be incomplete or unstable should be enabled.
 func (c *Config) Experimental() bool {
 	return c.options.Experimental
 }

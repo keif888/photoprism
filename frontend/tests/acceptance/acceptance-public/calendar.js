@@ -24,9 +24,9 @@ test.meta("testID", "calendar-001").meta({ type: "short", mode: "public" })(
     await menu.openPage("calendar");
 
     await t
-      .expect(Selector("a").withText("May 2019").visible)
+      .expect(Selector("button").withText("May 2019").visible)
       .ok()
-      .expect(Selector("a").withText("October 2019").visible)
+      .expect(Selector("button").withText("October 2019").visible)
       .ok();
   }
 );
@@ -59,9 +59,9 @@ test.meta("testID", "calendar-002").meta({ mode: "public" })(
       .contains("March 2014")
       .expect(page.cardDescription.nth(0).innerText)
       .contains("We went to ski")
-      .expect(Selector("div.caption").nth(1).innerText)
+      .expect(Selector("button.meta-category").innerText)
       .contains("Mountains")
-      .expect(Selector("div.caption").nth(2).innerText)
+      .expect(Selector("button.meta-location").innerText)
       .contains("Snow");
 
     await album.openNthAlbum(0);
@@ -105,8 +105,7 @@ test.meta("testID", "calendar-002").meta({ mode: "public" })(
     await t
       .expect(page.cardDescription.innerText)
       .notContains("We went to ski")
-      .expect(Selector("div.caption").nth(0).innerText)
-      .notContains("Snow");
+      .expect(Selector("button.meta-location").exists).notOk();
   }
 );
 

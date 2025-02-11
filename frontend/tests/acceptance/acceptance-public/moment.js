@@ -52,9 +52,9 @@ test.meta("testID", "moments-001").meta({ mode: "public" })(
       .contains("Winter")
       .expect(page.cardDescription.nth(0).innerText)
       .contains("We went to ski")
-      .expect(Selector("div.caption").nth(1).innerText)
+      .expect(Selector("button.meta-category").innerText)
       .contains("Mountains")
-      .expect(Selector("div.caption").nth(2).innerText)
+      .expect(Selector("button.meta-location").innerText)
       .contains("Snow-Land");
 
     await album.openNthAlbum(0);
@@ -101,9 +101,7 @@ test.meta("testID", "moments-001").meta({ mode: "public" })(
       .expect(page.cardTitle.nth(0).innerText)
       .contains("Nature & Landscape")
       .expect(page.cardDescription.innerText)
-      .notContains("We went to ski")
-      .expect(Selector("div.caption").nth(0).innerText)
-      .notContains("Snow-Land");
+      .notContains("We went to ski").expect(Selector("button.meta-location").exists).notOk();
   }
 );
 

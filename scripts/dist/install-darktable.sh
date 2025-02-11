@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This installs Darktable on Linux.
+# Installs Darktable on Linux.
 # bash <(curl -s https://raw.githubusercontent.com/photoprism/photoprism/develop/scripts/dist/install-darktable.sh)
 
 PATH="/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/scripts:$PATH"

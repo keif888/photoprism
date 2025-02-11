@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/clean"
 	"github.com/photoprism/photoprism/pkg/fs"
@@ -49,7 +50,7 @@ func ImageFromThumb(thumbName string, area Area, size Size, cache bool) (img ima
 	}
 
 	// Compose cached crop image file name.
-	cropBase := fmt.Sprintf("%s_%dx%d_crop_%s%s", hash, size.Width, size.Height, area.String(), fs.ExtJPEG)
+	cropBase := fmt.Sprintf("%s_%dx%d_crop_%s%s", hash, size.Width, size.Height, area.String(), fs.ExtJpeg)
 	cropName := filepath.Join(filePath, cropBase)
 
 	// Cached?

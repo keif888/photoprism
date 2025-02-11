@@ -1,20 +1,20 @@
 <template>
   <div class="p-page p-page-settings" :class="$config.aclClasses('settings')">
-    <v-tabs v-model="active" flat grow touchless color="secondary" slider-color="secondary-dark" :height="$vuetify.breakpoint.smAndDown ? 48 : 64">
-      <v-tab v-for="(item, index) in tabs" :id="'tab-' + item.name" :key="index" :class="item.class" ripple @click="changePath(item.path)">
-        <v-icon v-if="$vuetify.breakpoint.smAndDown" :title="item.label">{{ item.icon }}</v-icon>
+    <v-tabs v-model="active" :height="$vuetify.display.smAndDown ? 48 : 64">
+      <v-tab v-for="t in tabs" :id="'tab-' + t.name" :key="t.name" :class="t.class" ripple @click="changePath(t.path)">
+        <v-icon v-if="$vuetify.display.smAndDown" :title="t.label">{{ t.icon }}</v-icon>
         <template v-else>
-          <v-icon :size="18" :left="!rtl" :right="rtl">{{ item.icon }}</v-icon>
-          {{ item.label }}
+          <v-icon :size="18" start>{{ t.icon }}</v-icon>
+          {{ t.label }}
         </template>
       </v-tab>
-
-      <v-tabs-items touchless>
-        <v-tab-item v-for="(item, index) in tabs" :key="index" lazy>
-          <component :is="item.component"></component>
-        </v-tab-item>
-      </v-tabs-items>
     </v-tabs>
+
+    <v-tabs-window v-model="active">
+      <v-tabs-window-item v-for="(t, index) in tabs" :key="index">
+        <component :is="t.component"></component>
+      </v-tabs-window-item>
+    </v-tabs-window>
   </div>
 </template>
 
@@ -24,7 +24,8 @@ import Library from "page/settings/library.vue";
 import Advanced from "page/settings/advanced.vue";
 import Services from "page/settings/services.vue";
 import Account from "page/settings/account.vue";
-import { config } from "app/session";
+import { $config } from "app/session";
+import { markRaw } from "vue";
 
 function initTabs(flag, tabs) {
   let i = 0;
@@ -53,63 +54,63 @@ export default {
     const tabs = [
       {
         name: "settings_general",
-        component: General,
+        component: markRaw(General),
         label: this.$gettext("General"),
         class: "",
         path: "/settings",
-        icon: "tv",
+        icon: "mdi-television",
         public: true,
         admin: true,
         demo: true,
-        show: config.feature("settings"),
+        show: $config.feature("settings"),
       },
       {
         name: "settings_media",
-        component: Library,
+        component: markRaw(Library),
         label: this.$gettext("Library"),
         class: "",
         path: "/settings/media",
-        icon: "camera_roll",
+        icon: "mdi-film",
         public: true,
         admin: true,
         demo: true,
-        show: config.allow("config", "manage") && isSuperAdmin,
+        show: $config.allow("config", "manage") && isSuperAdmin,
       },
       {
         name: "settings_advanced",
-        component: Advanced,
+        component: markRaw(Advanced),
         label: this.$gettext("Advanced"),
         class: "",
         path: "/settings/advanced",
-        icon: "build",
+        icon: "mdi-wrench",
         public: false,
         admin: true,
         demo: true,
-        show: config.allow("config", "manage"),
+        show: $config.allow("config", "manage"),
       },
       {
         name: "settings_services",
-        component: Services,
+        component: markRaw(Services),
         label: this.$gettext("Services"),
         class: "",
         path: "/settings/services",
-        icon: "sync_alt",
+        icon: "mdi-swap-horizontal",
         public: false,
         admin: true,
         demo: true,
-        show: config.feature("services") && config.allow("services", "manage"),
+        show: $config.feature("services") && $config.allow("services", "manage"),
       },
       {
         name: "settings_account",
-        component: Account,
+        component: markRaw(Account),
         label: this.$gettext("Account"),
         class: "",
         path: "/settings/account",
-        icon: "admin_panel_settings",
+        icon: "mdi-shield-account-variant",
         public: false,
         admin: true,
         demo: true,
-        show: config.feature("account"),
+        show: $config.feature("account"),
       },
     ];
 
@@ -154,6 +155,12 @@ export default {
         this.active = active;
       }
     },
+  },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
   },
   created() {
     if (!this.tabs || this.tabs.length === 0) {

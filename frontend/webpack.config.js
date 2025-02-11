@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2018 - 2024 PhotoPrism UG. All rights reserved.
+Copyright (c) 2018 - 2025 PhotoPrism UG. All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
     it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -29,10 +29,12 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const OfflinePlugin = require("@lcdp/offline-plugin");
 const webpack = require("webpack");
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = process.env?.BUILD_ENV === "development" || process.env?.NODE_ENV === "development";
 const isCustom = !!process.env.CUSTOM_SRC;
 const appName = process.env.CUSTOM_NAME ? process.env.CUSTOM_NAME : "PhotoPrism";
 const { VueLoaderPlugin } = require("vue-loader");
+const { VuetifyPlugin } = require("webpack-plugin-vuetify");
+const { DefinePlugin } = require("webpack");
 
 const PATHS = {
   src: path.join(__dirname, "src"),
@@ -40,6 +42,7 @@ const PATHS = {
   modules: path.join(__dirname, "node_modules"),
   app: path.join(__dirname, "src/app.js"),
   share: path.join(__dirname, "src/share.js"),
+  splash: path.join(__dirname, "src/splash.js"),
   build: path.join(__dirname, "../assets/static/build"),
   public: "./",
 };
@@ -63,6 +66,7 @@ const config = {
   entry: {
     app: PATHS.app,
     share: PATHS.share,
+    splash: PATHS.splash,
   },
   output: {
     path: PATHS.build,
@@ -74,7 +78,9 @@ const config = {
     modules: isCustom ? [PATHS.custom, PATHS.src, PATHS.modules] : [PATHS.src, PATHS.modules],
     preferRelative: true,
     alias: {
-      vue: isDev ? "vue/dist/vue.js" : "vue/dist/vue.min.js",
+      // TODO: change it
+      vue$: "vue/dist/vue.runtime.esm-bundler.js",
+      // vue: isDev ? "vue/dist/vue.js" : "vue/dist/vue.min.js",
     },
   },
   plugins: [
@@ -96,6 +102,12 @@ const config = {
         return "/static/build/" + asset;
       },
     }),
+    new VuetifyPlugin({ autoImport: true }),
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: JSON.stringify(true), // Change to false as needed
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(false), // Change to true to enable in production
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false), // Change to true for detailed warnings
+    }),
   ],
   performance: {
     hints: isDev ? false : "warning",
@@ -106,18 +118,16 @@ const config = {
     rules: [
       {
         test: /\.vue$/,
-        include: isCustom ? [PATHS.custom, PATHS.src] : [PATHS.src],
-        use: [
-          {
-            loader: "vue-loader",
-            options: {
-              loaders: {
-                js: "babel-loader",
-                css: "css-loader",
-              },
-            },
+        loader: "vue-loader",
+        options: {
+          loaders: {
+            js: "babel-loader",
+            css: "css-loader",
           },
-        ],
+          compilerOptions: {
+            whitespace: "preserve",
+          },
+        },
       },
       {
         test: /\.js$/,

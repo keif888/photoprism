@@ -143,6 +143,7 @@ services:
     ports:
       - "4001:4001" # database port (host:container)
     volumes:
+      - "mariadb:/var/lib/mysql"
       - "./scripts/sql/mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql"
     environment:
       MARIADB_AUTO_UPGRADE: "1"
@@ -267,9 +268,11 @@ services:
 volumes:
   go-mod:
     driver: local
+  mariadb:
+    driver: local
 
 ## Create shared "photoprism-develop" network for connecting with services in other compose.yaml files
 networks:
   default:
-    name: photoprism-develop
+    name: photoprism
     driver: bridge

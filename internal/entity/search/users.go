@@ -10,14 +10,14 @@ import (
 )
 
 // Users finds registered users.
-func Users(f form.SearchUsers) (result entity.Users, err error) {
+func Users(frm form.SearchUsers) (result entity.Users, err error) {
 	result = entity.Users{}
 	stmt := Db()
 
-	search := strings.TrimSpace(f.Query)
-	sortOrder := f.Order
-	limit := f.Count
-	offset := f.Offset
+	search := strings.TrimSpace(frm.Query)
+	sortOrder := frm.Order
+	limit := frm.Count
+	offset := frm.Offset
 
 	if search == "all" {
 		// Don't filter.

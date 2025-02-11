@@ -1,17 +1,15 @@
 <template>
   <div class="p-page p-page-license">
-    <v-toolbar flat color="secondary" :dense="$vuetify.breakpoint.smAndDown">
+    <v-toolbar flat :density="$vuetify.display.smAndDown ? 'compact' : 'default'" class="page-toolbar" color="secondary">
       <v-toolbar-title>
-        <translate>License</translate>
+        {{ $gettext(`License`) }}
       </v-toolbar-title>
-
-      <v-spacer></v-spacer>
 
       <a target="_blank" href="https://www.gnu.org/licenses/agpl-3.0.en.html">
         <img :src="$config.staticUri + '/img/agplv3-small.png'" alt="AGPLv3 Logo" />
       </a>
     </v-toolbar>
-    <v-container fluid class="pa-4 text-selectable">
+    <div class="pa-6 text-selectable text-ltr">
       <h3 style="text-align: center">GNU AFFERO GENERAL PUBLIC LICENSE</h3>
       <p style="text-align: center">Version 3, 19 November 2007</p>
 
@@ -406,15 +404,25 @@
       </p>
       <p> (d) In the event that any provision is found to be unenforceable by a court or other competent jurisdiction, the remaining portions hereof shall remain in full force and effect. </p>
       <h3><a name="terms-end"></a>END OF TERMS AND CONDITIONS</h3>
-    </v-container>
-
+    </div>
     <p-about-footer></p-about-footer>
   </div>
 </template>
 
 <script>
+import PAboutFooter from "component/about/footer.vue";
+
 export default {
   name: "PPageLicense",
+  components: {
+    PAboutFooter,
+  },
+  mounted() {
+    this.$view.enter(this);
+  },
+  unmounted() {
+    this.$view.leave(this);
+  },
   data() {
     return {};
   },

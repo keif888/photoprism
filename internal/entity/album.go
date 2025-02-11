@@ -603,7 +603,11 @@ func (m *Album) UpdateTitleAndState(title, slug, stateName, countryCode string) 
 }
 
 // SaveForm updates the entity using form data and stores it in the database.
-func (m *Album) SaveForm(f form.Album) error {
+func (m *Album) SaveForm(f *form.Album) error {
+	if f == nil {
+		return fmt.Errorf("form is nil")
+	}
+
 	if err := deepcopier.Copy(m).From(f); err != nil {
 		return err
 	}

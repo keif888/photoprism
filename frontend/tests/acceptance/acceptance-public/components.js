@@ -24,9 +24,9 @@ test.meta("testID", "components-002").meta({ type: "short", mode: "public" })(
 
     await photoviewer.openPhotoViewer("nth", 0);
 
-    if (await Selector("#photo-viewer").visible) {
+    if (await Selector("div.p-lightbox__pswp").visible) {
       await t
-        .expect(Selector("#photo-viewer").visible)
+        .expect(Selector("div.p-lightbox__pswp").visible)
         .ok()
         .expect(Selector("img.pswp__img").visible)
         .ok();
@@ -42,13 +42,13 @@ test.meta("testID", "components-003").meta({ type: "short", mode: "public" })(
     await toolbar.setFilter("view", "Mosaic");
 
     await t
-      .expect(Selector("div.type-image.image.clickable").visible)
+      .expect(Selector("div.type-image.result").visible)
       .ok()
-      .expect(Selector("div.p-photo-mosaic").visible)
+      .expect(Selector("div.p-photo-view-mosaic").visible)
       .ok()
-      .expect(Selector("div.is-photo div.caption").exists)
+      .expect(Selector("div.is-photo div.meta").exists)
       .notOk()
-      .expect(Selector("#photo-viewer").visible)
+      .expect(Selector("div.p-lightbox__pswp").visible)
       .notOk();
   }
 );
@@ -57,7 +57,7 @@ test.meta("testID", "components-004").meta({ mode: "public" })("Common: List vie
   await toolbar.setFilter("view", "List");
 
   await t
-    .expect(Selector("table.v-datatable").visible)
+    .expect(Selector("div.v-table").visible)
     .ok()
     .expect(Selector("div.list-view").visible)
     .ok();
@@ -70,11 +70,11 @@ test.meta("testID", "components-005").meta({ type: "short", mode: "public" })(
     await toolbar.search("photo:true");
 
     await t
-      .expect(Selector("div.type-image div.clickable").visible)
+      .expect(Selector("div.type-image.result").visible)
       .ok()
-      .expect(Selector("div.is-photo div.caption").visible)
+      .expect(Selector("div.is-photo div.meta").visible)
       .ok()
-      .expect(Selector("#photo-viewer").visible)
+      .expect(Selector("div.p-lightbox__pswp").visible)
       .notOk();
   }
 );

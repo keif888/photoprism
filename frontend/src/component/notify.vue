@@ -1,9 +1,9 @@
 <template>
-  <v-snackbar id="p-notify" v-model="visible" :color="color" :timeout="0" :class="textColor" :bottom="true">
-    <span :dir="!rtl ? 'let' : 'rtl'">{{ text }}</span>
-    <v-btn :class="textColor + ' pr-0'" icon flat @click="close">
-      <v-icon :class="textColor">close</v-icon>
-    </v-btn>
+  <v-snackbar id="p-notify" v-model="visible" :color="message.color" :timeout="-1" variant="elevated" location="bottom">
+    {{ message.text }}
+    <template #actions>
+      <v-btn icon="mdi-close" :color="'on-' + message.color" variant="text" @click="close"></v-btn>
+    </template>
   </v-snackbar>
 </template>
 <script>
@@ -13,21 +13,22 @@ export default {
   name: "PNotify",
   data() {
     return {
-      text: "",
-      color: "primary",
-      textColor: "",
       visible: false,
+      message: {
+        text: "",
+        color: "transparent",
+      },
       messages: [],
-      lastMessageId: 1,
-      lastMessage: "",
+      lastText: "",
+      lastId: 1,
       subscriptionId: "",
-      rtl: this.$rtl,
+      defaultColor: "info",
     };
   },
   created() {
     this.subscriptionId = Event.subscribe("notify", this.onNotify);
   },
-  destroyed() {
+  unmounted() {
     Event.unsubscribe(this.subscriptionId);
   },
   methods: {
@@ -71,33 +72,32 @@ export default {
     },
 
     addWarningMessage: function (message) {
-      this.addMessage("warning", "black--text", message, 3000);
+      this.addMessage("warning", message, 3000);
     },
 
     addErrorMessage: function (message) {
-      this.addMessage("error", "white--text", message, 8000);
+      this.addMessage("error", message, 8000);
     },
 
     addSuccessMessage: function (message) {
-      this.addMessage("success", "white--text", message, 2000);
+      this.addMessage("success", message, 2000);
     },
 
     addInfoMessage: function (message) {
-      this.addMessage("info", "white--text", message, 2000);
+      this.addMessage("info", message, 2000);
     },
 
-    addMessage: function (color, textColor, message, delay) {
-      if (message === this.lastMessage) return;
+    addMessage: function (color, text, delay) {
+      if (text === this.lastText) return;
 
-      this.lastMessageId++;
-      this.lastMessage = message;
+      this.lastId++;
+      this.lastText = text;
 
       const m = {
-        id: this.lastMessageId,
-        color: color,
-        textColor: textColor,
-        delay: delay,
-        message: message,
+        id: this.lastId,
+        text,
+        color,
+        delay,
       };
 
       this.messages.push(m);
@@ -106,7 +106,6 @@ export default {
         this.show();
       }
     },
-
     close: function () {
       this.visible = false;
       this.show();
@@ -115,18 +114,26 @@ export default {
       const message = this.messages.shift();
 
       if (message) {
-        this.text = message.message;
-        this.color = message.color;
-        this.textColor = message.textColor;
+        this.message = message;
+
+        if (!this.message.color) {
+          this.message.color = this.defaultColor;
+        }
+
         this.visible = true;
 
-        setTimeout(() => {
-          this.lastMessage = "";
-          this.show();
-        }, message.delay);
+        if (message.delay > 0) {
+          setTimeout(() => {
+            this.lastText = "";
+            this.show();
+          }, message.delay);
+        }
       } else {
         this.visible = false;
-        this.text = "";
+        this.$nextTick(function () {
+          this.message.text = "";
+          this.message.color = "transparent";
+        });
       }
     },
   },

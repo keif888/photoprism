@@ -168,10 +168,10 @@ func ProcessUserUpload(router *gin.RouterGroup) {
 
 		start := time.Now()
 
-		var f form.UploadOptions
+		var frm form.UploadOptions
 
 		// Assign and validate request form values.
-		if err := c.BindJSON(&f); err != nil {
+		if err := c.BindJSON(&frm); err != nil {
 			AbortBadRequest(c)
 			return
 		}
@@ -198,10 +198,10 @@ func ProcessUserUpload(router *gin.RouterGroup) {
 		opt := photoprism.ImportOptionsUpload(uploadPath, destFolder)
 
 		// Add imported files to albums if allowed.
-		if len(f.Albums) > 0 &&
+		if len(frm.Albums) > 0 &&
 			acl.Rules.AllowAny(acl.ResourceAlbums, s.UserRole(), acl.Permissions{acl.ActionCreate, acl.ActionUpload}) {
-			log.Debugf("upload: adding files to album %s", clean.Log(strings.Join(f.Albums, " and ")))
-			opt.Albums = f.Albums
+			log.Debugf("upload: adding files to album %s", clean.Log(strings.Join(frm.Albums, " and ")))
+			opt.Albums = frm.Albums
 		}
 
 		// Set user UID if known.
@@ -243,7 +243,7 @@ func ProcessUserUpload(router *gin.RouterGroup) {
 		event.Publish("index.completed", event.Data{"uid": opt.UID, "path": uploadPath, "seconds": elapsed})
 		event.Publish("upload.completed", event.Data{"uid": opt.UID, "path": uploadPath, "seconds": elapsed})
 
-		for _, uid := range f.Albums {
+		for _, uid := range frm.Albums {
 			PublishAlbumEvent(StatusUpdated, uid, c)
 		}
 

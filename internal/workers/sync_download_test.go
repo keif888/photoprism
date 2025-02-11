@@ -6,8 +6,9 @@ import (
 
 	"github.com/photoprism/photoprism/internal/entity"
 
-	"github.com/photoprism/photoprism/internal/config"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/photoprism/photoprism/internal/config"
 )
 
 func TestSync_download(t *testing.T) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This installs Google Chrome on Linux.
+# Installs Google Chrome on Linux.
 # bash <(curl -s https://raw.githubusercontent.com/photoprism/photoprism/develop/scripts/dist/install-chrome.sh)
 
 PATH="/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/scripts:$PATH"

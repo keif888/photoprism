@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This installs the TensorFlow libraries on Linux.
+# Installs the TensorFlow libraries on Linux.
 # bash <(curl -s https://raw.githubusercontent.com/photoprism/photoprism/develop/scripts/dist/install-tensorflow.sh)
 
 PATH="/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/scripts:$PATH"

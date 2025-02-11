@@ -46,6 +46,7 @@ func GetSettings(router *gin.RouterGroup) {
 //	@Summary	saves the user app settings
 //	@Id			SaveSettings
 //	@Tags		Settings
+//	@Accept		json
 //	@Produce	json
 //	@Success	200					{object}	customize.Settings
 //	@Failure	400,401,403,404,500	{object}	i18n.Response

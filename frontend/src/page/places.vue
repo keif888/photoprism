@@ -1,41 +1,62 @@
 <template>
-  <v-container fluid fill-height :class="$config.aclClasses('places')" class="pa-0 p-page p-page-places">
-    <div style="width: 100%; height: 100%; position: relative">
-      <div v-if="canSearch" class="map-control search-control">
+  <div :class="$config.aclClasses('places')" class="p-page p-page-places fill-height">
+    <div class="places">
+      <div v-if="mapError">
+        <v-toolbar
+          flat
+          :density="$vuetify.display.smAndDown ? 'compact' : 'default'"
+          class="page-toolbar"
+          color="secondary"
+        >
+          <v-toolbar-title>
+            {{ $gettext("Places") }}
+          </v-toolbar-title>
+        </v-toolbar>
+        <div class="pa-3">
+          <v-alert color="primary" icon="mdi-alert-circle-outline" class="v-alert--default" variant="outlined">
+            <div class="font-weight-bold">
+              {{ mapError }}
+            </div>
+          </v-alert>
+        </div>
+      </div>
+      <div v-else-if="canSearch" class="map-control search-control">
         <div class="maplibregl-ctrl maplibregl-ctrl-group map-control-search">
           <v-text-field
             v-model.lazy.trim="filter.q"
-            solo
             hide-details
+            theme="light"
             clearable
             flat
             single-line
-            validate-on-blur
-            class="input-search pa-0 ma-0"
-            :label="$gettext('Search')"
-            prepend-inner-icon="search"
-            browser-autocomplete="off"
+            overflow
+            rounded
+            validate-on="invalid-input"
+            class="input-search pa-0"
+            :density="$vuetify.display.xs ? 'compact' : 'comfortable'"
+            :placeholder="$gettext('Search')"
+            prepend-inner-icon="mdi-magnify"
+            autocomplete="off"
             autocorrect="off"
             autocapitalize="none"
-            color="secondary-dark"
             @click:clear="clearQuery"
-            @keyup.enter.native="formChange"
+            @keyup.enter="formChange"
           ></v-text-field>
         </div>
       </div>
-      <div id="map" ref="map" style="width: 100%; height: 100%"></div>
+      <div ref="map" class="map-container" :class="{ 'map-loaded': initialized }"></div>
       <div v-if="showCluster" class="cluster-control">
         <v-card class="cluster-control-container">
           <p-page-photos ref="cluster" :static-filter="cluster" :on-close="closeCluster" :embedded="true" />
         </v-card>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script>
 import maplibregl from "maplibre-gl";
-import Api from "common/api";
+import $api from "common/api";
 import Thumb from "model/thumb";
 import PPagePhotos from "page/photos.vue";
 import MapStyleControl from "component/places/style-control";
@@ -57,7 +78,7 @@ export default {
       s: this.scope(),
     };
 
-    const settings = this.$config.settings();
+    const settings = this.$config.getSettings();
 
     if (settings) {
       const features = settings.features;
@@ -72,9 +93,11 @@ export default {
     }
 
     return {
+      isRtl: this.$config.isRtl(),
       canSearch: this.$config.allow("places", "search"),
       initialized: false,
       map: null,
+      mapError: false,
       markers: {},
       markersOnScreen: {},
       clusterIds: [],
@@ -86,7 +109,8 @@ export default {
         "outdoor-v2": "terrain-rgb",
         "414c531c-926d-4164-a057-455a215c0eee": "terrain_rgb_virtual",
       },
-      attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+      attribution:
+        '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
       maxCount: 500000,
       options: {},
       mapFont: ["Open Sans Regular"],
@@ -110,12 +134,48 @@ export default {
     },
   },
   mounted() {
-    this.initMap().then(() => this.renderMap());
-    this.openClusterFromUrl();
+    this.$view.enter(this);
+    this.initMap()
+      .then(() => {
+        this.renderMap();
+        this.openClusterFromUrl();
+      })
+      .catch((err) => {
+        this.mapError = err;
+      });
+  },
+  unmounted() {
+    this.$view.leave(this);
   },
   methods: {
+    noWebGlSupport() {
+      // see https://maplibre.org/maplibre-gl-js/docs/examples/check-for-support/
+      if (window.WebGLRenderingContext) {
+        const canvas = document.createElement("canvas");
+        try {
+          // Note that { failIfMajorPerformanceCaveat: true } can be passed as a second argument
+          // to canvas.getContext(), causing the check to fail if hardware rendering is not available. See
+          // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+          // for more details.
+          const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
+          if (context && typeof context.getParameter == "function") {
+            return false;
+          }
+        } catch (e) {
+          // WebGL is supported, but disabled.
+        }
+        return this.$gettext("WebGL support is disabled in your browser");
+      }
+
+      // WebGL is not supported.
+      return this.$gettext("Your browser does not support WebGL");
+    },
     initMap() {
       return this.$config.load().finally(() => {
+        const err = this.noWebGlSupport();
+        if (err) {
+          return Promise.reject(err);
+        }
         this.configureMap(this.$config.values.settings.maps.style);
         return Promise.resolve();
       });
@@ -151,7 +211,7 @@ export default {
         mapKey = this.$config.get("mapKey").replace(/[^a-z0-9]/gi, "");
       }
 
-      const settings = this.$config.settings();
+      const settings = this.$config.getSettings();
       const features = settings.features;
 
       if (settings) {
@@ -222,24 +282,23 @@ export default {
       }
 
       let mapOptions = {
-        container: "map",
+        container: this.$refs.map,
         style: "https://api.maptiler.com/maps/" + this.style + "/style.json?key=" + mapKey,
         glyphs: "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=" + mapKey,
-        attributionControl: { compact: false, customAttribution: this.attribution },
+        attributionControl: { compact: true },
         zoom: 0,
       };
 
       if (this.style === "" || this.style === "default") {
         mapOptions = {
-          container: "map",
+          container: this.$refs.map,
           style: "https://cdn.photoprism.app/maps/default.json",
           glyphs: `https://cdn.photoprism.app/maps/font/{fontstack}/{range}.pbf`,
-          attributionControl: true,
           zoom: 0,
         };
       } else if (this.style === "low-resolution") {
         mapOptions = {
-          container: "map",
+          container: this.$refs.map,
           style: {
             version: 8,
             sources: {
@@ -439,13 +498,14 @@ export default {
       this.loading = true;
 
       // Perform get request to find nearby photos.
-      return Api.get("geo/view", options)
+      return $api
+        .get("geo/view", options)
         .then((r) => {
           if (r && r.data && r.data.length > 0) {
             // Show photos.
-            this.$viewer.show(Thumb.wrap(r.data), 0);
+            this.$lightbox.openModels(Thumb.wrap(r.data), 0);
           } else {
-            // Don't open viewer if nothing was found.
+            // Don't open lightbox if nothing was found.
             this.$notify.warn(this.$gettext("No pictures found"));
           }
         })
@@ -527,7 +587,8 @@ export default {
       };
 
       // Fetch results from server.
-      return Api.get("geo", options)
+      return $api
+        .get("geo", options)
         .then((response) => {
           if (!response.data.features || response.data.features.length === 0) {
             this.loading = false;
@@ -564,9 +625,9 @@ export default {
       this.map = new maplibregl.Map(this.options);
       this.map.setLanguage(this.$config.values.settings.ui.language.split("-")[0]);
 
-      const controlPos = this.$rtl ? "top-left" : "top-right";
+      const controlPos = "top-right";
 
-      // Show map navigation control.
+      // Add map navigation control.
       this.map.addControl(
         new maplibregl.NavigationControl({
           visualizePitch: true,
@@ -576,7 +637,7 @@ export default {
         controlPos
       );
 
-      // Show terrain control, if supported.
+      // Add 3D terrain toggle control, if supported.
       if (this.terrain[this.style]) {
         this.map.addControl(
           new maplibregl.TerrainControl({
@@ -586,10 +647,18 @@ export default {
         );
       }
 
-      // Show fullscreen control.
-      this.map.addControl(new maplibregl.FullscreenControl({ container: document.querySelector("body") }), controlPos);
+      // Add 3D globe toggle control.
+      this.map.addControl(new maplibregl.GlobeControl());
 
-      // Show locate control.
+      // Add fullscreen toggle control, except on mobile devices.
+      if (!this.$isMobile) {
+        this.map.addControl(
+          new maplibregl.FullscreenControl({ container: document.querySelector("body") }),
+          controlPos
+        );
+      }
+
+      // Add locate position control.
       this.map.addControl(
         new maplibregl.GeolocateControl({
           positionOptions: {
@@ -600,15 +669,21 @@ export default {
         controlPos
       );
 
-      // Map style switcher control.
+      // Add style switcher control.
       if (this.mapStyles.length > 1) {
         this.map.addControl(new MapStyleControl(this.mapStyles, this.style, this.setStyle), controlPos);
       }
 
-      // Show map scale control.
-      this.map.addControl(new maplibregl.ScaleControl({}), this.$rtl ? "bottom-right" : "bottom-left");
+      // Add map scale control.
+      this.map.addControl(new maplibregl.ScaleControl({}), "bottom-left");
 
       this.map.on("load", () => this.onMapLoad());
+
+      const attrCtrl = this.$refs.map.querySelector(".maplibregl-ctrl-attrib.maplibregl-compact-show");
+
+      if (attrCtrl) {
+        attrCtrl.classList?.remove("maplibregl-compact-show");
+      }
     },
     getClusterFeatures(clusterId, limit, callback) {
       this.map
@@ -702,7 +777,7 @@ export default {
 
             const counterBubble = document.createElement("div");
 
-            counterBubble.className = "counter-bubble primary-button theme--light";
+            counterBubble.className = "badge";
             counterBubble.innerText = this.abbreviateCount(props.point_count);
 
             el.append(imageContainer);
@@ -768,7 +843,7 @@ export default {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
         cluster: true,
-        clusterMaxZoom: 18, // Max zoom to cluster points on
+        clusterMaxZoom: 17, // Max zoom to cluster points on
         clusterRadius: 80, // Radius of each cluster when clustering points (defaults to 50)
       });
 
