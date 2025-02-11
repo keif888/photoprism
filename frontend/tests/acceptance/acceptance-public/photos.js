@@ -12,6 +12,12 @@ import PhotoEdit from "../page-model/photo-edit";
 const scroll = ClientFunction((x, y) => window.scrollTo(x, y));
 const getcurrentPosition = ClientFunction(() => window.scrollY);
 
+function testWrapper(name, cb, repeat = 50){
+  for (let index = 0; index < repeat; index++) {
+    test.meta("testID", "photos-001").meta({ mode: "public" })(name, cb);
+  }
+}
+
 fixture`Test photos`.page`${testcafeconfig.url}`;
 
 const menu = new Menu();
@@ -22,7 +28,8 @@ const photoviewer = new PhotoViewer();
 const page = new Page();
 const photoedit = new PhotoEdit();
 
-test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to top", async (t) => {
+//test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to top", async (t) => {
+testWrapper("Common: Scroll to top", async (t) => {
   await toolbar.setFilter("view", "Cards");
 
   await t
@@ -44,9 +51,11 @@ test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to to
       if (await getcurrentPosition() == 900) {
         moveOk = true;
       } else {
+        console.log(`Expected position 900 got ${getcurrentPosition()}`);
         await t.expect(retryCounter++).lte(5);
       }
     } else {
+      console.log(`Expected position 1400 got ${getcurrentPosition()}`);
       await t.expect(retryCounter++).lte(5);
     }
   }
@@ -406,6 +415,7 @@ test.meta("testID", "photos-008").meta({ mode: "public" })(
           // Clicking again opens the page that should have opened before, as per issue listed above.
           await t.click(page.cardTaken.nth(0));
           flowerPage = await t.getCurrentWindow();
+          console.log("A second click was required.");
         }
 
         const SearchTerm = await toolbar.search1.value;
