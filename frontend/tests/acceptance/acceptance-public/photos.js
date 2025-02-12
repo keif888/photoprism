@@ -12,12 +12,6 @@ import PhotoEdit from "../page-model/photo-edit";
 const scroll = ClientFunction((x, y) => window.scrollTo(x, y));
 const getcurrentPosition = ClientFunction(() => window.scrollY);
 
-function testWrapper(name, cb, repeat = 50){
-  for (let index = 0; index < repeat; index++) {
-    test.meta("testID", "photos-001").meta({ mode: "public" })(name, cb);
-  }
-}
-
 fixture`Test photos`.page`${testcafeconfig.url}`;
 
 const menu = new Menu();
@@ -28,8 +22,7 @@ const photoviewer = new PhotoViewer();
 const page = new Page();
 const photoedit = new PhotoEdit();
 
-//test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to top", async (t) => {
-testWrapper("Common: Scroll to top", async (t) => {
+test.meta("testID", "photos-001").meta({ mode: "public" })("Common: Scroll to top", async (t) => {
   await toolbar.setFilter("view", "Cards");
 
   await t
@@ -40,25 +33,8 @@ testWrapper("Common: Scroll to top", async (t) => {
     .expect(Selector("div.type-image.result").nth(0).visible)
     .ok();
 
-  // For some reason testcafe sometimes "jitters" on the move, So build in 5 retries to make sure that the movement's haven't jittered.
-  var retryCounter = 0;
-  var moveOk = false;
-  while (!moveOk)
-  {
-    await scroll(0, 1400);
-    if (await getcurrentPosition() == 1400) {
-      await scroll(0, 900);
-      if (await getcurrentPosition() == 900) {
-        moveOk = true;
-      } else {
-        console.log(`Expected position 900 got ${getcurrentPosition()}`);
-        await t.expect(retryCounter++).lte(5);
-      }
-    } else {
-      console.log(`Expected position 1400 got ${getcurrentPosition()}`);
-      await t.expect(retryCounter++).lte(5);
-    }
-  }
+  await t.scroll('bottom');
+  await t.pressKey('pageup');
 
   await t.click(Selector("button.p-scroll")).expect(getcurrentPosition()).eql(0);
 });
