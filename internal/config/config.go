@@ -591,6 +591,7 @@ func (c *Config) Shutdown() {
 	} else {
 		log.Debug("closed database connection")
 	}
+	entity.SetDbProvider(nil)
 }
 
 // IndexWorkers returns the number of indexing workers.
