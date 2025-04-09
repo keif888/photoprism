@@ -27,3 +27,8 @@ func Db() *gorm.DB {
 func UnscopedDb() *gorm.DB {
 	return Db().Unscoped()
 }
+
+// HasDb checks if a *gorm.DB connection exists.
+func HasDb() bool {
+	return dbConn != nil
+}
