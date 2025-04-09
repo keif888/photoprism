@@ -21,6 +21,7 @@ func TestConfigShutdown(t *testing.T) {
 		}
 
 		conf.InitDb()
+		conf.InitTestDb()
 
 		var beforeCount int64
 		conf.Db().Model(&entity.Error{}).Count(&beforeCount)
@@ -31,6 +32,14 @@ func TestConfigShutdown(t *testing.T) {
 				"time":    time.Now().UTC().Truncate(time.Second),
 				"level":   "Warn",
 				"message": "testing: Push a warning record before Shutdown",
+			},
+		)
+		event.Publish(
+			"log.Warn",
+			event.Data{
+				"time":    time.Now().UTC().Truncate(time.Second),
+				"level":   "Warn",
+				"message": "testing: Push another warning record before Shutdown",
 			},
 		)
 
@@ -74,6 +83,7 @@ func TestConfigShutdown(t *testing.T) {
 		}
 
 		conf.InitDb()
+		conf.InitTestDb()
 
 		var beforeCount int64
 		conf.Db().Model(&entity.Error{}).Count(&beforeCount)
@@ -84,6 +94,14 @@ func TestConfigShutdown(t *testing.T) {
 				"time":    time.Now().UTC().Truncate(time.Second),
 				"level":   "Warn",
 				"message": "testing: Push a 2nd warning record before Shutdown",
+			},
+		)
+		event.Publish(
+			"log.Warn",
+			event.Data{
+				"time":    time.Now().UTC().Truncate(time.Second),
+				"level":   "Warn",
+				"message": "testing: Push a 3rd warning record before Shutdown",
 			},
 		)
 
@@ -117,5 +135,4 @@ func TestConfigShutdown(t *testing.T) {
 		time.Sleep(time.Second * 5)
 		t.Log("no fatal error has caused TestConfigShutdown to fail, there should be at least 1 logevents message(s) before this")
 	})
-
 }
