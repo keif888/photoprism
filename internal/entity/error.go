@@ -9,12 +9,17 @@ import (
 	"github.com/photoprism/photoprism/internal/event"
 )
 
-var logWarningsAndErrorsRunning = atomic.Bool{}
+// logEvents is true when events are being recorded in the "errors" database table.
+var logEvents = atomic.Bool{}
 
-// LogWarningsAndErrors starts writing published error and warning events to the "errors" database table once.
+// LogWarningsAndErrors starts logging published error and warning
+// events to the errors database table if a database instance is set.
 func LogWarningsAndErrors() {
-	if HasDb() && logWarningsAndErrorsRunning.Load() == false {
-		logWarningsAndErrorsRunning.Store(true)
+	if !HasDbProvider() {
+		return
+	}
+
+	if logEvents.CompareAndSwap(false, true) {
 		go Error{}.LogEvents(logrus.WarnLevel)
 	}
 }
@@ -40,6 +45,7 @@ func (Error) LogEvents(minLevel logrus.Level) {
 	s := event.Subscribe("log.*")
 
 	defer func() {
+		logEvents.CompareAndSwap(true, false)
 		event.Unsubscribe(s)
 	}()
 
@@ -65,11 +71,10 @@ func (Error) LogEvents(minLevel logrus.Level) {
 			errLog.ErrorTime = val.(time.Time)
 		}
 
-		if HasDb() {
+		if HasDbProvider() {
 			Db().Create(&errLog)
 		} else {
 			break
 		}
 	}
-	logWarningsAndErrorsRunning.Store(false)
 }

@@ -325,6 +325,7 @@ func (c *Config) CloseDb() error {
 	if c.db != nil {
 		if err := c.db.Close(); err == nil {
 			c.db = nil
+			entity.SetDbProvider(nil)
 		} else {
 			return err
 		}
