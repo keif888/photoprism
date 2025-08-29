@@ -111,12 +111,17 @@ func TestService_Delete(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		modelId := model.ID
 		err = model.Delete()
 
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO how to assert deletion?
+		count := int64(5)
+		if err = Db().Model(&Service{ID: modelId}).Count(&count).Error; err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, int64(0), count)
 
 	})
 }
@@ -230,7 +235,6 @@ func TestService_Update(t *testing.T) {
 	})
 }
 
-// TODO fails on mariadb
 func TestService_Save(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		account := Service{AccName: "DeleteAccount", AccOwner: "Delete", AccURL: "test.com", AccType: "test", AccKey: "123", AccUser: "testuser", AccPass: "testpass",
@@ -248,6 +252,8 @@ func TestService_Save(t *testing.T) {
 			t.Fatal(err)
 		}
 		initialDate := model.UpdatedAt
+
+		model.RetryLimit = 5 // MariaDB requires an actual change for the update to do something with gorm can then retrieve.
 
 		err = model.Save()
 

@@ -160,8 +160,12 @@ func TestFindLink(t *testing.T) {
 		t.Logf("%#v", link)
 		r := FindLink(uid)
 		t.Log(r)
-		//TODO Why does it fail?
-		//assert.Equal(t, "1jxf3jfn2k", r.LinkToken)
+		//Why did it fail? (Because it was testing a static value against a randomly generated token)
+		assert.Equal(t, link.LinkToken, r.LinkToken)
+		assert.Equal(t, link.ShareUID, r.ShareUID)
+		assert.Equal(t, link.RefID, r.RefID)
+		assert.Equal(t, link.CreatedAt, r.CreatedAt)
+		assert.Equal(t, link.ModifiedAt, r.ModifiedAt)
 	})
 	t.Run("nil", func(t *testing.T) {
 		r := FindLink("XXX")
