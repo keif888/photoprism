@@ -247,7 +247,6 @@ func TestMarker_InvalidArea(t *testing.T) {
 	})
 }
 
-// TODO fails on mariadb
 func TestMarker_Save(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		m := NewMarker(FileFixtures.Get("exampleFileName.jpg"), testArea, "ls6sg6b1wowuy3c4", SrcImage, MarkerLabel, 100, 65)
@@ -265,6 +264,7 @@ func TestMarker_Save(t *testing.T) {
 		assert.Equal(t, SrcMeta, m.MarkerSrc)
 
 		initialDate := m.UpdatedAt
+		m.Score = m.Score + 1 // MariaDB requires change to update dates
 
 		if err := m.Save(); err != nil {
 			t.Fatal(err)

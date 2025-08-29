@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/photoprism/photoprism/pkg/rnd"
 )
 
 func TestNewPassword(t *testing.T) {
@@ -103,7 +105,7 @@ func TestPassword_Invalid(t *testing.T) {
 
 func TestPassword_Create(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		p := Password{}
+		p := Password{UID: rnd.GenerateUID('u')}
 
 		err := p.Create()
 

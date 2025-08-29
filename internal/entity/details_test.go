@@ -143,7 +143,7 @@ func TestNewDetails(t *testing.T) {
 	})
 }
 
-// TODO fails on mariadb
+// failed on mariadb due to PhotoID exceeding int(10) unsigned
 func TestDetails_Create(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		details := Details{PhotoID: 0}
@@ -151,7 +151,7 @@ func TestDetails_Create(t *testing.T) {
 		assert.Error(t, details.Create())
 	})
 	t.Run("Success", func(t *testing.T) {
-		details := Details{PhotoID: 1236799955432}
+		details := Details{PhotoID: 1236795432}
 
 		err := details.Create()
 
@@ -161,10 +161,10 @@ func TestDetails_Create(t *testing.T) {
 	})
 }
 
-// TODO fails on mariadb
+// failed on mariadb due to PhotoID exceeding int(10) unsigned
 func TestDetails_Save(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		details := Details{PhotoID: 123678955432, UpdatedAt: time.Date(2020, 2, 1, 0, 0, 0, 0, time.UTC)}
+		details := Details{PhotoID: 1236795432, UpdatedAt: time.Date(2020, 2, 1, 0, 0, 0, 0, time.UTC)}
 		initialDate := details.UpdatedAt
 
 		err := details.Save()

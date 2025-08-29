@@ -58,7 +58,7 @@ func CreateUserSettings(user *User) error {
 	if err := Db().Where("user_uid = ?", user.GetUID()).First(user.UserSettings).Error; err == nil {
 		return nil
 	}
-
+	user.UserSettings.UserUID = user.UserUID // Fix so that MariaDB works
 	return user.UserSettings.Create()
 }
 

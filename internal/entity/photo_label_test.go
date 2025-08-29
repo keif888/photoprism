@@ -71,16 +71,20 @@ func TestPhotoLabel_Save(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-	//TODO fails on mariadb
 	t.Run("photo not nil and label not nil", func(t *testing.T) {
 		label := &Label{LabelName: "LabelSaveUnique", LabelSlug: "unique-slug"}
+		Db().Create(label)
 		photo := &Photo{}
+		Db().Create(photo)
 
-		photoLabel := PhotoLabel{Photo: photo, Label: label}
+		photoLabel := PhotoLabel{PhotoID: photo.ID, Label: label} // Required as the Photo is removed by Save.
 		err := photoLabel.Save()
 		if err != nil {
 			t.Fatal(err)
 		}
+		UnscopedDb().Delete(photoLabel)
+		UnscopedDb().Delete(label)
+		UnscopedDb().Delete(photo)
 	})
 }
 

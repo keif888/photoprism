@@ -103,7 +103,7 @@ func TestFindUserShares(t *testing.T) {
 }
 
 func TestUserShare_Create(t *testing.T) {
-	m := UserShare{}
+	m := UserShare{UserUID: rnd.GenerateUID(UserUID), ShareUID: rnd.GenerateUID('s')}
 	err := m.Create()
 
 	if err != nil {
