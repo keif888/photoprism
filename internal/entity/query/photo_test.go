@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/photoprism/photoprism/internal/entity"
+	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
 
@@ -105,13 +106,69 @@ func TestOrphanPhotos(t *testing.T) {
 	assert.IsType(t, entity.Photos{}, result)
 }
 
-// TODO How to verify?
 func TestFixPrimaries(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
+		preview := entity.File{
+			ID:              3000002,
+			Photo:           entity.PhotoFixtures.Pointer("Photo01"),
+			PhotoID:         entity.PhotoFixtures.Pointer("Photo01").ID,
+			PhotoUID:        entity.PhotoFixtures.Pointer("Photo01").PhotoUID,
+			InstanceID:      "a698ac56-6e7e-42b9-9c3e-a79ec96080ac",
+			FileUID:         rnd.GenerateUID(entity.FileUID), // "fs6sg6bw45bn0003",
+			FileName:        "2790/02/Photo01.jpg",
+			FileRoot:        entity.RootOriginals,
+			OriginalName:    "",
+			FileHash:        "ocad9168fa6acc5c5c2965ddf6ec465ca42fd812",
+			FileSize:        858,
+			FileCodec:       "",
+			FileType:        "jpg",
+			MediaType:       string(fs.ImageJpeg),
+			FileMime:        "",
+			FilePrimary:     false,
+			FileSidecar:     false,
+			FileVideo:       false,
+			FileMissing:     false,
+			FilePortrait:    false,
+			FileDuration:    0,
+			FileWidth:       100,
+			FileHeight:      0,
+			FileOrientation: 0,
+			FileProjection:  "",
+			FileAspectRatio: 1,
+			FileMainColor:   "",
+			FileColors:      "",
+			FileLuminance:   "",
+			FileDiff:        0,
+			FileChroma:      0,
+			FileError:       "",
+			Share:           []entity.FileShare{},
+			Sync:            []entity.FileSync{},
+			ModTime:         time.Date(2019, 3, 6, 2, 6, 51, 0, time.UTC).Unix(),
+			CreatedAt:       time.Date(2009, 1, 1, 0, 0, 0, 0, time.UTC),
+			CreatedIn:       12361491,
+			UpdatedAt:       time.Date(2020, 3, 28, 14, 6, 0, 0, time.UTC),
+			UpdatedIn:       9537701,
+			DeletedAt:       nil,
+		}
+
+		if err := Db().Create(&preview).Error; err != nil {
+			t.Fatal(err)
+		}
+		var count int64
+		if err := Db().Model(entity.File{}).Where("id = ? and file_primary = ?", 3000002, 1).Count(&count).Error; err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, int64(0), count)
+
 		err := FixPrimaries()
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		if err := Db().Model(entity.File{}).Where("id = ? and file_primary = ?", 3000002, 1).Count(&count).Error; err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, int64(1), count)
 	})
 }
 
