@@ -79,11 +79,10 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterPercent", func(t *testing.T) {
+	t.Run("CenterPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "I love % dog"
+		f.Faces = "Kramer love % dog"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -92,12 +91,11 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
-	//TODO random result
-	/*t.Run("EndsWithPercent", func(t *testing.T) {
+	})
+	t.Run("EndsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "sale%"
+		f.Faces = "bonus%"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -106,7 +104,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -120,11 +118,10 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterAmpersand", func(t *testing.T) {
+	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "Pets & Dogs"
+		f.Faces = "Dogs & Pets"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -133,7 +130,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("EndsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -160,11 +157,10 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterSingleQuote", func(t *testing.T) {
+	t.Run("CenterSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "Father's faces"
+		f.Faces = "Mother's faces"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -174,12 +170,11 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
-	//TODO random result
-	/*t.Run("EndsWithSingleQuote", func(t *testing.T) {
+	})
+	t.Run("EndsWithSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "Ice Cream'"
+		f.Faces = "Banana Split'"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -188,7 +183,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithAsterisk", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -215,11 +210,10 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("EndsWithAsterisk", func(t *testing.T) {
+	t.Run("EndsWithAsterisk", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "Yoga***"
+		f.Faces = "Karate***"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -228,7 +222,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithPipe", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -283,11 +277,10 @@ func TestPhotosFilterFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterNumber", func(t *testing.T) {
+	t.Run("CenterNumber", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Faces = "faces555 Blue"
+		f.Faces = "legs555 Blue"
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -296,7 +289,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("EndsWithNumber", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -384,11 +377,10 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterPercent", func(t *testing.T) {
+	t.Run("CenterPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"I love % dog\""
+		f.Query = "faces:\"Kramer love % dog\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -397,12 +389,11 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
-	//TODO random result
-	/*t.Run("EndsWithPercent", func(t *testing.T) {
+	})
+	t.Run("EndsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"sale%\""
+		f.Query = "faces:\"bonus%\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -411,7 +402,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -425,11 +416,10 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterAmpersand", func(t *testing.T) {
+	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"Pets & Dogs\""
+		f.Query = "faces:\"Dogs & Pets\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -438,7 +428,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("EndsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -465,11 +455,10 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterSingleQuote", func(t *testing.T) {
+	t.Run("CenterSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"Father's faces\""
+		f.Query = "faces:\"Mother's faces\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -479,12 +468,11 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
-	//TODO random result
-	/*t.Run("EndsWithSingleQuote", func(t *testing.T) {
+	})
+	t.Run("EndsWithSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"Ice Cream'\""
+		f.Query = "faces:\"Banana Split'\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -493,7 +481,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithAsterisk", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -520,11 +508,10 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("EndsWithAsterisk", func(t *testing.T) {
+	t.Run("EndsWithAsterisk", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"Yoga***\""
+		f.Query = "faces:\"Karate***\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -533,7 +520,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("StartsWithPipe", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -587,11 +574,10 @@ func TestPhotosQueryFaces(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), len(photos0))
 	})
-	//TODO random result
-	/*t.Run("CenterNumber", func(t *testing.T) {
+	t.Run("CenterNumber", func(t *testing.T) {
 		var f form.SearchPhotos
 
-		f.Query = "faces:\"faces555 Blue\""
+		f.Query = "faces:\"legs555 Blue\""
 		f.Primary = true
 
 		photos, _, err := Photos(f)
@@ -600,7 +586,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), len(photos0))
-	})*/
+	})
 	t.Run("EndsWithNumber", func(t *testing.T) {
 		var f form.SearchPhotos
 

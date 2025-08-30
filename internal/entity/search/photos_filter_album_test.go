@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
@@ -79,9 +80,13 @@ func TestPhotosFilterAlbum(t *testing.T) {
 		assert.Greater(t, len(photos), 0)
 	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "&IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
+
 		var f form.SearchPhotos
 
-		f.Album = "IlikeFood"
+		f.Album = "&IlikeFood"
 		f.Merged = true
 
 		photos, _, err := Photos(f)
@@ -89,8 +94,10 @@ func TestPhotosFilterAlbum(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//TODO still variable results
-		assert.GreaterOrEqual(t, len(photos), 1)
+		assert.Equal(t, 1, len(photos))
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -345,18 +352,25 @@ func TestPhotosQueryAlbum(t *testing.T) {
 		assert.Greater(t, len(photos), 0)
 	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "&IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 		var f form.SearchPhotos
 
 		f.Query = "album:\"&IlikeFood\""
 		f.Merged = true
 
-		photos, _, err := Photos(f)
+		photos, count, err := Photos(f)
 
 		if err != nil {
 			t.Fatal(err)
 		}
-		//TODO still variable results
-		assert.GreaterOrEqual(t, len(photos), 0)
+		assert.Equal(t, 3, count)
+		assert.NotEmpty(t, photos)
+		assert.Equal(t, 1, len(photos))
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos

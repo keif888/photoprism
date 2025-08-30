@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
@@ -179,17 +180,26 @@ func TestPhotosFilterAlbums(t *testing.T) {
 		assert.Greater(t, len(photos), 0)
 	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
+		// This test is checking that an album which starts with & can't be found.
+		// ps. The UI strips & from the start of an album_title when creating an album so it's not going to happen.
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "&IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 		var f form.SearchPhotos
 
-		f.Albums = "IlikeFood"
+		f.Albums = "&IlikeFood"
 		f.Merged = true
 
-		photos, _, err := Photos(f)
+		photos, count, err := Photos(f)
 
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 0, len(photos))
+		assert.Equal(t, 0, count)
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -632,17 +642,26 @@ func TestPhotosQueryAlbums(t *testing.T) {
 		assert.Greater(t, len(photos), 0)
 	})
 	t.Run("StartsWithAmpersand", func(t *testing.T) {
+		// This test is checking that an album which starts with & can't be found.
+		// ps. The UI strips & from the start of an album_title when creating an album so it's not going to happen.
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "&IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 		var f form.SearchPhotos
 
-		f.Query = "albums:\"IlikeFood\""
+		f.Query = "albums:\"&IlikeFood\""
 		f.Merged = true
 
-		photos, _, err := Photos(f)
+		photos, count, err := Photos(f)
 
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 0, len(photos))
+		assert.Equal(t, 0, count)
+		if err := Db().Model(entity.Album{}).Where("id = 1000011").Update("album_title", "IlikeFood").Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
