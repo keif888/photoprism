@@ -453,7 +453,10 @@ func TestMediaFile_Exif_Dng(t *testing.T) {
 	assert.Equal(t, false, info.Flash)
 	assert.Equal(t, "", info.Caption)
 
-	// TODO: Unstable results, depending on test order!
+	// TODO: Unstable results, bug in exif code from dsoprea/go-exif.
+	// Following is output from the exif-read-tool included in dsoprea/go-exif/v3/command/exif-read-tool
+	// IFD-PATH=[IFD] ID=(0x0100) NAME=[ImageWidth] COUNT=(1) TYPE=[LONG] VALUE=[[256]]
+	// IFD-PATH=[IFD] ID=(0x0101) NAME=[ImageLength] COUNT=(1) TYPE=[LONG] VALUE=[[171]]
 	// assert.Equal(t, 1224, info.Width)
 	// assert.Equal(t, 816, info.Height)
 	t.Logf("canon_eos_6d.dng width x height: %d x %d", info.Width, info.Height)
