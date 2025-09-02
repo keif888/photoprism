@@ -23,7 +23,7 @@ func TestExtractImageCmd(t *testing.T) {
 	cmdStr = strings.Replace(cmdStr, srcName, "SRC", 1)
 	cmdStr = strings.Replace(cmdStr, destName, "DEST", 1)
 
-	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -ss 00:00:03.000 -i SRC -vframes 1 DEST", cmdStr)
+	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -loglevel error -ss 00:00:00.000 -i SRC -skip_frame nokey -frames:v 1 DEST", cmdStr)
 
 	RunCommandTest(t, "jpg", srcName, destName, cmd, true)
 }
@@ -40,7 +40,7 @@ func TestExtractJpegImageCmd(t *testing.T) {
 	cmdStr = strings.Replace(cmdStr, srcName, "SRC", 1)
 	cmdStr = strings.Replace(cmdStr, destName, "DEST", 1)
 
-	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -ss 00:00:03.000 -i SRC -vframes 1 DEST", cmdStr)
+	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -loglevel error -ss 00:00:00.000 -i SRC -skip_frame nokey -frames:v 1 DEST", cmdStr)
 
 	RunCommandTest(t, "jpeg", srcName, destName, cmd, true)
 }
@@ -57,7 +57,7 @@ func TestExtractPngImageCmd(t *testing.T) {
 	cmdStr = strings.Replace(cmdStr, srcName, "SRC", 1)
 	cmdStr = strings.Replace(cmdStr, destName, "DEST", 1)
 
-	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -ss 00:00:03.000 -i SRC -vframes 1 DEST", cmdStr)
+	assert.Equal(t, "/usr/bin/ffmpeg -hide_banner -y -strict -2 -loglevel error -ss 00:00:00.000 -i SRC -skip_frame nokey -frames:v 1 DEST", cmdStr)
 
 	RunCommandTest(t, "png", srcName, destName, cmd, true)
 }

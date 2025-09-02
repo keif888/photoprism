@@ -6,7 +6,7 @@ import "time"
 // see https://trac.ffmpeg.org/wiki/Seeking and https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax.
 func PreviewTimeOffset(d time.Duration) string {
 	// Default time offset.
-	result := "00:00:00.001"
+	result := "00:00:00.000"
 
 	if d <= 0 {
 		return result
@@ -23,8 +23,6 @@ func PreviewTimeOffset(d time.Duration) string {
 		result = "00:00:30.000"
 	case d > time.Minute:
 		result = "00:00:09.000"
-	case d > time.Millisecond*3100:
-		result = "00:00:03.000"
 	}
 
 	return result

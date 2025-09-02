@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ func visionListAction(ctx *cli.Context) error {
 	return CallWithDependencies(ctx, func(conf *config.Config) error {
 		var rows [][]string
 
-		cols := []string{"Type", "Name", "Version", "Resolution", "Uri", "Tags", "Disabled"}
+		cols := []string{"Type", "Name", "Version", "Resolution", "Service Endpoint", "Options", "Tags", "Disabled"}
 
 		// Show log message.
 		log.Infof("found %s", english.Plural(len(vision.Config.Models), "model", "models"))
@@ -38,19 +39,31 @@ func visionListAction(ctx *cli.Context) error {
 
 		// Display report.
 		for i, model := range vision.Config.Models {
-			modelUri, _ := model.Endpoint()
+			modelUri, modelMethod := model.Endpoint()
 			tags := ""
 
-			if model.Meta != nil && model.Meta.Tags != nil {
-				tags = strings.Join(model.Meta.Tags, ", ")
+			_, name, version := model.Model()
+
+			if model.TensorFlow != nil && model.TensorFlow.Tags != nil {
+				tags = strings.Join(model.TensorFlow.Tags, ", ")
+			}
+
+			if model.Default {
+				version = "default"
+			}
+
+			var options []byte
+			if o := model.GetOptions(); o != nil {
+				options, _ = json.Marshal(*o)
 			}
 
 			rows[i] = []string{
 				model.Type,
-				model.Name,
-				model.Version,
+				name,
+				version,
 				fmt.Sprintf("%d", model.Resolution),
-				modelUri,
+				fmt.Sprintf("%s %s", modelMethod, modelUri),
+				string(options),
 				tags,
 				report.Bool(model.Disabled, report.Yes, report.No),
 			}

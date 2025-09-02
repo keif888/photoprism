@@ -23,12 +23,12 @@ func TestModel(t *testing.T) {
 	})
 	t.Run("Caption", func(t *testing.T) {
 		uri, method := CaptionModel.Endpoint()
-		assert.Equal(t, "", uri)
-		assert.Equal(t, "", method)
+		assert.Equal(t, "http://ollama:11434/api/generate", uri)
+		assert.Equal(t, "POST", method)
 
 		model, name, version := CaptionModel.Model()
-		assert.Equal(t, "qwen2.5vl:latest", model)
-		assert.Equal(t, "qwen2.5vl", name)
+		assert.Equal(t, "gemma3:latest", model)
+		assert.Equal(t, "gemma3", name)
 		assert.Equal(t, "latest", version)
 	})
 	t.Run("ParseName", func(t *testing.T) {

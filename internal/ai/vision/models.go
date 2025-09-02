@@ -13,7 +13,7 @@ var (
 		Name:       "nasnet",
 		Version:    VersionMobile,
 		Resolution: 224,
-		Meta: &tensorflow.ModelInfo{
+		TensorFlow: &tensorflow.ModelInfo{
 			TFVersion: "1.12.0",
 			Tags:      []string{"photoprism"},
 			Input: &tensorflow.PhotoInput{
@@ -45,7 +45,7 @@ var (
 		Name:       "nsfw",
 		Version:    VersionLatest,
 		Resolution: 224,
-		Meta: &tensorflow.ModelInfo{
+		TensorFlow: &tensorflow.ModelInfo{
 			TFVersion: "1.12.0",
 			Tags:      []string{"serve"},
 			Input: &tensorflow.PhotoInput{
@@ -69,7 +69,7 @@ var (
 		Name:       "facenet",
 		Version:    VersionLatest,
 		Resolution: 160,
-		Meta: &tensorflow.ModelInfo{
+		TensorFlow: &tensorflow.ModelInfo{
 			TFVersion: "1.7.1",
 			Tags:      []string{"serve"},
 			Input: &tensorflow.PhotoInput{
@@ -94,10 +94,10 @@ var (
 		Resolution: 720, // Original aspect ratio, with a max size of 720 x 720 pixels.
 		Prompt:     CaptionPromptDefault,
 		Service: Service{
-			// Uri:            "http://photoprism-vision:5000/api/v1/vision/caption",
-			FileScheme:     scheme.Data,
-			RequestFormat:  ApiFormatVision,
-			ResponseFormat: ApiFormatVision,
+			Uri:            "http://ollama:11434/api/generate",
+			FileScheme:     scheme.Base64,
+			RequestFormat:  ApiFormatOllama,
+			ResponseFormat: ApiFormatOllama,
 		},
 	}
 	DefaultModels     = Models{NasnetModel, NsfwModel, FacenetModel, CaptionModel}

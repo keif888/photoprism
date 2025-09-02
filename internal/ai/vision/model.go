@@ -19,6 +19,7 @@ var modelMutex = sync.Mutex{}
 var (
 	VersionLatest = "latest"
 	VersionMobile = "mobile"
+	Version3B     = "3b"
 )
 
 // Model represents a computer vision model configuration.
@@ -30,8 +31,9 @@ type Model struct {
 	System        string                `yaml:"System,omitempty" json:"system,omitempty"`
 	Prompt        string                `yaml:"Prompt,omitempty" json:"prompt,omitempty"`
 	Resolution    int                   `yaml:"Resolution,omitempty" json:"resolution,omitempty"`
-	Meta          *tensorflow.ModelInfo `yaml:"Meta,omitempty" json:"meta,omitempty"`
-	Service       Service               `yaml:"Service,omitempty" json:"Service,omitempty"`
+	TensorFlow    *tensorflow.ModelInfo `yaml:"TensorFlow,omitempty" json:"tensorflow,omitempty"`
+	Options       *ApiRequestOptions    `yaml:"Options,omitempty" json:"options,omitempty"`
+	Service       Service               `yaml:"Service,omitempty" json:"service,omitempty"`
 	Path          string                `yaml:"Path,omitempty" json:"-"`
 	Disabled      bool                  `yaml:"Disabled,omitempty" json:"disabled,omitempty"`
 	classifyModel *classify.Model
@@ -124,6 +126,54 @@ func (m *Model) EndpointResponseFormat() (format ApiFormat) {
 	return ServiceResponseFormat
 }
 
+// GetPrompt returns the configured model prompt, or the default prompt if none is specified.
+func (m *Model) GetPrompt() string {
+	if m.Prompt != "" {
+		return m.Prompt
+	}
+
+	switch m.Type {
+	case ModelTypeCaption:
+		return CaptionPromptDefault
+	default:
+		return ""
+	}
+}
+
+// GetSystemPrompt returns the configured system model prompt, or the default system prompt if none is specified.
+func (m *Model) GetSystemPrompt() string {
+	if m.System != "" {
+		return m.System
+	}
+
+	switch m.Type {
+	default:
+		return ""
+	}
+}
+
+// GetOptions returns the API request options.
+func (m *Model) GetOptions() *ApiRequestOptions {
+	if m.Options != nil {
+		if m.Options.Temperature <= 0 {
+			m.Options.Temperature = DefaultTemperature
+		} else if m.Options.Temperature > MaxTemperature {
+			m.Options.Temperature = MaxTemperature
+		}
+
+		return m.Options
+	}
+
+	switch m.Type {
+	case ModelTypeCaption:
+		return &ApiRequestOptions{
+			Temperature: DefaultTemperature,
+		}
+	default:
+		return nil
+	}
+}
+
 // ClassifyModel returns the matching classify model instance, if any.
 func (m *Model) ClassifyModel() *classify.Model {
 	// Use mutex to prevent models from being loaded and
@@ -156,8 +206,8 @@ func (m *Model) ClassifyModel() *classify.Model {
 			m.Path = clean.Path(clean.TypeLowerUnderscore(m.Name))
 		}
 
-		if m.Meta == nil {
-			m.Meta = &tensorflow.ModelInfo{}
+		if m.TensorFlow == nil {
+			m.TensorFlow = &tensorflow.ModelInfo{}
 		}
 
 		// Set default thumbnail resolution if no tags are configured.
@@ -165,14 +215,14 @@ func (m *Model) ClassifyModel() *classify.Model {
 			m.Resolution = DefaultResolution
 		}
 
-		if m.Meta.Input == nil {
-			m.Meta.Input = new(tensorflow.PhotoInput)
+		if m.TensorFlow.Input == nil {
+			m.TensorFlow.Input = new(tensorflow.PhotoInput)
 		}
 
-		m.Meta.Input.SetResolution(m.Resolution)
+		m.TensorFlow.Input.SetResolution(m.Resolution)
 
 		// Try to load custom model based on the configuration values.
-		if model := classify.NewModel(GetModelsPath(), m.Path, GetNasnetModelPath(), m.Meta, m.Disabled); model == nil {
+		if model := classify.NewModel(GetModelsPath(), m.Path, GetNasnetModelPath(), m.TensorFlow, m.Disabled); model == nil {
 			return nil
 		} else if err := model.Init(); err != nil {
 			log.Errorf("vision: %s (init %s)", err, m.Path)
@@ -203,7 +253,7 @@ func (m *Model) FaceModel() *face.Model {
 		return nil
 	case FacenetModel.Name, "facenet":
 		// Load and initialize the Nasnet image classification model.
-		if model := face.NewModel(GetFacenetModelPath(), GetCachePath(), m.Resolution, m.Meta, m.Disabled); model == nil {
+		if model := face.NewModel(GetFacenetModelPath(), GetCachePath(), m.Resolution, m.TensorFlow, m.Disabled); model == nil {
 			return nil
 		} else if err := model.Init(); err != nil {
 			log.Errorf("vision: %s (init %s)", err, m.Path)
@@ -222,12 +272,12 @@ func (m *Model) FaceModel() *face.Model {
 			m.Resolution = DefaultResolution
 		}
 
-		if m.Meta == nil {
-			m.Meta = &tensorflow.ModelInfo{}
+		if m.TensorFlow == nil {
+			m.TensorFlow = &tensorflow.ModelInfo{}
 		}
 
 		// Try to load custom model based on the configuration values.
-		if model := face.NewModel(GetModelPath(m.Path), GetCachePath(), m.Resolution, m.Meta, m.Disabled); model == nil {
+		if model := face.NewModel(GetModelPath(m.Path), GetCachePath(), m.Resolution, m.TensorFlow, m.Disabled); model == nil {
 			return nil
 		} else if err := model.Init(); err != nil {
 			log.Errorf("vision: %s (init %s)", err, m.Path)
@@ -258,7 +308,7 @@ func (m *Model) NsfwModel() *nsfw.Model {
 		return nil
 	case NsfwModel.Name, "nsfw":
 		// Load and initialize the Nasnet image classification model.
-		if model := nsfw.NewModel(GetNsfwModelPath(), NsfwModel.Meta, m.Disabled); model == nil {
+		if model := nsfw.NewModel(GetNsfwModelPath(), NsfwModel.TensorFlow, m.Disabled); model == nil {
 			return nil
 		} else if err := model.Init(); err != nil {
 			log.Errorf("vision: %s (init %s)", err, m.Path)
@@ -277,18 +327,18 @@ func (m *Model) NsfwModel() *nsfw.Model {
 			m.Resolution = DefaultResolution
 		}
 
-		if m.Meta.Input == nil {
-			m.Meta.Input = new(tensorflow.PhotoInput)
+		if m.TensorFlow.Input == nil {
+			m.TensorFlow.Input = new(tensorflow.PhotoInput)
 		}
 
-		m.Meta.Input.SetResolution(m.Resolution)
+		m.TensorFlow.Input.SetResolution(m.Resolution)
 
-		if m.Meta == nil {
-			m.Meta = &tensorflow.ModelInfo{}
+		if m.TensorFlow == nil {
+			m.TensorFlow = &tensorflow.ModelInfo{}
 		}
 
 		// Try to load custom model based on the configuration values.
-		if model := nsfw.NewModel(GetModelPath(m.Path), m.Meta, m.Disabled); model == nil {
+		if model := nsfw.NewModel(GetModelPath(m.Path), m.TensorFlow, m.Disabled); model == nil {
 			return nil
 		} else if err := model.Init(); err != nil {
 			log.Errorf("vision: %s (init %s)", err, m.Path)

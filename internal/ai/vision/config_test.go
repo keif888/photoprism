@@ -16,14 +16,14 @@ func TestOptions(t *testing.T) {
 
 	t.Run("Save", func(t *testing.T) {
 		_ = os.Remove(configFile)
-		options := NewOptions()
+		options := NewConfig()
 		err := options.Save(configFile)
 		assert.NoError(t, err)
 		err = options.Load(configFile)
 		assert.NoError(t, err)
 	})
 	t.Run("LoadMissingFile", func(t *testing.T) {
-		options := NewOptions()
+		options := NewConfig()
 		err := options.Load(filepath.Join(configPath, "invalid.yml"))
 		assert.Error(t, err)
 	})

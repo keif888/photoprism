@@ -73,7 +73,7 @@ func IndexRelated(related RelatedFiles, ind *Index, o IndexOptions) (result Inde
 		if o.Convert && f.IsMedia() && !f.HasPreviewImage() {
 			// Skip with warning if preview image could not be created.
 			if img, imgErr := ind.convert.ToImage(f, false); imgErr != nil {
-				result.Err = fmt.Errorf("index: failed to convert %s", clean.Log(f.RootRelName()))
+				result.Err = fmt.Errorf("index: could not create preview image for %s", clean.Log(f.RootRelName()))
 				log.Error(result.Err)
 				result.Status = IndexFailed
 				continue

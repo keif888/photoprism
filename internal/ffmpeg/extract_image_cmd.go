@@ -26,10 +26,24 @@ func ExtractJpegImageCmd(videoName, imageName string, opt *encode.Options) *exec
 	//       see https://github.com/photoprism/photoprism/issues/4488.
 	// Unfortunately, this filter would render thumbnails of non-HDR videos too dark:
 	// "-vf", "zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=gamma:desat=0,zscale=t=bt709:m=bt709:r=tv,format=yuv420p",
-	return exec.Command(opt.Bin, "-hide_banner", "-y", "-strict", "-2", "-ss", opt.TimeOffset, "-i", videoName, "-vframes", "1", imageName)
+	return exec.Command(
+		opt.Bin,
+		"-hide_banner", "-y", "-strict", "-2", "-loglevel", "error",
+		"-ss", opt.TimeOffset, "-i", videoName,
+		"-skip_frame", "nokey", // skip non-keyframes
+		"-frames:v", "1",
+		imageName,
+	)
 }
 
 // ExtractPngImageCmd extracts a PNG still image from the specified source video file.
 func ExtractPngImageCmd(videoName, imageName string, opt *encode.Options) *exec.Cmd {
-	return exec.Command(opt.Bin, "-hide_banner", "-y", "-strict", "-2", "-ss", opt.TimeOffset, "-i", videoName, "-vframes", "1", imageName)
+	return exec.Command(
+		opt.Bin,
+		"-hide_banner", "-y", "-strict", "-2", "-loglevel", "error",
+		"-ss", opt.TimeOffset, "-i", videoName,
+		"-skip_frame", "nokey", // skip non-keyframes
+		"-frames:v", "1",
+		imageName,
+	)
 }

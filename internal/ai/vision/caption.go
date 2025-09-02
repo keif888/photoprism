@@ -8,15 +8,12 @@ import (
 )
 
 // CaptionPromptDefault is the default prompt used to generate captions.
-var CaptionPromptDefault = `Create an interesting caption that sounds natural and briefly describes the visual content in up to 3 sentences.` +
-	` Avoid text formatting, meta-language, and filler words.` +
-	` Do not start captions with phrases such as "This image", "The image", "This picture", "The picture", "A picture of", "Here are", or "There is".` +
-	` Instead, start describing the content by identifying the subjects, location, and any actions that might be performed.` +
-	` Use explicit language to describe the scene if necessary for a proper understanding.`
+var CaptionPromptDefault = "Create a caption with exactly one sentence in the active voice that describes the main visual content." +
+	" Begin with the main subject and clear action. Avoid text formatting, meta-language, and filler words."
 
 // CaptionModelDefault specifies the default model used to generate captions,
-// see https://qwenlm.github.io/blog/qwen2.5-vl/ to learn more.
-var CaptionModelDefault = "qwen2.5vl"
+// see https://ollama.com/search?c=vision for a list of available models.
+var CaptionModelDefault = "gemma3"
 
 // Caption returns generated captions for the specified images.
 func Caption(images Files, mediaSrc media.Src) (result *CaptionResult, model *Model, err error) {
@@ -40,15 +37,14 @@ func Caption(images Files, mediaSrc media.Src) (result *CaptionResult, model *Mo
 				_, apiRequest.Model, apiRequest.Version = model.Model()
 			}
 
-			if model.System != "" {
-				apiRequest.System = model.System
-			}
+			// Set system prompt if configured.
+			apiRequest.System = model.GetSystemPrompt()
 
-			if model.Prompt != "" {
-				apiRequest.Prompt = model.Prompt
-			} else {
-				apiRequest.Prompt = CaptionPromptDefault
-			}
+			// Set caption prompt if configured.
+			apiRequest.Prompt = model.GetPrompt()
+
+			// Set caption model request options.
+			apiRequest.Options = model.GetOptions()
 
 			// Log JSON request data in trace mode.
 			apiRequest.WriteLog()

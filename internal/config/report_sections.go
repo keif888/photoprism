@@ -25,7 +25,6 @@ var OptionsReportSections = []ReportSection{
 	{Start: "PHOTOPRISM_READONLY", Title: "Feature Flags"},
 	{Start: "PHOTOPRISM_DEFAULT_LOCALE", Title: "Customization"},
 	{Start: "PHOTOPRISM_SITE_URL", Title: "Site Information"},
-	{Start: "PHOTOPRISM_PORTAL_URL", Title: "Portal Server"},
 	{Start: "PHOTOPRISM_HTTPS_PROXY", Title: "Proxy Server"},
 	{Start: "PHOTOPRISM_DISABLE_TLS", Title: "Web Server"},
 	{Start: "PHOTOPRISM_DATABASE_DRIVER", Title: "Database Connection"},
@@ -38,6 +37,7 @@ var OptionsReportSections = []ReportSection{
 		Info: faceFlagsInfo},
 	{Start: "PHOTOPRISM_PID_FILENAME", Title: "Daemon Mode",
 		Info: "If you start the server as a *daemon* in the background, you can additionally specify a filename for the log and the process ID:"},
+	{Start: "PHOTOPRISM_PORTAL_URL", Title: "Cluster Configuration"},
 }
 
 // YamlReportSections is used to generate config options reports in ../commands/show_config_yaml.go.
@@ -52,7 +52,6 @@ var YamlReportSections = []ReportSection{
 	{Start: "ReadOnly", Title: "Feature Flags"},
 	{Start: "DefaultLocale", Title: "Customization"},
 	{Start: "SiteUrl", Title: "Site Information"},
-	{Start: "PortalUrl", Title: "Portal Server"},
 	{Start: "HttpsProxy", Title: "Proxy Server"},
 	{Start: "DisableTLS", Title: "Web Server"},
 	{Start: "DatabaseDriver", Title: "Database Connection"},
@@ -63,4 +62,5 @@ var YamlReportSections = []ReportSection{
 	{Start: "VisionYaml", Title: "Computer Vision"},
 	{Start: "PIDFilename", Title: "Daemon Mode",
 		Info: "If you start the server as a *daemon* in the background, you can additionally specify a filename for the log and the process ID:"},
+	{Start: "PortalUrl", Title: "Cluster Configuration"},
 }

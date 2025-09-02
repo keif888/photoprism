@@ -135,8 +135,8 @@ github.com/go-asn1-ber/asn1-ber v1.5.8-0.20250403174932-29230038a667 h1:BP4M0CvQ
 github.com/go-asn1-ber/asn1-ber v1.5.8-0.20250403174932-29230038a667/go.mod h1:hEBeB/ic+5LoWskz+yKT7vGhhPYkProFKoKdwZRWMe0=
 github.com/go-chi/chi/v5 v5.2.2 h1:CMwsvRVTbXVytCk1Wd72Zy1LAsAh9GxMmSNWLHCG618=
 github.com/go-chi/chi/v5 v5.2.2/go.mod h1:L2yAIGWB3H+phAw1NxKwWM+7eUH/lU8pOMm5hHcoops=
-github.com/go-co-op/gocron/v2 v2.16.3 h1:kYqukZqBa8RC2+AFAHnunmKcs9GRTjwBo8WRF3I6cbI=
-github.com/go-co-op/gocron/v2 v2.16.3/go.mod h1:aTf7/+5Jo2E+cyAqq625UQ6DzpkV96b22VHIUAt6l3c=
+github.com/go-co-op/gocron/v2 v2.16.4 h1:+sPh1WL/iPZGOAzmZ5sH1WsAbLH0d8T0S/hZJfFaMSw=
+github.com/go-co-op/gocron/v2 v2.16.4/go.mod h1:zAfC/GFQ668qHxOVl/D68Jh5Ce7sDqX6TJnSQyRkRBc=
 github.com/go-errors/errors v1.0.1/go.mod h1:f4zRHt4oKfwPJE5k8C9vpYG+aDHdBFUsgrm6/TyX73Q=
 github.com/go-errors/errors v1.0.2/go.mod h1:psDX2osz5VnTOnFWbDeWwS7yejl+uV3FEWEp4lssFEs=
 github.com/go-errors/errors v1.1.1/go.mod h1:psDX2osz5VnTOnFWbDeWwS7yejl+uV3FEWEp4lssFEs=

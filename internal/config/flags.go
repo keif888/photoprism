@@ -652,26 +652,6 @@ var Flags = CliFlags{
 			Value:   header.DefaultAccessControlAllowMethods,
 		}}, {
 		Flag: &cli.StringFlag{
-			Name:    "portal-url",
-			Usage:   "PhotoPrism® Portal server `URL`",
-			EnvVars: EnvVars("PORTAL_URL"),
-		}}, {
-		Flag: &cli.StringFlag{
-			Name:    "portal-client",
-			Usage:   "PhotoPrism® Portal client `ID`",
-			EnvVars: EnvVars("PORTAL_CLIENT"),
-		}}, {
-		Flag: &cli.StringFlag{
-			Name:    "portal-secret",
-			Usage:   "PhotoPrism® Portal client `SECRET`",
-			EnvVars: EnvVars("PORTAL_SECRET"),
-		}}, {
-		Flag: &cli.StringFlag{
-			Name:    "instance-secret",
-			Usage:   "unique `SECRET` for authenticating this instance",
-			EnvVars: EnvVars("INSTANCE_SECRET"),
-		}}, {
-		Flag: &cli.StringFlag{
 			Name:    "https-proxy",
 			Usage:   "proxy server `URL` to be used for outgoing connections *optional*",
 			EnvVars: EnvVars("HTTPS_PROXY"),
@@ -1126,5 +1106,35 @@ var Flags = CliFlags{
 			Value:     "",
 			EnvVars:   EnvVars("LOG_FILENAME"),
 			TakesFile: true,
-		}},
+		}}, {
+		Flag: &cli.StringFlag{
+			Name:    "portal-url",
+			Usage:   "PhotoPrism® Portal server `URL`",
+			EnvVars: EnvVars("PORTAL_URL"),
+			Hidden:  true,
+		}, Tags: []string{Pro}}, {
+		Flag: &cli.StringFlag{
+			Name:    "portal-client",
+			Usage:   "PhotoPrism® Portal client `ID`",
+			EnvVars: EnvVars("PORTAL_CLIENT"),
+			Hidden:  true,
+		}, Tags: []string{Pro}}, {
+		Flag: &cli.StringFlag{
+			Name:    "portal-secret",
+			Usage:   "PhotoPrism® Portal client `SECRET`",
+			EnvVars: EnvVars("PORTAL_SECRET"),
+			Hidden:  true,
+		}, Tags: []string{Pro}}, {
+		Flag: &cli.StringFlag{
+			Name:    "instance-roles",
+			Usage:   "`ROLES` of this instance within a cluster (library, vision, portal)",
+			EnvVars: EnvVars("INSTANCE_ROLES"),
+			Hidden:  true,
+		}, Tags: []string{Pro}}, {
+		Flag: &cli.StringFlag{
+			Name:    "instance-secret",
+			Usage:   "`SECRET` for authenticating this instance in a cluster (must be unique)",
+			EnvVars: EnvVars("INSTANCE_SECRET"),
+			Hidden:  true,
+		}, Tags: []string{Pro}},
 }

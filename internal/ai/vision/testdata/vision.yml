@@ -4,7 +4,7 @@ Models:
   Name: nasnet
   Version: mobile
   Resolution: 224
-  Meta:
+  TensorFlow:
     Tags:
     - photoprism
     Input:
@@ -29,7 +29,7 @@ Models:
   Name: nsfw
   Version: latest
   Resolution: 224
-  Meta:
+  TensorFlow:
     Tags:
     - serve
     Input:
@@ -49,7 +49,7 @@ Models:
   Name: facenet
   Version: latest
   Resolution: 160
-  Meta:
+  TensorFlow:
     Tags:
     - serve
     Input:
@@ -65,19 +65,16 @@ Models:
       Name: embeddings
       Outputs: 512
 - Type: caption
-  Name: qwen2.5vl
+  Name: gemma3
   Version: latest
-  Prompt: Create an interesting caption that sounds natural and briefly describes
-    the visual content in up to 3 sentences. Avoid text formatting, meta-language,
-    and filler words. Do not start captions with phrases such as "This image", "The
-    image", "This picture", "The picture", "A picture of", "Here are", or "There is".
-    Instead, start describing the content by identifying the subjects, location, and
-    any actions that might be performed. Use explicit language to describe the scene
-    if necessary for a proper understanding.
+  Prompt: Create a caption with exactly one sentence in the active voice that describes
+    the main visual content. Begin with the main subject and clear action. Avoid text
+    formatting, meta-language, and filler words.
   Resolution: 720
   Service:
-    FileScheme: data
-    RequestFormat: vision
-    ResponseFormat: vision
+    Uri: http://ollama:11434/api/generate
+    FileScheme: base64
+    RequestFormat: ollama
+    ResponseFormat: ollama
 Thresholds:
   Confidence: 10
