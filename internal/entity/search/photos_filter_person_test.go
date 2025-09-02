@@ -152,8 +152,7 @@ func TestPhotosFilterPerson(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 0)
 	})
-	//TODO error
-	/*t.Run("StartsWithAmpersand", func(t *testing.T) {
+	t.Run("StartsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Person = "&IlikeFood"
@@ -165,7 +164,7 @@ func TestPhotosFilterPerson(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), 0)
-	})*/
+	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -179,8 +178,7 @@ func TestPhotosFilterPerson(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 0)
 	})
-	//TODO error
-	/*t.Run("EndsWithAmpersand", func(t *testing.T) {
+	t.Run("EndsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Person = "Light&"
@@ -192,7 +190,7 @@ func TestPhotosFilterPerson(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), 0)
-	})*/
+	})
 	t.Run("StartsWithSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -498,8 +496,7 @@ func TestPhotosQueryPerson(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 0)
 	})
-	//TODO error
-	/*t.Run("StartsWithAmpersand", func(t *testing.T) {
+	t.Run("StartsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Query = "person:\"&IlikeFood\""
@@ -511,7 +508,7 @@ func TestPhotosQueryPerson(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), 0)
-	})*/
+	})
 	t.Run("CenterAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -525,8 +522,7 @@ func TestPhotosQueryPerson(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 0)
 	})
-	//TODO error
-	/*t.Run("EndsWithAmpersand", func(t *testing.T) {
+	t.Run("EndsWithAmpersand", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Query = "person:\"Light&\""
@@ -538,7 +534,7 @@ func TestPhotosQueryPerson(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Equal(t, len(photos), 0)
-	})*/
+	})
 	t.Run("StartsWithSingleQuote", func(t *testing.T) {
 		var f form.SearchPhotos
 
