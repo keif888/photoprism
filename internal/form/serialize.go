@@ -176,6 +176,11 @@ func Unserialize(f SearchForm, q string) (result error) {
 		}
 	}
 
+	// Report unclosed quotation in filter as error.
+	if escaped {
+		result = fmt.Errorf("unclosed quotation in filter")
+	}
+
 	if len(queryStrings) > 0 {
 		f.SetQuery(clean.SearchQuery(strings.Join(queryStrings, " ")))
 	}
