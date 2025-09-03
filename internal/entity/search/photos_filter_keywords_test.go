@@ -890,7 +890,6 @@ func TestPhotosQueryKeywords(t *testing.T) {
 
 		assert.Equal(t, len(photos), 1)
 	})
-	//TODO
 	t.Run("StartsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
 
