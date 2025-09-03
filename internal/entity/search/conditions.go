@@ -308,3 +308,12 @@ func SplitOr(s string) (values []string) {
 func SplitAnd(s string) (values []string) {
 	return txt.TrimmedSplitWithEscape(s, txt.AndRune, txt.EscapeRune)
 }
+
+// LikePrep prepares a string to be used in a like clause.
+func LikePrep(s string) string {
+	s = strings.ReplaceAll(s, "*", "%") + "%"
+	for strings.Count(s, "%%") > 0 {
+		s = strings.ReplaceAll(s, "%%", "%")
+	}
+	return s
+}

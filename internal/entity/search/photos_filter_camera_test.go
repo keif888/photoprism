@@ -35,6 +35,19 @@ func TestPhotosFilterCamera(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 2)
 	})
+	t.Run("StarEOS6", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Camera = "*EOS 6"
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, 49, len(photos))
+	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 

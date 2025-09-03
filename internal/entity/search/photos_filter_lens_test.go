@@ -35,8 +35,7 @@ func TestPhotosFilterLens(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 1)
 	})
-	//TODO
-	/*t.Run("*4.15mm f/2.2", func(t *testing.T) {
+	t.Run("*4.15mm f/2.2", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Lens = "*4.15mm f/2.2"
@@ -47,8 +46,8 @@ func TestPhotosFilterLens(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 1)
-	})*/
+		assert.Equal(t, 1, len(photos))
+	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -315,8 +314,7 @@ func TestPhotosQueryLens(t *testing.T) {
 		}
 		assert.Equal(t, len(photos), 1)
 	})
-	//TODO
-	/*t.Run("*4.15mm f/2.2", func(t *testing.T) {
+	t.Run("*4.15mm f/2.2", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Query = "lens:\"*4.15mm f/2.2\""
@@ -327,8 +325,8 @@ func TestPhotosQueryLens(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 1)
-	})*/
+		assert.Equal(t, 1, len(photos))
+	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 

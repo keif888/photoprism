@@ -478,3 +478,71 @@ func TestSplitAnd(t *testing.T) {
 		assert.Equal(t, []string{"foo", "Bar", "BAZ"}, values)
 	})
 }
+
+func TestLikePrep(t *testing.T) {
+	t.Run("Empty", func(t *testing.T) {
+		actual := LikePrep("")
+
+		assert.Equal(t, "%", actual)
+	})
+
+	t.Run("LeadingAsterix", func(t *testing.T) {
+		actual := LikePrep("*Leading")
+
+		assert.Equal(t, "%Leading%", actual)
+	})
+
+	t.Run("LeadingPercent", func(t *testing.T) {
+		actual := LikePrep("%Leading")
+
+		assert.Equal(t, "%Leading%", actual)
+	})
+
+	t.Run("TrailingAsterix", func(t *testing.T) {
+		actual := LikePrep("Trailing*")
+
+		assert.Equal(t, "Trailing%", actual)
+	})
+
+	t.Run("TrailingPercent", func(t *testing.T) {
+		actual := LikePrep("Trailing%")
+
+		assert.Equal(t, "Trailing%", actual)
+	})
+
+	t.Run("MiddleAsterix", func(t *testing.T) {
+		actual := LikePrep("Mid*dle")
+
+		assert.Equal(t, "Mid%dle%", actual)
+	})
+
+	t.Run("MiddlePercent", func(t *testing.T) {
+		actual := LikePrep("Mid%dle")
+
+		assert.Equal(t, "Mid%dle%", actual)
+	})
+
+	t.Run("DoubleAsterix", func(t *testing.T) {
+		actual := LikePrep("Dou**ble")
+
+		assert.Equal(t, "Dou%ble%", actual)
+	})
+
+	t.Run("DoublePercent", func(t *testing.T) {
+		actual := LikePrep("Dou%%ble")
+
+		assert.Equal(t, "Dou%ble%", actual)
+	})
+
+	t.Run("TripleAsterix", func(t *testing.T) {
+		actual := LikePrep("Trip***le")
+
+		assert.Equal(t, "Trip%le%", actual)
+	})
+
+	t.Run("TriplePercent", func(t *testing.T) {
+		actual := LikePrep("Trip%%%le")
+
+		assert.Equal(t, "Trip%le%", actual)
+	})
+}
