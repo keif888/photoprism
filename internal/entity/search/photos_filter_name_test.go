@@ -856,8 +856,8 @@ func TestPhotosQueryName(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -870,8 +870,8 @@ func TestPhotosQueryName(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -884,8 +884,8 @@ func TestPhotosQueryName(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("StartsWithWhitespace", func(t *testing.T) {
 		var f form.SearchPhotos

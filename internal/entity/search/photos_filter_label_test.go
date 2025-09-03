@@ -680,8 +680,8 @@ func TestPhotosQueryLabel(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 0)
+
+		assert.Equal(t, 1, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -694,8 +694,8 @@ func TestPhotosQueryLabel(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 0)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -708,8 +708,8 @@ func TestPhotosQueryLabel(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 0)
+
+		assert.Equal(t, 4, len(photos))
 	})
 	t.Run("OrSearch", func(t *testing.T) {
 		var f form.SearchPhotos

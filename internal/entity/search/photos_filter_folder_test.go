@@ -786,8 +786,7 @@ func TestPhotosQueryFolder(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//TODO
-		assert.Greater(t, len(photos), 1)
+		assert.Equal(t, 2, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -802,8 +801,7 @@ func TestPhotosQueryFolder(t *testing.T) {
 		}
 		t.Log(photos[0].PhotoPath)
 		t.Log(photos[1].PhotoPath)
-		//TODO
-		assert.Greater(t, len(photos), 1)
+		assert.Equal(t, 2, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -816,8 +814,7 @@ func TestPhotosQueryFolder(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//TODO
-		assert.Greater(t, len(photos), 1)
+		assert.Equal(t, 2, len(photos))
 	})
 	t.Run("StartsWithWhitespace", func(t *testing.T) {
 		var f form.SearchPhotos

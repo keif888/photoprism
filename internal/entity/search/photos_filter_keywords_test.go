@@ -388,8 +388,7 @@ func TestPhotosFilterKeywords(t *testing.T) {
 
 		assert.Equal(t, len(photos), 1)
 	})
-	//TODO
-	/*t.Run("StartsWithDoubleQuotes", func(t *testing.T) {
+	t.Run("StartsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Keywords = "\"electronics"
@@ -401,7 +400,7 @@ func TestPhotosFilterKeywords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 1, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -415,7 +414,7 @@ func TestPhotosFilterKeywords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 1, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -429,8 +428,8 @@ func TestPhotosFilterKeywords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(photos), 1)
-	})*/
+		assert.Equal(t, 1, len(photos))
+	})
 	t.Run("OrSearch", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -892,7 +891,7 @@ func TestPhotosQueryKeywords(t *testing.T) {
 		assert.Equal(t, len(photos), 1)
 	})
 	//TODO
-	/*t.Run("StartsWithDoubleQuotes", func(t *testing.T) {
+	t.Run("StartsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
 
 		f.Query = "keywords:\"\"electronics\""
@@ -904,7 +903,7 @@ func TestPhotosQueryKeywords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -918,7 +917,7 @@ func TestPhotosQueryKeywords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -933,7 +932,49 @@ func TestPhotosQueryKeywords(t *testing.T) {
 		}
 
 		assert.Equal(t, len(photos), 1)
-	})*/
+	})
+	t.Run("StartsWithDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "keywords:\"\\\"electronics\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
+	})
+	t.Run("CenterDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "keywords:\"sal\\\"mon\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
+	})
+	t.Run("EndsWithDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "keywords:\"fish\\\"\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
+	})
 	t.Run("OrSearch", func(t *testing.T) {
 		var f form.SearchPhotos
 

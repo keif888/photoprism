@@ -864,7 +864,10 @@ func TestPhotosQueryFilename(t *testing.T) {
 
 		photos, _, err := Photos(f)
 
-		assert.Equal(t, "Unable to do that", err.Error())
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
@@ -875,7 +878,10 @@ func TestPhotosQueryFilename(t *testing.T) {
 
 		photos, _, err := Photos(f)
 
-		assert.Equal(t, "Unable to do that", err.Error())
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
@@ -886,7 +892,10 @@ func TestPhotosQueryFilename(t *testing.T) {
 
 		photos, _, err := Photos(f)
 
-		assert.Equal(t, "Unable to do that", err.Error())
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("StartsWithWhitespace", func(t *testing.T) {

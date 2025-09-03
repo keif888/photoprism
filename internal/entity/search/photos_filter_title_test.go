@@ -791,8 +791,8 @@ func TestPhotosQueryTitle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("CenterDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -805,8 +805,8 @@ func TestPhotosQueryTitle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("EndsWithDoubleQuotes", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -819,8 +819,50 @@ func TestPhotosQueryTitle(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO Finds all?
-		assert.Greater(t, len(photos), 1)
+
+		assert.Equal(t, 0, len(photos))
+	})
+	t.Run("StartsWithDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "title:\"\\\"member\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
+	})
+	t.Run("CenterDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "title:\"sol\\\"ution\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
+	})
+	t.Run("EndsWithDoubleQuotesEscaped", func(t *testing.T) {
+		var f form.SearchPhotos
+
+		f.Query = "title:\"desk\\\"\""
+		f.Merged = true
+
+		photos, _, err := Photos(f)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 1, len(photos))
 	})
 	t.Run("OrSearch", func(t *testing.T) {
 		var f form.SearchPhotos
