@@ -46,8 +46,16 @@ func UserPhotosGeo(frm form.SearchPhotosGeo, sess *entity.Session) (results GeoR
 	if txt.NotEmpty(frm.Near) {
 		photo := Photo{}
 
+		qry := Db().Model(&Photo{})
+		for item, value := range SplitOr(frm.Near) {
+			if item == 0 {
+				qry = qry.Where("photo_uid = ?", value)
+			} else {
+				qry = qry.Or("photo_uid = ?", value)
+			}
+		}
 		// Find a nearby picture using the UID or return an empty result otherwise.
-		if err = Db().First(&photo, "photo_uid = ?", frm.Near).Error; err != nil {
+		if err = qry.Order("photo_uid").First(&photo).Error; err != nil {
 			log.Debugf("search: %s (find nearby)", err)
 			return GeoResults{}, ErrNotFound
 		}
