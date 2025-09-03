@@ -76,9 +76,10 @@ func Serialize(f interface{}, all bool) string {
 	return strings.Join(q, " ")
 }
 
+// Unserialize populates SearchForm f with the de serialized contents of query string q
 func Unserialize(f SearchForm, q string) (result error) {
 	var key, value []rune
-	var escaped, isKeyValue bool
+	var quoted, isKeyValue, escaped bool
 
 	v := reflect.ValueOf(f)
 
@@ -105,12 +106,17 @@ func Unserialize(f SearchForm, q string) (result error) {
 
 	f.SetQuery("")
 
+	// Address uneven double quotes for friendly result instead of error
+	if (strings.Count(q, "\"")-strings.Count(q, "\\\""))%2 != 0 {
+		q = fmt.Sprintf("%s\"", q)
+	}
+
 	q = strings.TrimSpace(q) + "\n"
 
 	var queryStrings []string
 
 	for _, char := range q {
-		if unicode.IsSpace(char) && !escaped {
+		if unicode.IsSpace(char) && !quoted && !escaped {
 			if isKeyValue {
 				formName := strings.ToLower(string(key))
 				fieldName := fieldNames[formName]
@@ -161,24 +167,26 @@ func Unserialize(f SearchForm, q string) (result error) {
 				queryStrings = append(queryStrings, strings.TrimSpace(string(key)))
 			}
 
+			quoted = false
 			escaped = false
 			isKeyValue = false
 			key = key[:0]
 			value = value[:0]
-		} else if char == ':' && !escaped {
+		} else if char == ':' && !quoted {
 			isKeyValue = true
-		} else if char == '"' {
-			escaped = !escaped
+		} else if char == '"' && !escaped {
+			quoted = !quoted
+		} else if char == '\\' {
+			escaped = true
 		} else if isKeyValue {
+			if escaped && char != '"' {
+				value = append(value, '\\')
+			}
 			value = append(value, char)
+			escaped = false
 		} else {
 			key = append(key, unicode.ToLower(char))
 		}
-	}
-
-	// Report unclosed quotation in filter as error.
-	if escaped {
-		result = fmt.Errorf("unclosed quotation in filter")
 	}
 
 	if len(queryStrings) > 0 {

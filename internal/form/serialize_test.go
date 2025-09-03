@@ -108,13 +108,28 @@ func TestSerialize(t *testing.T) {
 }
 
 func TestUnserialize(t *testing.T) {
-	form := &TestForm{}
+	t.Run("Success", func(t *testing.T) {
+		form := &TestForm{}
 
-	serialized := "q:\"foo BAR\" name:\"yo/ba:z.JPG\" lat:1.500000 lng:-10.333330 chroma:1 diff:424242 year:2002 before:2019-01-15 private:true"
+		serialized := "q:\"foo BAR\" name:\"yo/ba:z.JPG\" lat:1.500000 lng:-10.333330 chroma:1 diff:424242 year:2002 before:2019-01-15 private:true"
 
-	if err := Unserialize(form, serialized); err != nil {
-		t.Fatal(err)
-	}
+		if err := Unserialize(form, serialized); err != nil {
+			t.Fatal(err)
+		}
 
-	assert.Equal(t, 0, form.Count)
+		assert.Equal(t, 0, form.Count)
+	})
+
+	t.Run("Uneven Double Quote", func(t *testing.T) {
+		form := &TestForm{}
+
+		serialized := "color:\"double\"quote\""
+
+		if err := Unserialize(form, serialized); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, 0, form.Count)
+		assert.Equal(t, "doublequote", form.Color)
+	})
 }
