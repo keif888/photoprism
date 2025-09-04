@@ -356,8 +356,7 @@ func TestGeo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// TODO: Should be 3 or more, check entity fixtures!
-		assert.GreaterOrEqual(t, len(photos), 2)
+		assert.Equal(t, 2, len(photos)) // Only 2 fixtures have a latitude and new face.
 	})
 	t.Run("faces:no", func(t *testing.T) {
 		var f form.SearchPhotosGeo
