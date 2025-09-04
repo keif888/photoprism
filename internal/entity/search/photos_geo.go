@@ -42,33 +42,6 @@ func UserPhotosGeo(frm form.SearchPhotosGeo, sess *entity.Session) (results GeoR
 		return GeoResults{}, ErrBadRequest
 	}
 
-	// Find photos near another?
-	if txt.NotEmpty(frm.Near) {
-		photo := Photo{}
-
-		qry := Db().Model(&Photo{})
-		for item, value := range SplitOr(frm.Near) {
-			if item == 0 {
-				qry = qry.Where("photo_uid = ?", value)
-			} else {
-				qry = qry.Or("photo_uid = ?", value)
-			}
-		}
-		// Find a nearby picture using the UID or return an empty result otherwise.
-		if err = qry.Order("photo_uid").First(&photo).Error; err != nil {
-			log.Debugf("search: %s (find nearby)", err)
-			return GeoResults{}, ErrNotFound
-		}
-
-		// Set the S2 Cell ID to search for.
-		frm.S2 = photo.CellID
-
-		// Set the search distance if unspecified.
-		if frm.Dist <= 0 {
-			frm.Dist = geo.DefaultDist
-		}
-	}
-
 	// Set default search distance.
 	if frm.Dist <= 0 {
 		frm.Dist = geo.DefaultDist
@@ -168,7 +141,24 @@ func UserPhotosGeo(frm form.SearchPhotosGeo, sess *entity.Session) (results GeoR
 		s = s.Order("taken_at, photos.photo_uid")
 	} else {
 		// Sort by distance to UID.
-		s = s.Order(gorm.Expr("(photos.photo_uid = ?) DESC, ABS(? - photos.photo_lat)+ABS(? - photos.photo_lng)", frm.Near, frm.Lat, frm.Lng))
+		if strings.Contains(frm.Near, txt.Or) {
+			sq := ""
+			var values []interface{}
+			for item, value := range SplitOr(frm.Near) {
+				if item == 0 {
+					sq = "(photos.photo_uid IN (?"
+				} else {
+					sq = sq + ", ?"
+				}
+				values = append(values, value)
+			}
+			sq = sq + ")) DESC, ABS(? - photos.photo_lat)+ABS(? - photos.photo_lng)"
+			values = append(values, frm.Lat)
+			values = append(values, frm.Lng)
+			s = s.Order(gorm.Expr(sq, values...))
+		} else {
+			s = s.Order(gorm.Expr("(photos.photo_uid = ?) DESC, ABS(? - photos.photo_lat)+ABS(? - photos.photo_lng)", frm.Near, frm.Lat, frm.Lng))
+		}
 	}
 
 	// Find specific UIDs only.
@@ -645,8 +635,36 @@ func UserPhotosGeo(frm form.SearchPhotosGeo, sess *entity.Session) (results GeoR
 		}
 	}
 
-	// Filter by location code.
-	if txt.NotEmpty(frm.S2) {
+	// Find photos near another?
+	if txt.NotEmpty(frm.Near) {
+		var values []interface{}
+		qs := ""
+		for item, value := range SplitOr(frm.Near) {
+			photo := Photo{}
+			// Get the CellID for the photo_uid
+			if err = Db().Model(&Photo{}).Where("photo_uid = ?", value).Select("cell_id").First(&photo).Error; err != nil {
+				log.Debugf("search: %s (find nearby)", err)
+				return GeoResults{}, ErrNotFound
+			}
+			// Set the S2 Cell ID to search for.
+			frm.S2 = photo.CellID
+
+			// Set the search distance if unspecified.
+			if frm.Dist <= 0 {
+				frm.Dist = geo.DefaultDist
+			}
+
+			if item == 0 {
+				qs = "photos.cell_id BETWEEN ? AND ?"
+			} else {
+				qs = qs + " OR photos.cell_id BETWEEN ? AND ?"
+			}
+			s2Min, s2Max := s2.PrefixedRange(frm.S2, s2.Level(frm.Dist))
+			values = append(values, s2Min)
+			values = append(values, s2Max)
+		}
+		s = s.Where(qs, values...)
+	} else if txt.NotEmpty(frm.S2) { // Filter by location code.
 		// S2 Cell ID.
 		s2Min, s2Max := s2.PrefixedRange(frm.S2, s2.Level(frm.Dist))
 		s = s.Where("photos.cell_id BETWEEN ? AND ?", s2Min, s2Max)

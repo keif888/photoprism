@@ -231,7 +231,7 @@ func TestPhotosGeoQueryNear(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, 9, len(photos))
+		assert.Equal(t, 35, len(photos))
 	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotosGeo

@@ -231,7 +231,7 @@ func TestPhotosQueryNear(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, 13, len(photos))
+		assert.Equal(t, 42, len(photos))
 	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
