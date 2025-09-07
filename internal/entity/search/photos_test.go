@@ -1988,7 +1988,7 @@ func TestPhotos(t *testing.T) {
 			t.Fatal("error expected")
 		}
 
-		assert.Equal(t, len(photos), 0)
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("SearchGif", func(t *testing.T) {
 		var frm form.SearchPhotos
@@ -2316,7 +2316,7 @@ func TestPhotos(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 1)
+		assert.Equal(t, 1, len(photos))
 
 		for _, p := range photos {
 			assert.NotEmpty(t, p.PhotoCaption)

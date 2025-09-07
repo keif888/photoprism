@@ -25,7 +25,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 6)
+		assert.Equal(t, 6, len(photos))
 	})
 	t.Run("1", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -38,7 +38,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 6)
+		assert.Equal(t, 6, len(photos))
 	})
 	t.Run("2", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -51,7 +51,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 3)
+		assert.Equal(t, 3, len(photos))
 	})
 	t.Run("5", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -64,7 +64,7 @@ func TestPhotosFilterFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 0)
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -330,7 +330,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 6)
+		assert.Equal(t, 6, len(photos))
 	})
 	t.Run("1", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -343,7 +343,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 6)
+		assert.Equal(t, 6, len(photos))
 	})
 	t.Run("2", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -356,7 +356,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 3)
+		assert.Equal(t, 3, len(photos))
 	})
 	t.Run("5", func(t *testing.T) {
 		var f form.SearchPhotos
@@ -369,7 +369,7 @@ func TestPhotosQueryFaces(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, len(photos), 0)
+		assert.Equal(t, 0, len(photos))
 	})
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
