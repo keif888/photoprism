@@ -5,6 +5,8 @@ import (
 
 	"github.com/dustin/go-humanize/english"
 
+	"github.com/photoprism/photoprism/internal/entity"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -323,13 +325,20 @@ func TestMoment_Title(t *testing.T) {
 
 func TestRemoveDuplicateMoments(t *testing.T) {
 	t.Run("Ok", func(t *testing.T) {
+		// Count the number of albums eligible for duplicate removal, variable due to other tests.
+		var count int64
+		if err := Db().Raw("SELECT count(distinct a.id) FROM albums a JOIN albums b ON a.album_type <> ? AND a.album_type = b.album_type  AND a.id > b.id WHERE (a.album_slug = b.album_slug OR a.album_filter = b.album_filter)", entity.AlbumManual).Count(&count).Error; err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Greater(t, count, int64(1))
+
 		if removed, err := RemoveDuplicateMoments(); err != nil {
 			t.Fatal(err)
 		} else {
 			t.Logf("moments: removed %s", english.Plural(removed, "duplicate", "duplicates"))
 
-			// TODO: Needs review, variable number of results.
-			assert.GreaterOrEqual(t, removed, 1)
+			assert.Equal(t, count, int64(removed))
 		}
 	})
 }

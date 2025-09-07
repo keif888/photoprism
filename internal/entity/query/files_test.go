@@ -108,7 +108,7 @@ func TestFilesByUID(t *testing.T) {
 		}
 		assert.Equal(t, 0, len(files))
 	})
-	//TODO fails on mariadb
+	// fails on mariadb - Gorm issue, fixed in Gorm 2
 	t.Run("Error", func(t *testing.T) {
 		files, err := FilesByUID([]string{"fs6sg6bw45bnlxxx"}, -100, 0)
 
@@ -231,10 +231,23 @@ func TestSetPhotoPrimary(t *testing.T) {
 func TestSetFileError(t *testing.T) {
 	assert.Equal(t, "", entity.FileFixturesExampleXMP.FileError)
 
-	SetFileError("fs6sg6bwhhbnlqdn", "errorFromTest")
+	expected := "errorFromTest"
+	fileUID := "fs6sg6bwhhbnlqdn"
 
-	//TODO How to assert
-	//assert.Equal(t, true, entity.FileFixturesExampleXMP.FilePrimary)
+	SetFileError(fileUID, expected)
+
+	var actual []string
+	if err := Db().Model(entity.File{}).Where("file_uid = ?", fileUID).Pluck("file_error", &actual).Error; err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(actual))
+	if len(actual) > 0 {
+		assert.Equal(t, expected, actual[0])
+	}
+	// Revert the changes
+	if err := Db().Save(&entity.FileFixturesExampleXMP).Error; err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestRenameFile(t *testing.T) {
@@ -248,13 +261,42 @@ func TestRenameFile(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		assert.Equal(t, "2790/02/Photo01.xmp", entity.FileFixturesExampleXMP.FileName)
 		assert.Equal(t, "/", entity.FileFixturesExampleXMP.FileRoot)
-		err := RenameFile("/", "exampleXmpFile.xmp", "test-root", "yyy.jpg")
+
+		// Ensure that the database matches the fixture
+		if err := Db().Save(&entity.FileFixturesExampleXMP).Error; err != nil {
+			t.Fatal(err)
+		}
+
+		fileRoot := "/"
+		fileName := entity.FileFixturesExampleXMP.FileName
+		newRoot := "test-root"
+		newName := "yyy.jpg"
+
+		var expectedFileIDs []string
+		if err := Db().Model(entity.File{}).Where("file_root = ? AND file_name = ?", fileRoot, fileName).Pluck("id", &expectedFileIDs).Error; err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, 1, len(expectedFileIDs))
+
+		err := RenameFile(fileRoot, fileName, newRoot, newName)
 
 		if err != nil {
 			t.Fatal(err)
 		}
-		//TODO how to assert?
-		//assert.Equal(t, "", entity.FileFixturesExampleXMP.FileName)
+
+		var actualFileIDs []string
+		if err := Db().Model(entity.File{}).Where("file_root = ? AND file_name = ?", newRoot, newName).Pluck("id", &actualFileIDs).Error; err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, 1, len(actualFileIDs))
+		if len(actualFileIDs) > 0 && len(expectedFileIDs) > 0 {
+			assert.Equal(t, expectedFileIDs[0], actualFileIDs[0])
+		}
+
+		// Revert the changes
+		if err := Db().Save(&entity.FileFixturesExampleXMP).Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 
 }
