@@ -1,11 +1,13 @@
 package entity
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/photoprism/photoprism/internal/ai/classify"
+	"github.com/photoprism/photoprism/pkg/rnd"
 )
 
 func TestPhoto_HasTitle(t *testing.T) {
@@ -73,17 +75,19 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 	})
 	t.Run("photo with location without city and label", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo10")
+		m.ID = m.ID*2 + uint(rand.Intn(10000)) // Ensure that required record is available and not changed due to previous tests
+		m.PhotoUID = rnd.GenerateUID(PhotoUID)
+		m.Save()
+
 		classifyLabels := &classify.Labels{{Name: "tree", Uncertainty: 30, Source: "manual", Priority: 5, Categories: []string{"plant"}}}
 		assert.Equal(t, "Title", m.PhotoTitle)
 		err := m.GenerateTitle(*classifyLabels)
 		if err != nil {
 			t.Fatal(err)
 		}
-		// TODO: Unstable
-		if len(m.SubjectNames()) > 0 {
-			assert.Equal(t, "Actor A / Germany / 2016", m.PhotoTitle)
-		} else {
-			assert.Equal(t, "Tree / Germany / 2016", m.PhotoTitle)
+		assert.Equal(t, "Tree / Germany / 2016", m.PhotoTitle)
+		if err = UnscopedDb().Delete(m).Error; err != nil {
+			t.Fatal(err)
 		}
 	})
 	t.Run("photo with location and short city and label", func(t *testing.T) {
@@ -129,6 +133,9 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 	})
 	t.Run("photo with location without city", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo10")
+		m.ID = m.ID*2 + uint(rand.Intn(10000)) // Ensure that required record is available and not changed due to previous tests
+		m.PhotoUID = rnd.GenerateUID(PhotoUID)
+		m.Save()
 		classifyLabels := &classify.Labels{}
 		assert.Equal(t, "Title", m.PhotoTitle)
 		err := m.GenerateTitle(*classifyLabels)
@@ -136,11 +143,9 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// TODO: Unstable
-		if len(m.SubjectNames()) > 0 {
-			assert.Equal(t, "Actor A / Germany / 2016", m.PhotoTitle)
-		} else {
-			assert.Equal(t, "Holiday Park / Germany / 2016", m.PhotoTitle)
+		assert.Equal(t, "Holiday Park / Germany / 2016", m.PhotoTitle)
+		if err = UnscopedDb().Delete(m).Error; err != nil {
+			t.Fatal(err)
 		}
 	})
 
@@ -166,13 +171,20 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 	})
 	t.Run("no location original name", func(t *testing.T) {
 		m := PhotoFixtures.Get("19800101_000002_D640C559")
+		m.ID = m.ID*2 + uint(rand.Intn(10000)) // Ensure that required record is available and not changed due to previous tests
+		m.PhotoUID = rnd.GenerateUID(PhotoUID)
+		m.Save()
+
 		classifyLabels := &classify.Labels{{Name: "classify", Uncertainty: 30, Source: SrcManual, Priority: 5, Categories: []string{"flower", "plant"}}}
 		assert.Equal(t, "Lake / 2790", m.PhotoTitle)
 		err := m.GenerateTitle(*classifyLabels)
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, "Franzilein & Actress A / 2008", m.PhotoTitle)
+		assert.Equal(t, "ExampleFileNameOriginal", m.PhotoTitle)
+		if err = UnscopedDb().Delete(m).Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("no location", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo01")
@@ -187,6 +199,10 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 
 	t.Run("no location no labels", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo02")
+		m.ID = m.ID*2 + uint(rand.Intn(10000)) // Ensure that required record is available and not changed due to previous tests
+		m.PhotoUID = rnd.GenerateUID(PhotoUID)
+		m.Save()
+
 		classifyLabels := &classify.Labels{}
 		assert.Equal(t, "", m.PhotoTitle)
 		err := m.GenerateTitle(*classifyLabels)
@@ -194,11 +210,9 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// TODO: Unstable
-		if len(m.SubjectNames()) > 0 {
-			assert.Equal(t, "Actress A / 1990", m.PhotoTitle)
-		} else {
-			assert.Equal(t, "Bridge1 / 1990", m.PhotoTitle)
+		assert.Equal(t, "Bridge1 / 1990", m.PhotoTitle)
+		if err = UnscopedDb().Delete(m).Error; err != nil {
+			t.Fatal(err)
 		}
 	})
 	t.Run("no location no labels no takenAt", func(t *testing.T) {
@@ -213,6 +227,23 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 	})
 	t.Run("OnePerson", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo10")
+		m.ID = m.ID*2 + uint(rand.Intn(10000)) // Ensure that required records are available and not changed due to previous tests
+		m.PhotoUID = rnd.GenerateUID(PhotoUID)
+		m.Save()
+
+		f := FileFixtures.Get("Video.jpg")
+		f.ID = f.ID*2 + uint(rand.Intn(10000))
+		f.FileUID = rnd.GenerateUID(FileUID)
+		f.Photo = &m
+		f.PhotoID = m.ID
+		f.PhotoUID = m.PhotoUID
+		f.FileName = "Holiday/Video.2.jpg"
+		f.Save()
+
+		r := MarkerFixtures.Get("actor-a-3")
+		r.MarkerUID = rnd.GenerateUID('m')
+		r.FileUID = f.FileUID
+		r.Save()
 
 		assert.Equal(t, SrcAuto, m.TitleSrc)
 		assert.Equal(t, SrcAuto, m.CaptionSrc)
@@ -228,14 +259,18 @@ func TestPhoto_GenerateTitle(t *testing.T) {
 		assert.Equal(t, SrcAuto, m.TitleSrc)
 		assert.Equal(t, SrcAuto, m.CaptionSrc)
 
-		// TODO: Unstable
-		if len(m.SubjectNames()) > 0 {
-			assert.Equal(t, "Actor A / Germany / 2016", m.PhotoTitle)
-		} else {
-			assert.Equal(t, "Holiday Park / Germany / 2016", m.PhotoTitle)
-		}
+		assert.Equal(t, "Actor A / Germany / 2016", m.PhotoTitle)
 
 		assert.Equal(t, "", m.PhotoCaption)
+		if err = UnscopedDb().Delete(r).Error; err != nil {
+			t.Fatal(err)
+		}
+		if err = UnscopedDb().Delete(f).Error; err != nil {
+			t.Fatal(err)
+		}
+		if err = UnscopedDb().Delete(m).Error; err != nil {
+			t.Fatal(err)
+		}
 	})
 	t.Run("People", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo04")
