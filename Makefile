@@ -85,6 +85,9 @@ acceptance-run-chromium: storage/acceptance acceptance-auth-sqlite-restart wait 
 acceptance-run-chromium-short: storage/acceptance acceptance-auth-sqlite-restart wait acceptance-auth-short acceptance-auth-sqlite-stop acceptance-sqlite-restart wait-2 acceptance-short acceptance-sqlite-stop
 acceptance-auth-run-chromium: storage/acceptance acceptance-auth-sqlite-restart wait acceptance-auth acceptance-auth-sqlite-stop
 acceptance-public-run-chromium: storage/acceptance acceptance-sqlite-restart wait acceptance acceptance-sqlite-stop
+help: list
+list:
+	@awk '/^[[:alnum:]]+[^[:space:]]+:/ {printf "%s",substr($$1,1,length($$1)-1); if (match($$0,/#/)) {desc=substr($$0,RSTART+1); sub(/^[[:space:]]+/,"",desc); printf " - %s\n",desc} else printf "\n" }' "$(firstword $(MAKEFILE_LIST))"
 wait:
 	sleep 20
 wait-2:
@@ -103,8 +106,10 @@ logs:
 	$(DOCKER_COMPOSE) logs -f
 down:
 	$(DOCKER_COMPOSE) --profile=all down --remove-orphans
-help:
-	@echo "For build instructions, visit <https://docs.photoprism.app/developer-guide/>."
+codex: dep-codex codex-status
+codex-status:
+	codex --version
+	codex /status
 docs: swag
 swag: swag-json
 swag-json:
@@ -245,6 +250,9 @@ dep-js:
 	(cd frontend && npm ci --no-update-notifier --no-audit)
 	# TODO: If in the future we want to test in a real browser environment, add this (Playwright)
 	# (cd frontend && npx playwright install chromium)
+dep-codex:
+	@echo "Installing latest Codex CLI..."
+	sudo npm i -g "@openai/codex@latest"
 dep-go:
 	go build -v ./...
 dep-upgrade:
@@ -334,7 +342,7 @@ watch-js:
 	(cd frontend &&	env BUILD_ENV=development NODE_ENV=production npm run watch)
 test-js:
 	$(info Running JS unit tests...)
-	(cd frontend && env TZ=UTC BUILD_ENV=development NODE_ENV=development BABEL_ENV=test npm run test)
+	(cd frontend && npm run test)
 acceptance:
 	$(info Running public-mode tests in Chrome...)
 	(cd frontend &&	npm run testcafe -- "chrome --headless=new" --test-grep "^(Multi-Window)\:*" --test-meta mode=public --config-file ./testcaferc.json --experimental-multiple-windows "tests/acceptance" && npm run testcafe -- "chrome --headless=new" --test-grep "^(Common|Core)\:*" --test-meta mode=public --config-file ./testcaferc.json "tests/acceptance")
@@ -353,21 +361,15 @@ acceptance-auth-short:
 acceptance-auth-firefox:
 	$(info Running JS acceptance-auth tests in Firefox...)
 	(cd frontend && npm run testcafe -- firefox:headless --test-grep "^(Common|Core)\:*" --test-meta mode=auth --config-file ./testcaferc.json --disable-native-automation "tests/acceptance")
-vitest:
-	$(info Running Vitest unit tests...)
-	(cd frontend && npm run vitest)
 vitest-watch:
 	$(info Running Vitest unit tests in watch mode...)
-	(cd frontend && npm run vitest-watch)
+	(cd frontend && npm run test-watch)
 vitest-coverage:
 	$(info Running Vitest unit tests with coverage...)
-	(cd frontend && npm run vitest-coverage)
+	(cd frontend && npm run test-coverage)
 vitest-component:
 	$(info Running Vitest component tests...)
-	(cd frontend && npm run vitest-component)
-vitest-ui:
-	$(info Opening Vitest UI...)
-	(cd frontend && npm run vitest-ui)
+	(cd frontend && npm run test-component)
 reset-mariadb:
 	$(info Resetting photoprism database...)
 	mysql < scripts/sql/reset-photoprism.sql

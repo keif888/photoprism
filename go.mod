@@ -60,15 +60,15 @@ require github.com/chzyer/readline v1.5.1 // indirect
 require github.com/gabriel-vasile/mimetype v1.4.10
 
 require (
-	golang.org/x/sync v0.16.0
-	golang.org/x/time v0.12.0
+	golang.org/x/sync v0.17.0
+	golang.org/x/time v0.13.0
 )
 
 require github.com/go-ldap/ldap/v3 v3.4.11
 
 require (
-	github.com/prometheus/client_golang v1.23.0
-	github.com/prometheus/common v0.65.0
+	github.com/prometheus/client_golang v1.23.2
+	github.com/prometheus/common v0.66.1
 )
 
 require github.com/dustinkirkland/golang-petname v0.0.0-20240428194347-eebcea082ee0
@@ -89,7 +89,7 @@ require (
 	github.com/wamuir/graft v0.10.0
 	github.com/zitadel/oidc/v3 v3.44.0
 	golang.org/x/mod v0.27.0
-	golang.org/x/sys v0.35.0
+	golang.org/x/sys v0.36.0
 	google.golang.org/protobuf v1.36.8
 )
 
@@ -165,6 +165,7 @@ require (
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -186,6 +187,6 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 )
 
-go 1.23.7
+go 1.24.0
 
 toolchain go1.24.1
