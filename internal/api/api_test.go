@@ -56,10 +56,12 @@ func TestMain(m *testing.M) {
 func NewApiTest() (app *gin.Engine, router *gin.RouterGroup, conf *config.Config) {
 	gin.SetMode(gin.TestMode)
 
+	conf = get.Config()
 	app = gin.New()
+	app.LoadHTMLFiles(conf.TemplateFiles()...)
 	router = app.Group("/api/v1")
 
-	return app, router, get.Config()
+	return app, router, conf
 }
 
 // PerformRequest runs an API request with an empty request body.
