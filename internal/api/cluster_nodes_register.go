@@ -187,7 +187,7 @@ func ClusterNodesRegister(router *gin.RouterGroup) {
 		}
 
 		// Generate node secret.
-		n.Secret = rnd.Base62(48)
+		n.Secret = rnd.Base62(rnd.ClientSecretLength) // 48 is to long for IsClientSecret which only accepts 32 long as per ClientSecretLength which causes SetSecret to fail.
 		n.SecretRot = nowRFC3339()
 
 		// Ensure DB (force rotation at create path to return password).
