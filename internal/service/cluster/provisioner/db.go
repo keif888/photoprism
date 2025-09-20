@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jinzhu/gorm"
-
 	"github.com/photoprism/photoprism/internal/config"
 )
 
@@ -65,18 +63,18 @@ func EnsureNodeDatabase(ctx context.Context, conf *config.Config, nodeName strin
 	created := r.C == 0
 
 	// Create database schema if needed.
-	if err := exec(q, fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", quoteIdent(dbName))); err != nil {
+	if err := q.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", quoteIdent(dbName))).Error; err != nil {
 		return out, created, err
 	}
 
 	// Create user if needed (host wildcard '%').
-	if err := exec(q, fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%' IDENTIFIED BY '%s'", dbUser, dbPass)); err != nil {
+	if err := q.Exec(fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%' IDENTIFIED BY '%s'", dbUser, dbPass)).Error; err != nil {
 		return out, created, err
 	}
 
 	// Rotate or set password explicitly on first creation.
 	if rotate || created {
-		if err := exec(q, fmt.Sprintf("ALTER USER '%s'@'%%' IDENTIFIED BY '%s'", dbUser, dbPass)); err != nil {
+		if err := q.Exec(fmt.Sprintf("ALTER USER '%s'@'%%' IDENTIFIED BY '%s'", dbUser, dbPass)).Error; err != nil {
 			return out, created, err
 		}
 		out.Password = dbPass
@@ -84,12 +82,12 @@ func EnsureNodeDatabase(ctx context.Context, conf *config.Config, nodeName strin
 	}
 
 	// Grant privileges on schema.
-	if err := exec(q, fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%%'", quoteIdent(dbName), dbUser)); err != nil {
+	if err := q.Exec(fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%%'", quoteIdent(dbName), dbUser)).Error; err != nil {
 		return out, created, err
 	}
 
 	// Optional on modern MariaDB, harmless if included.
-	if err := exec(q, "FLUSH PRIVILEGES"); err != nil {
+	if err := q.Exec("FLUSH PRIVILEGES").Error; err != nil {
 		return out, created, err
 	}
 
@@ -103,14 +101,4 @@ func EnsureNodeDatabase(ctx context.Context, conf *config.Config, nodeName strin
 	}
 
 	return out, created, nil
-}
-
-func exec(db *gorm.DB, stmt string) error {
-	if stmt == "" {
-		return nil
-	}
-
-	// Use a no-op scan into a struct to execute raw SQL with gorm v1.
-	var nop struct{}
-	return db.Raw(stmt).Scan(&nop).Error
 }
