@@ -1,11 +1,11 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../../testcafeconfig.json";
+// import testcafeconfig from "../../../testcafeconfig.json";
 import Menu from "../../page-model/menu";
 import Toolbar from "../../page-model/toolbar";
 import Page from "../../page-model/page";
 import Library from "../../page-model/library";
 
-fixture`Import file from folder`.page`${testcafeconfig.url}`;
+fixture`Import file from folder`.page`./library/login`;
 
 const menu = new Menu();
 const toolbar = new Toolbar();

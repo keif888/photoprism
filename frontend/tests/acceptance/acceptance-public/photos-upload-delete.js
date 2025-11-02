@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import fs from "fs";
 import Menu from "../page-model/menu";
 import Toolbar from "../page-model/toolbar";
@@ -11,7 +11,7 @@ import Originals from "../page-model/originals";
 import Album from "../page-model/album";
 import Library from "../page-model/library";
 
-fixture`Test photos upload and delete`.page`${testcafeconfig.url}`;
+fixture`Test photos upload and delete`.page`./library/login`;
 
 const menu = new Menu();
 const album = new Album();

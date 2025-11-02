@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
 import { Role } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Page from "../page-model/page";
 import Menu from "../page-model/menu";
 import Toolbar from "../page-model/toolbar";
@@ -11,7 +11,7 @@ import ShareDialog from "../page-model/dialog-share";
 import Photo from "../page-model/photo";
 import Places from "../page-model/places";
 
-fixture`Test link sharing`.page`${testcafeconfig.url}`;
+fixture`Test link sharing`.page`./library/login`;
 
 const page = new Page();
 const menu = new Menu();
@@ -39,7 +39,7 @@ test.meta("testID", "sharing-001").meta({ mode: "auth" })("Common: Create, view,
   const Expire = await Selector(".input-expires .v-select__selection-text").innerText;
 
   await t.expect(Url).contains("secretfortesting").expect(Expire).contains("After 1 day");
-  let url = "http://localhost:2343/s/secretfortesting/christmas";
+  let url = process.env.TESTCAFEBASEURL + "/s/secretfortesting/christmas";
   await t.click(sharedialog.dialogClose);
   await contextmenu.clearSelection();
   await album.openAlbumWithUid(FirstAlbumUid);
@@ -95,7 +95,7 @@ test.meta("testID", "sharing-001").meta({ mode: "auth" })("Common: Create, view,
 
   await t.expect(FolderCountAnonymous).eql(1);
 
-  await t.navigateTo("http://localhost:2343/library/browse");
+  await t.navigateTo(process.env.TESTCAFEBASEURL + "/library/browse");
   await album.checkAlbumVisibility("aqmxlts2b2rx38wl", true);
   await album.checkAlbumVisibility("aqmxlt22ilujuxux", false);
 
@@ -107,7 +107,7 @@ test.meta("testID", "sharing-001").meta({ mode: "auth" })("Common: Create, view,
 
   await t.click(sharedialog.deleteLink).useRole(Role.anonymous());
 
-  await t.navigateTo("http://localhost:2343/s/secretfortesting");
+  await t.navigateTo(process.env.TESTCAFEBASEURL + "/s/secretfortesting");
 
   const AlbumCountAnonymousAfterDelete = await album.getAlbumCount("all");
 
@@ -125,7 +125,7 @@ test.meta("testID", "sharing-001").meta({ mode: "auth" })("Common: Create, view,
   await toolbar.triggerToolbarAction("share");
   await t.click(sharedialog.deleteLink).useRole(Role.anonymous());
 
-  await t.navigateTo("http://localhost:2343/s/secretfortesting");
+  await t.navigateTo(process.env.TESTCAFEBASEURL + "/s/secretfortesting");
 
   await t
     .expect(toolbar.toolbarSecondTitle.withText("Christmas").visible)
@@ -139,7 +139,7 @@ test.meta("testID", "sharing-001").meta({ mode: "auth" })("Common: Create, view,
 test.meta("testID", "sharing-002").meta({ type: "short", mode: "auth" })(
   "Multi-Window: Verify visitor role has limited permissions",
   async (t) => {
-    await t.navigateTo("http://localhost:2343/s/jxoux5ub1e/british-columbia-canada");
+    await t.navigateTo(process.env.TESTCAFEBASEURL + "/s/jxoux5ub1e/british-columbia-canada");
     await t.expect(toolbar.toolbarSecondTitle.withText("British Columbia").visible).ok();
 
     await toolbar.checkToolbarActionAvailability("edit", false);

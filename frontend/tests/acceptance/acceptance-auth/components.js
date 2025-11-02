@@ -1,10 +1,10 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Toolbar from "../page-model/toolbar";
 import Menu from "../page-model/menu";
 import Page from "../page-model/page";
 
-fixture`Test components`.page`${testcafeconfig.url}`;
+fixture`Test components`.page`./library/login`;
 
 const toolbar = new Toolbar();
 const menu = new Menu();

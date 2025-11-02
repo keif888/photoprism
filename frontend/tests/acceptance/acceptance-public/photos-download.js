@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import { RequestLogger } from "testcafe";
 import Toolbar from "../page-model/toolbar";
 import ContextMenu from "../page-model/context-menu";
@@ -12,7 +12,7 @@ const logger = RequestLogger(/http:\/\/localhost:2343\/api\/v1\/*/, {
   logResponseBody: true,
 });
 
-fixture`Test photos download`.page`${testcafeconfig.url}`
+fixture`Test photos download`.page`./library/login`
   .requestHooks(logger)
   .skip("Does not work in container and we have no content-disposition header anymore");
 

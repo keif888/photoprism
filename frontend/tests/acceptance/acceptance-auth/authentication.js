@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Page from "../page-model/page";
 import Account from "../page-model/account";
 import Settings from "../page-model/settings";
@@ -7,7 +7,7 @@ import Menu from "../page-model/menu";
 import Photo from "../page-model/photo";
 import ContextMenu from "../page-model/context-menu";
 
-fixture`Test authentication`.page`${testcafeconfig.url}`;
+fixture`Test authentication`.page`./library/login`;
 
 const page = new Page();
 const account = new Account();

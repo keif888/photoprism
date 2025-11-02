@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Menu from "../page-model/menu";
 import Toolbar from "../page-model/toolbar";
 import Photo from "../page-model/photo";
@@ -10,7 +10,7 @@ import Subject from "../page-model/subject";
 import Label from "../page-model/label";
 import Library from "../page-model/library";
 
-fixture`Test Keyboard Shortcuts`.page`${testcafeconfig.url}`;
+fixture`Test Keyboard Shortcuts`.page`./library/login`;
 
 const menu = new Menu();
 const toolbar = new Toolbar();

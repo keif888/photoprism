@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import { ClientFunction } from "testcafe";
 import Menu from "../page-model/menu";
 import Toolbar from "../page-model/toolbar";
@@ -12,7 +12,7 @@ import PhotoEdit from "../page-model/photo-edit";
 const scroll = ClientFunction((x, y) => window.scrollTo(x, y));
 const getcurrentPosition = ClientFunction(() => window.scrollY);
 
-fixture`Test photos`.page`${testcafeconfig.url}`;
+fixture`Test photos`.page`./library/login`;
 
 const menu = new Menu();
 const toolbar = new Toolbar();

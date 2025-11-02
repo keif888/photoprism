@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
 import { ClientFunction } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Menu from "../page-model/menu";
 import Places from "../page-model/places";
 import Photo from "../page-model/photo";
@@ -8,7 +8,7 @@ import Toolbar from "../page-model/toolbar";
 
 const getLocation = ClientFunction(() => document.location.href);
 
-fixture`Search and open photo from places`.page`${testcafeconfig.url}`;
+fixture`Search and open photo from places`.page`./library/login`;
 
 const menu = new Menu();
 const places = new Places();

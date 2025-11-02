@@ -1,6 +1,6 @@
 import { Selector } from "testcafe";
 import { ClientFunction } from "testcafe";
-import testcafeconfig from "../../../testcafeconfig.json";
+// import testcafeconfig from "../../../testcafeconfig.json";
 import Menu from "../../page-model/menu";
 import Toolbar from "../../page-model/toolbar";
 import ContextMenu from "../../page-model/context-menu";
@@ -12,7 +12,7 @@ import Album from "../../page-model/album";
 import Settings from "../../page-model/settings";
 import Library from "../../page-model/library";
 
-fixture`Test general settings`.page`${testcafeconfig.url}`.beforeEach(async (t) => {
+fixture`Test general settings`.page`./library/login`.beforeEach(async (t) => {
   await page.login("admin", "photoprism");
 });
 

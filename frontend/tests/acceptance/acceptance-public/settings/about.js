@@ -1,8 +1,8 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../../testcafeconfig.json";
+// import testcafeconfig from "../../../testcafeconfig.json";
 import Menu from "../../page-model/menu";
 
-fixture`Test about`.page`${testcafeconfig.url}`;
+fixture`Test about`.page`./library/login`;
 
 const menu = new Menu();
 

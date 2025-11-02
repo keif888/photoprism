@@ -1,11 +1,11 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../../testcafeconfig.json";
+// import testcafeconfig from "../../../testcafeconfig.json";
 import Account from "../../page-model/account";
 import Menu from "../../page-model/menu";
 import Page from "../../page-model/page";
 import Settings from "../../page-model/settings";
 
-fixture`Test account settings`.page`${testcafeconfig.url}`;
+fixture`Test account settings`.page`./library/login`;
 
 const menu = new Menu();
 const page = new Page();

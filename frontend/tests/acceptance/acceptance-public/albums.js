@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../testcafeconfig.json";
+// import testcafeconfig from "../../testcafeconfig.json";`
 import Menu from "../page-model/menu";
 import Album from "../page-model/album";
 import Toolbar from "../page-model/toolbar";
@@ -10,7 +10,7 @@ import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
 import PhotoEdit from "../page-model/photo-edit";
 
-fixture`Test albums`.page`${testcafeconfig.url}`;
+fixture`Test albums`.page`./library/login`;
 
 const menu = new Menu();
 const album = new Album();

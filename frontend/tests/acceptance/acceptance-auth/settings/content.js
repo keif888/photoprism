@@ -1,12 +1,12 @@
 import { Selector } from "testcafe";
-import testcafeconfig from "../../../testcafeconfig.json";
+// import testcafeconfig from "../../../testcafeconfig.json";
 import Menu from "../../page-model/menu";
 import Toolbar from "../../page-model/toolbar";
 import Page from "../../page-model/page";
 import PhotoEdit from "../../page-model/photo-edit";
 import Settings from "../../page-model/settings";
 
-fixture`Test content settings`.page`${testcafeconfig.url}`.beforeEach(async (t) => {
+fixture`Test content settings`.page`./library/login`.beforeEach(async (t) => {
   await page.login("admin", "photoprism");
 });
 
