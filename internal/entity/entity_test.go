@@ -14,7 +14,12 @@ import (
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
+// TestMain executes testMain returning it's results.  It is done this way so that defer can be used to cleanup.
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) int {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 	event.AuditLog = log
@@ -47,6 +52,11 @@ func TestMain(m *testing.M) {
 	fs.PurgeTestDbFiles(".", false)
 
 	os.Exit(code)
+		os.Getenv("PHOTOPRISM_TEST_DRIVER"),
+		os.Getenv("PHOTOPRISM_TEST_DSN"))
+	defer db.Close()
+
+	return m.Run()
 }
 
 func TestTypeString(t *testing.T) {

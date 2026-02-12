@@ -11,7 +11,12 @@ import (
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
+// TestMain executes testMain returning it's results.  It is done this way so that defer can be used to cleanup.
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) (code int) {
 
 	caller := "internal/photoprism/get/get_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
@@ -28,7 +33,17 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
+	defer os.RemoveAll(tempDir)
+
 	c := config.NewMinimalTestConfigWithDb("test", tempDir)
+	defer c.CleanupTestFolder()
+	defer func() {
+		if err := c.CloseDb(); err != nil {
+			log.Errorf("close db: %v", err)
+		}
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+	}()
 
 	SetConfig(c)
 
@@ -50,4 +65,5 @@ func TestMain(m *testing.M) {
 	fs.PurgeTestDbFiles(".", false)
 
 	os.Exit(code)
+	return m.Run()
 }

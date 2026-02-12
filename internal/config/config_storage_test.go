@@ -169,11 +169,13 @@ func TestConfig_TempPath(t *testing.T) {
 		t.Logf("temp paths match: '%s' == '%s'", d1, d2)
 	}
 
+	d0 = TestConfig().tempPath() // Reset to use the cached test config, which TempPath will be using.
 	if d4 := c.TempPath(); d4 != d0 {
 		t.Fatalf("temp paths should match: '%s' <=> '%s'", d4, d0)
 	} else {
 		t.Logf("temp paths match: '%s' == '%s'", d4, d0)
 	}
+	os.RemoveAll(d1)
 }
 
 func TestConfig_CmdCachePath(t *testing.T) {

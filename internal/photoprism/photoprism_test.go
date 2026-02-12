@@ -13,7 +13,12 @@ import (
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
+// TestMain executes testMain returning it's results.  It is done this way so that defer can be used to cleanup.
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) int {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 
@@ -32,6 +37,7 @@ func TestMain(m *testing.M) {
 	dsn.SetDSNToEnv(dsname)
 
 	c := config.NewTestConfig("photoprism")
+	config.OnceTestConfig(c)
 	SetConfig(c)
 
 	beforeTimestamp := time.Now().UTC()
@@ -46,6 +52,14 @@ func TestMain(m *testing.M) {
 
 	// Remove temporary SQLite files after running the tests.
 	fs.PurgeTestDbFiles(".", false)
+	defer c.CleanupTestFolder()
+	defer func() {
+		if err := c.CloseDb(); err != nil {
+			log.Errorf("close db: %v", err)
+		}
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+	}()
 
-	os.Exit(code)
+	return m.Run()
 }

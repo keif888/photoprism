@@ -17,7 +17,12 @@ import (
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
 
+// TestMain executes testMain returning it's results.  It is done this way so that defer can be used to cleanup.
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) int {
 	// Remove temporary SQLite files before running the tests.
 	fs.PurgeTestDbFiles(".", false)
 
@@ -43,9 +48,10 @@ func TestMain(m *testing.M) {
 	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
 
 	// Remove temporary SQLite files after running the tests.
-	fs.PurgeTestDbFiles(".", false)
+	defer fs.PurgeTestDbFiles(".", false)
 
-	os.Exit(code)
+	// Run unit tests.
+	return m.Run()
 }
 
 func TestClientRegistry_GetAndDelete(t *testing.T) {

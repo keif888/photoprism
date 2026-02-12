@@ -26,13 +26,30 @@ func (p staticDbProvider) Db() *gorm.DB {
 	return p.db
 }
 
+// staticDbProvider returns a static *gorm.DB for temporary test provider overrides.
+type staticDbProvider struct {
+	db *gorm.DB
+}
+
+// Db returns the static database handle.
+func (p staticDbProvider) Db() *gorm.DB {
+	return p.db
+}
+
+// TestMain executes testMain returning it's results.  It is done this way so that defer can be used to cleanup.
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) int {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 
 	// Remove temporary SQLite files before running the tests.
 	fs.PurgeTestDbFiles(".", false)
-
+	// Remove temporary SQLite files after running the tests.
+	defer fs.PurgeTestDbFiles(".", false)
+	
 	caller := "internal/entity/query/query_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
@@ -58,6 +75,11 @@ func TestMain(m *testing.M) {
 	fs.PurgeTestDbFiles(".", false)
 
 	os.Exit(code)
+		os.Getenv("PHOTOPRISM_TEST_DRIVER"),
+		os.Getenv("PHOTOPRISM_TEST_DSN"))
+	defer db.Close()
+
+	return m.Run()
 }
 
 func TestDbDialect(t *testing.T) {
