@@ -68,17 +68,9 @@ func testMain(m *testing.M) int {
 
 	// Run unit tests.
 	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	if err := c.CloseDb(); err != nil {
-		log.Warnf("close db: %v", err)
-	}
-
-	// Remove temporary SQLite files after running the tests.
-	fs.PurgeTestDbFiles(".", false)
 	return code
 }
 
