@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 	event.AuditLog = log
@@ -30,33 +30,32 @@ func testMain(m *testing.M) int {
 	caller := "internal/entity/entity_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
-	driver, dsn := dsn.PhotoPrismTestToDriverDSN(dbn)
+	driver, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
 	db := InitTestDb(
 		driver,
-		dsn)
+		dsname)
 
+	code = 999
+
+	defer func() {
+		db.Close()
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+	}()
+
+	// Run unit tests.
 	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(db.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	// Remove temporary SQLite files after running the tests.
-	db.Close()
-
-	fs.PurgeTestDbFiles(".", false)
-
-	os.Exit(code)
-		os.Getenv("PHOTOPRISM_TEST_DRIVER"),
-		os.Getenv("PHOTOPRISM_TEST_DSN"))
-	defer db.Close()
-
-	return m.Run()
+	return code
 }
 
 func TestTypeString(t *testing.T) {

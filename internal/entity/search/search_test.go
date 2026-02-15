@@ -18,20 +18,18 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 
 	// Remove temporary SQLite files before running the tests.
 	fs.PurgeTestDbFiles(".", false)
-	// Remove temporary SQLite files after running the tests.
-	defer fs.PurgeTestDbFiles(".", false)
 
 	caller := "internal/entity/search/search_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
@@ -39,11 +37,20 @@ func testMain(m *testing.M) int {
 	db := entity.InitTestDb(
 		driver,
 		dsn)
-	defer db.Close()
 
+	code = 999
+
+	defer func() {
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+	}()
+
+	// Run unit tests.
 	beforeTimestamp := time.Now().UTC()
-	return m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(db.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+	return code
 }

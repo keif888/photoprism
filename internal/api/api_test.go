@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	// Init test logger.
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
@@ -50,7 +50,7 @@ func testMain(m *testing.M) int {
 
 	// Init test config.
 	c := config.TestConfig()
-	code := 0
+	code = 999
 	defer c.CleanupTestFolder()
 	defer func() {
 		if err := c.CloseDb(); err != nil {

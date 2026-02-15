@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	if insensitive, err := CaseInsensitive(os.TempDir()); err != nil {
 		fmt.Println(err)
 	} else if insensitive {

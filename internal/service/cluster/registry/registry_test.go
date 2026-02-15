@@ -22,36 +22,38 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
-	// Remove temporary SQLite files before running the tests.
-	fs.PurgeTestDbFiles(".", false)
-
+func testMain(m *testing.M) (code int) {
 	// Init test logger.
 	log := logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 	event.AuditLog = log
 
+	// Remove temporary SQLite files before running the tests.
+	fs.PurgeTestDbFiles(".", false)
+
 	caller := "internal/service/cluster/registry/registry_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
 	_, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
 	dsn.SetDSNToEnv(dsname)
 
+	code = 999
+
+	defer func() {
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+	}()
+
 	// Run unit tests.
-	code := m.Run()
-
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	// Remove temporary SQLite files after running the tests.
-	defer fs.PurgeTestDbFiles(".", false)
-
-	// Run unit tests.
-	return m.Run()
+	code = m.Run()
+	return code
 }
 
 func TestClientRegistry_GetAndDelete(t *testing.T) {

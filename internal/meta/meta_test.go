@@ -12,7 +12,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 

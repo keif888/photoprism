@@ -13,6 +13,7 @@ import (
 	"github.com/photoprism/photoprism/internal/testextras"
 	"github.com/photoprism/photoprism/pkg/clean"
 	"github.com/photoprism/photoprism/pkg/dsn"
+	"github.com/photoprism/photoprism/pkg/fs"
 )
 
 var log = event.Log
@@ -29,15 +30,22 @@ func Log(model, action string, err error) {
 }
 
 func TestMain(m *testing.M) {
+	os.Exit(testMain(m))
+}
+
+func testMain(m *testing.M) (code int) {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 	event.AuditLog = log
 
+	// Remove temporary SQLite files before running the tests.
+	fs.PurgeTestDbFiles(".", false)
+
 	caller := "internal/entity/dbtest/dbtest_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
@@ -65,13 +73,19 @@ func TestMain(m *testing.M) {
 		driver,
 		dsname)
 
-	defer db.Close()
+	code = 999
+
+	defer func() {
+		db.Close()
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+	}()
 
 	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(db.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	os.Exit(code)
+	return code
 }

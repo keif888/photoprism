@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	_ = os.Setenv("TF_CPP_MIN_LOG_LEVEL", "3")
 
 	log = logrus.StandardLogger()
@@ -46,8 +46,8 @@ func testMain(m *testing.M) int {
 	caller := "internal/commands/commands_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
@@ -56,49 +56,39 @@ func testMain(m *testing.M) int {
 
 	tempDir, err := os.MkdirTemp("", "commands-test")
 	if err != nil {
-		panic(err)
+		log.Errorf("testMain: MkdirTemp error %+v", err)
+		return 1
 	}
 	savedPath = tempDir
-	defer os.RemoveAll(tempDir)
 
 	c := config.NewMinimalTestConfigWithDb("commands", tempDir)
-	defer c.CleanupTestFolder()
+	code = 999
+
 	defer func() {
+		c.CleanupTestFolder()
 		if err := c.CloseDb(); err != nil {
 			log.Errorf("close db: %v", err)
 		}
 		// Remove temporary SQLite files after running the tests.
 		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+		_ = os.RemoveAll(tempDir)
 	}()
 
 	get.SetConfig(c)
 
-	// Keep DB connection open for the duration of this package's tests to
-	// avoid late access after CloseDb() in concurrent test runs.
-
 	// Init config and connect to database.
-	InitConfig = func(ctx *cli.Context) (*config.Config, error) {
+	InitConfig = func(_ *cli.Context) (*config.Config, error) {
 		return c, c.Init()
 	}
 
 	// Run unit tests.
 	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	if err = c.CloseDb(); err != nil {
-		log.Warnf("close db: %v", err)
-	}
-
-	_ = os.RemoveAll(tempDir)
-
-	// Remove temporary SQLite files after running the tests.
-	fs.PurgeTestDbFiles(".", false)
-
-	os.Exit(code)
-	return m.Run()
+	return code
 }
 
 // SetEnvForTest sets an environment variable and restores its original value after the test.
@@ -237,7 +227,7 @@ func resetConfigAndDB() *config.Config {
 	get.SetConfig(c)
 	entity.SetDbProvider(c)
 
-	InitConfig = func(ctx *cli.Context) (*config.Config, error) {
+	InitConfig = func(_ *cli.Context) (*config.Config, error) {
 		return c, c.Init()
 	}
 
@@ -255,7 +245,7 @@ func resetConfigAndOpenDB() *config.Config {
 	get.SetConfig(c)
 	entity.SetDbProvider(c)
 
-	InitConfig = func(ctx *cli.Context) (*config.Config, error) {
+	InitConfig = func(_ *cli.Context) (*config.Config, error) {
 		return c, c.Init()
 	}
 
@@ -271,12 +261,11 @@ func reopenConnection() *config.Config {
 		} else {
 			entity.SetDbProvider(c) // entity can get out of sync with c, so make sure it's correct
 		}
-		InitConfig = func(ctx *cli.Context) (*config.Config, error) {
+		InitConfig = func(_ *cli.Context) (*config.Config, error) {
 			return c, c.Init()
 		}
 		return c
-	} else {
-		log.Warn("reopenConnection: config is nil")
-		return nil
 	}
+	log.Warn("reopenConnection: config is nil")
+	return nil
 }

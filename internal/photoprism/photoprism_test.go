@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 	os.Exit(testMain(m))
 }
 
-func testMain(m *testing.M) int {
+func testMain(m *testing.M) (code int) {
 	log = logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 
@@ -28,8 +28,8 @@ func testMain(m *testing.M) int {
 	caller := "internal/photoprism/photoprism_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
@@ -40,26 +40,23 @@ func testMain(m *testing.M) int {
 	config.OnceTestConfig(c)
 	SetConfig(c)
 
-	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
-	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
+	code = 999
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	if err := c.CloseDb(); err != nil {
-		log.Warnf("close db: %v", err)
-	}
-
-	// Remove temporary SQLite files after running the tests.
-	fs.PurgeTestDbFiles(".", false)
-	defer c.CleanupTestFolder()
 	defer func() {
+		c.CleanupTestFolder()
 		if err := c.CloseDb(); err != nil {
 			log.Errorf("close db: %v", err)
 		}
 		// Remove temporary SQLite files after running the tests.
 		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
 	}()
 
-	return m.Run()
+	// Run unit tests.
+	beforeTimestamp := time.Now().UTC()
+	code = m.Run()
+	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
+
+	return code
 }

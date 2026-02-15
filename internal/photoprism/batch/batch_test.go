@@ -3,6 +3,7 @@ package batch
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/photoprism/photoprism/internal/mutex"
 	"github.com/photoprism/photoprism/internal/photoprism"
 	"github.com/photoprism/photoprism/internal/photoprism/get"
+	"github.com/photoprism/photoprism/internal/testextras"
+	"github.com/photoprism/photoprism/pkg/dsn"
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
@@ -28,30 +31,40 @@ func testMain(m *testing.M) (code int) {
 	// Remove temporary SQLite files before running the tests.
 	fs.PurgeTestDbFiles(".", false)
 
+	caller := "internal/photoprism/batch/batch_test.go/TestMain"
+	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
+	if err != nil {
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
+	}
+	defer testextras.UnlockDBMutex(dbc.Db())
+
+	_, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
+	dsn.SetDSNToEnv(dsname)
+
 	c := config.TestConfig()
-	defer c.CleanupTestFolder()
+	code = 999
+
 	defer func() {
 		// Prevent UpdateCountsAsync from causing the test suite to fail due to the database closing before the goroutine has finished.
 		mutex.Index.Lock()
+		c.CleanupTestFolder()
 		if err := c.CloseDb(); err != nil {
 			log.Errorf("close db: %v", err)
 		}
 		// Remove temporary SQLite files after running the tests.
 		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
 	}()
 
 	get.SetConfig(c)
 	photoprism.SetConfig(c)
 
-	code := m.Run()
+	// Run unit tests.
+	beforeTimestamp := time.Now().UTC()
+	code = m.Run()
+	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
 
-	// Remove temporary SQLite files after running the tests.
-	if err := c.CloseDb(); err != nil {
-		log.Warnf("close db: %v", err)
-	}
-
-	fs.PurgeTestDbFiles(".", false)
-
-	os.Exit(code)
-	return m.Run()
+	return code
 }

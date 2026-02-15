@@ -3,6 +3,7 @@ package wellknown
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -19,21 +20,13 @@ func TestMain(m *testing.M) {
 }
 
 func testMain(m *testing.M) (code int) {
-	// Remove temporary SQLite files before running the tests.
-	fs.PurgeTestDbFiles(".", false)
-
-	c := config.TestConfig()
-	defer c.CleanupTestFolder()
-	defer func() {
-		c.CloseDb()
-		// Remove temporary SQLite files after running the tests.
-		fs.PurgeTestDbFiles(".", false)
-	}()
-
 	// Init test logger.
 	log := logrus.StandardLogger()
 	log.SetLevel(logrus.TraceLevel)
 	event.AuditLog = log
+
+	// Remove temporary SQLite files before running the tests.
+	fs.PurgeTestDbFiles(".", false)
 
 	caller := "internal/server/wellknown/wellknown_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
@@ -46,8 +39,25 @@ func testMain(m *testing.M) (code int) {
 	_, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
 	dsn.SetDSNToEnv(dsname)
 
-	// Run unit tests.
-	return m.Run()
+	// Init test config.
+	c := config.TestConfig()
+	code = 999
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+	defer func() {
+		c.CleanupTestFolder()
+		if err := c.CloseDb(); err != nil {
+			log.Errorf("close db: %v", err)
+		}
+		// Remove temporary SQLite files after running the tests.
+		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
+	}()
+
+	// Run unit tests.
+	beforeTimestamp := time.Now().UTC()
+	code = m.Run()
+	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
+
+	return code
 }

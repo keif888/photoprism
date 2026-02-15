@@ -33,8 +33,8 @@ func testMain(m *testing.M) (code int) {
 	caller := "internal/server/server_test.go/TestMain"
 	dbc, dbn, err := testextras.AcquireDBMutex(log, caller)
 	if err != nil {
-		log.Error("FAIL")
-		os.Exit(1)
+		log.Errorf("testMain: AcquireDBMutex error %+v", err)
+		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
@@ -43,13 +43,17 @@ func testMain(m *testing.M) (code int) {
 
 	// Init test config.
 	c := config.TestConfig()
-	defer c.CleanupTestFolder()
+	code = 999
+
 	defer func() {
+		c.CleanupTestFolder()
 		if err := c.CloseDb(); err != nil {
 			log.Errorf("close db: %v", err)
 		}
 		// Remove temporary SQLite files after running the tests.
 		fs.PurgeTestDbFiles(".", false)
+		testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
+		dbc.Close()
 	}()
 
 	get.SetConfig(c)
@@ -59,18 +63,8 @@ func testMain(m *testing.M) (code int) {
 
 	// Run unit tests.
 	beforeTimestamp := time.Now().UTC()
-	code := m.Run()
+	code = m.Run()
 	code = testextras.ValidateDBErrors(c.Db(), log, beforeTimestamp, code)
 
-	testextras.ReleaseDBMutex(dbc.Db(), log, caller, code)
-
-	if err := c.CloseDb(); err != nil {
-		log.Warnf("close db: %v", err)
-	}
-
-	// Remove temporary SQLite files after running the tests.
-	fs.PurgeTestDbFiles(".", false)
-
-	os.Exit(code)
-	return m.Run()
+	return code
 }
