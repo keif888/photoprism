@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// MigrateTestExtras creates the tables in the test database to support test package separation
 func MigrateTestExtras(db *gorm.DB) {
 	var err error
 	for migrateRetry := 0; migrateRetry < 10; migrateRetry++ {
