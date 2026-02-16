@@ -2,11 +2,11 @@ package customize
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/photoprism/photoprism/pkg/dsn"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewSettings(t *testing.T) {
@@ -89,15 +89,16 @@ func TestSettings_Save(t *testing.T) {
 		assert.Equal(t, "onyx", s.UI.Theme)
 		assert.Equal(t, "de", s.UI.Language)
 
-		_ = os.Mkdir("testdata/"+dsn.PhotoPrismTestToFolderName(), os.ModePerm)
-		if err := s.Save("testdata/" + dsn.PhotoPrismTestToFolderName() + "/settings_tmp.yml"); err != nil {
+		dir := filepath.Join(t.TempDir(), "testdata")
+		require.NoError(t, os.Mkdir(dir, os.ModePerm))
+		filename := filepath.Join(dir, "settings_tmp.yml")
+		if err := s.Save(filename); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := os.Remove("testdata/" + dsn.PhotoPrismTestToFolderName() + "/settings_tmp.yml"); err != nil {
+		if err := os.Remove(filename); err != nil {
 			t.Fatal(err)
 		}
-		_ = os.Remove("testdata/" + dsn.PhotoPrismTestToFolderName())
 	})
 }
 

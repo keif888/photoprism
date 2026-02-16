@@ -11,8 +11,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/photoprism/photoprism/pkg/dsn"
 )
 
 func writeZip(t *testing.T, path string, entries map[string][]byte) {
@@ -335,7 +333,7 @@ func TestUnzipFileWithLimit_DetectsOverrun(t *testing.T) {
 
 func TestZip(t *testing.T) {
 	t.Run("Compressed", func(t *testing.T) {
-		zipDir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "pkg/fs")
+		zipDir := t.TempDir()
 		zipName := filepath.Join(zipDir, "compressed.zip")
 		unzipDir := filepath.Join(zipDir, "compressed")
 		files := []string{"./testdata/directory/example.jpg"}
@@ -368,7 +366,7 @@ func TestZip(t *testing.T) {
 		}
 	})
 	t.Run("Uncompressed", func(t *testing.T) {
-		zipDir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "pkg/fs")
+		zipDir := t.TempDir()
 		zipName := filepath.Join(zipDir, "uncompressed.zip")
 		unzipDir := filepath.Join(zipDir, "uncompressed")
 		files := []string{"./testdata/directory/example.jpg"}

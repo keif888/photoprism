@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 
-	"github.com/photoprism/photoprism/pkg/dsn"
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
@@ -62,12 +61,13 @@ func TestAlbum_SaveAsYaml(t *testing.T) {
 			m = *found
 		}
 
-		backupPath := fs.Abs("testdata/" + dsn.PhotoPrismTestToFolderName() + "/TestAlbum_SaveAsYaml")
+		dir := t.TempDir()
+		backupPath := filepath.Join(dir, "TestAlbum_SaveAsYaml")
 
 		fileName, relName, err := m.YamlFileName(backupPath)
 
 		assert.NoError(t, err)
-		assert.True(t, strings.HasSuffix(fileName, "internal/entity/testdata/"+dsn.PhotoPrismTestToFolderName()+"/TestAlbum_SaveAsYaml/album/as6sg6bxpogaaba9.yml"))
+		assert.True(t, strings.HasSuffix(fileName, filepath.Join(dir, "TestAlbum_SaveAsYaml", "album", "as6sg6bxpogaaba9.yml")))
 		assert.Equal(t, "album/as6sg6bxpogaaba9.yml", relName)
 
 		if err = m.SaveAsYaml(fileName); err != nil {
@@ -76,10 +76,6 @@ func TestAlbum_SaveAsYaml(t *testing.T) {
 		}
 
 		if err = m.LoadFromYaml(fileName); err != nil {
-			t.Error(err)
-		}
-
-		if err = os.RemoveAll(backupPath); err != nil {
 			t.Error(err)
 		}
 	})

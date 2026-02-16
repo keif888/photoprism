@@ -9,27 +9,17 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/photoprism/photoprism/pkg/dsn"
 )
 
 func TestWriteFile(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		dir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "_WriteFile_Success")
+		dir := t.TempDir()
 		filePath := filepath.Join(dir, "notyetexisting.jpg")
 		fileData := []byte("foobar")
 
 		if err := MkdirAll(dir); err != nil {
 			t.Fatal(err)
 		}
-
-		defer func() {
-			_ = os.Remove(filePath)
-
-			if err := os.RemoveAll(dir); err != nil {
-				t.Fatal(err)
-			}
-		}()
 
 		assert.True(t, PathExists(dir))
 
@@ -42,21 +32,13 @@ func TestWriteFile(t *testing.T) {
 
 func TestWriteString(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		dir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "_WriteString_Success")
+		dir := t.TempDir()
 		filePath := filepath.Join(dir, PPIgnoreFilename)
 		fileData := "*"
 
 		if err := MkdirAll(dir); err != nil {
 			t.Fatal(err)
 		}
-
-		defer func() {
-			_ = os.Remove(filePath)
-
-			if err := os.RemoveAll(dir); err != nil {
-				t.Fatal(err)
-			}
-		}()
 
 		assert.True(t, PathExists(dir))
 
@@ -75,20 +57,12 @@ func TestWriteString(t *testing.T) {
 
 func TestWriteUnixTime(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		dir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "_WriteUnixTime_Success")
+		dir := t.TempDir()
 		filePath := filepath.Join(dir, PPStorageFilename)
 
 		if err := MkdirAll(dir); err != nil {
 			t.Fatal(err)
 		}
-
-		defer func() {
-			_ = os.Remove(filePath)
-
-			if err := os.RemoveAll(dir); err != nil {
-				t.Fatal(err)
-			}
-		}()
 
 		assert.True(t, PathExists(dir))
 
@@ -107,7 +81,7 @@ func TestWriteUnixTime(t *testing.T) {
 
 func TestWriteFileFromReader(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		dir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "_WriteFileFromReader_Success")
+		dir := t.TempDir()
 
 		filePath1 := filepath.Join(dir, "1.txt")
 		filePath2 := filepath.Join(dir, "2.txt")
@@ -115,15 +89,6 @@ func TestWriteFileFromReader(t *testing.T) {
 		if err := MkdirAll(dir); err != nil {
 			t.Fatal(err)
 		}
-
-		defer func() {
-			_ = os.Remove(filePath1)
-			_ = os.Remove(filePath2)
-
-			if err := os.RemoveAll(dir); err != nil {
-				t.Fatal(err)
-			}
-		}()
 
 		assert.True(t, PathExists(dir))
 
@@ -148,7 +113,7 @@ func TestWriteFileFromReader(t *testing.T) {
 
 func TestCacheFileFromReader(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		dir := filepath.Join(os.TempDir(), dsn.PhotoPrismTestToFolderName(), "_CacheFileFromReader_Success")
+		dir := t.TempDir()
 
 		filePath1 := filepath.Join(dir, "1.txt")
 		filePath2 := filepath.Join(dir, "2.txt")
@@ -157,16 +122,6 @@ func TestCacheFileFromReader(t *testing.T) {
 		if err := MkdirAll(dir); err != nil {
 			t.Fatal(err)
 		}
-
-		defer func() {
-			_ = os.Remove(filePath1)
-			_ = os.Remove(filePath2)
-			_ = os.Remove(filePath3)
-
-			if err := os.RemoveAll(dir); err != nil {
-				t.Fatal(err)
-			}
-		}()
 
 		assert.True(t, PathExists(dir))
 

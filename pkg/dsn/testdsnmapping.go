@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// function to transform PHOTOPRISM_TEST_DSN environment variables to driver and dsn strings
+// PhotoPrismTestToDriverDSN function to transform PHOTOPRISM_TEST_DSN environment variables to driver and dsn strings
 func PhotoPrismTestToDriverDSN(dbn int) (driver string, dsn string) {
 	dsnName := os.Getenv("PHOTOPRISM_TEST_DSN_NAME")
 	switch dsnName {
@@ -56,15 +56,7 @@ func PhotoPrismTestToDriverDSN(dbn int) (driver string, dsn string) {
 	return driver, dsn
 }
 
-// Gets the folder name to use to enforce folder separation for DBMS tests
-func PhotoPrismTestToFolderName() (folderName string) {
-	folderName = os.Getenv("PHOTOPRISM_TEST_DSN_NAME")
-	if folderName == "" {
-		folderName, _ = PhotoPrismTestToDriverDSN(0)
-	}
-	return folderName
-}
-
+// SetDSNToEnv pushes the dsn to the appropriate environment variable for testing.
 func SetDSNToEnv(dsn string) {
 	dsnName := os.Getenv("PHOTOPRISM_TEST_DSN_NAME")
 	switch dsnName {
