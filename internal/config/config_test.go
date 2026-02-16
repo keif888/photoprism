@@ -19,6 +19,9 @@ import (
 // ProjectRoot references the project root directory for use in tests.
 var ProjectRoot = fs.Abs("../../")
 
+// AssetRoot references the project root directory for use in asset tests.
+var AssetRoot = fs.Abs("../../")
+
 // Runs first when package is tested.
 func init() {
 	hub.ApplyTestConfig()
@@ -41,6 +44,15 @@ func testMain(m *testing.M) (code int) {
 		return 1
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
+
+	if err := testextras.SetupStorage(); err != nil {
+		log.Errorf("testMain: SetupStorage error %+v", err)
+		return 1
+	}
+
+	ProjectRoot = filepath.Dir(os.Getenv("PHOTOPRISM_STORAGE_PATH"))
+
+	defer testextras.CleanupStorage()
 
 	_, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
 	dsn.SetDSNToEnv(dsname)
@@ -179,14 +191,14 @@ func TestConfig_OptionsYaml(t *testing.T) {
 
 func TestConfig_PIDFilename(t *testing.T) {
 	c := NewConfig(CliTestContext())
-	expected := "/storage/testdata/" + dsn.PhotoPrismTestToFolderName() + "/photoprism.pid"
+	expected := "/storage/testdata/photoprism.pid"
 	assert.Contains(t, c.PIDFilename(), expected)
 }
 
 func TestConfig_LogFilename(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
-	assert.Contains(t, c.LogFilename(), "/storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/photoprism.log")
+	assert.Contains(t, c.LogFilename(), "/storage/testdata/photoprism.log")
 }
 
 func TestConfig_DetachServer(t *testing.T) {
@@ -201,17 +213,17 @@ func TestConfig_OriginalsPath(t *testing.T) {
 
 	result := c.OriginalsPath()
 	assert.True(t, strings.HasPrefix(result, "/"))
-	assert.True(t, strings.HasSuffix(result, "/storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/originals"))
+	assert.True(t, strings.HasSuffix(result, "/storage/testdata/originals"))
 }
 
 func TestConfig_ImportPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 	c.AssertTestData(t)
 
-	assert.Equal(t, ProjectRoot+"/storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/import", c.ImportPath())
+	assert.Equal(t, ProjectRoot+"/storage/testdata/import", c.ImportPath())
 	result := c.ImportPath()
 	assert.True(t, strings.HasPrefix(result, "/"))
-	assert.True(t, strings.HasSuffix(result, "/storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/import"))
+	assert.True(t, strings.HasSuffix(result, "/storage/testdata/import"))
 
 	c.options.ImportPath = ""
 	if s := c.ImportPath(); s != "" && s != "/photoprism/import" {
@@ -224,14 +236,14 @@ func TestConfig_ImportPath(t *testing.T) {
 func TestConfig_CachePath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
-	assert.True(t, strings.HasSuffix(c.CachePath(), "storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/cache"))
+	assert.True(t, strings.HasSuffix(c.CachePath(), "storage/testdata/cache"))
 }
 
 func TestConfig_MediaCachePath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	assert.True(t, strings.HasPrefix(c.MediaCachePath(), "/"))
-	assert.True(t, strings.HasSuffix(c.MediaCachePath(), "storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/cache/media"))
+	assert.True(t, strings.HasSuffix(c.MediaCachePath(), "storage/testdata/cache/media"))
 }
 
 func TestConfig_MediaFileCachePath(t *testing.T) {
@@ -246,7 +258,7 @@ func TestConfig_ThumbCachePath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	assert.True(t, strings.HasPrefix(c.ThumbCachePath(), "/"))
-	assert.True(t, strings.HasSuffix(c.ThumbCachePath(), "storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/cache/thumbnails"))
+	assert.True(t, strings.HasSuffix(c.ThumbCachePath(), "storage/testdata/cache/thumbnails"))
 }
 
 func TestConfig_AdminUser(t *testing.T) {
@@ -262,14 +274,14 @@ func TestConfig_ExamplesPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	path := c.ExamplesPath()
-	assert.Equal(t, ProjectRoot+"/assets/examples", path)
+	assert.Equal(t, AssetRoot+"/assets/examples", path)
 }
 
 func TestConfig_TemplatesPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	path := c.TemplatesPath()
-	assert.Equal(t, ProjectRoot+"/assets/templates", path)
+	assert.Equal(t, AssetRoot+"/assets/templates", path)
 }
 
 func TestConfig_CustomTemplatesPath(t *testing.T) {
@@ -291,14 +303,14 @@ func TestConfig_StaticPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	path := c.StaticPath()
-	assert.Equal(t, ProjectRoot+"/assets/static", path)
+	assert.Equal(t, AssetRoot+"/assets/static", path)
 }
 
 func TestConfig_StaticFile(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	path := c.StaticFile("video/404.mp4")
-	assert.Equal(t, ProjectRoot+"/assets/static/video/404.mp4", path)
+	assert.Equal(t, AssetRoot+"/assets/static/video/404.mp4", path)
 
 	path = c.StaticFile("/img/logo.png")
 	assert.Equal(t, filepath.Join(c.StaticPath(), "img/logo.png"), path)
@@ -308,7 +320,7 @@ func TestConfig_StaticBuildPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	path := c.StaticBuildPath()
-	assert.Equal(t, ProjectRoot+"/assets/static/build", path)
+	assert.Equal(t, AssetRoot+"/assets/static/build", path)
 }
 
 func TestConfig_StaticBuildFile(t *testing.T) {
@@ -322,7 +334,7 @@ func TestConfig_StaticImgPath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
 	result := c.StaticImgPath()
-	assert.Equal(t, ProjectRoot+"/assets/static/img", result)
+	assert.Equal(t, AssetRoot+"/assets/static/img", result)
 }
 
 func TestConfig_StaticImgFile(t *testing.T) {
@@ -335,12 +347,13 @@ func TestConfig_StaticImgFile(t *testing.T) {
 func TestConfig_ThemePath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
-	expected := ProjectRoot + "/storage/testdata/" + dsn.PhotoPrismTestToFolderName() + "/config/theme"
+	expected := ProjectRoot + "/storage/testdata/config/theme"
 	assert.Equal(t, expected, c.ThemePath())
 	c.SetThemePath("testdata/static/img/wallpaper")
-	assert.Equal(t, ProjectRoot+"/internal/config/testdata/static/img/wallpaper", c.ThemePath())
+	// Use AssetPath as this is relative to the current directory
+	assert.Equal(t, AssetRoot+"/internal/config/testdata/static/img/wallpaper", c.ThemePath())
 	c.SetThemePath("")
-	assert.Equal(t, ProjectRoot+"/storage/testdata/"+dsn.PhotoPrismTestToFolderName()+"/config/theme", c.ThemePath())
+	assert.Equal(t, ProjectRoot+"/storage/testdata/config/theme", c.ThemePath())
 }
 
 func TestConfig_IndexWorkers(t *testing.T) {

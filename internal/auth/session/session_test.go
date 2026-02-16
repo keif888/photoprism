@@ -36,6 +36,11 @@ func testMain(m *testing.M) (code int) {
 	}
 	defer testextras.UnlockDBMutex(dbc.Db())
 
+	if err := testextras.SetupStorage(); err != nil {
+		log.Errorf("testMain: SetupStorage error %+v", err)
+		return 1
+	}
+	defer testextras.CleanupStorage()
 	_, dsname := dsn.PhotoPrismTestToDriverDSN(dbn)
 	dsn.SetDSNToEnv(dsname)
 

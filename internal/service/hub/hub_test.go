@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -195,6 +196,7 @@ func TestConfig_Save(t *testing.T) {
 	t.Run("ExistingFilename", func(t *testing.T) {
 		assert.FileExists(t, "testdata/hub1.yml")
 
+		testFile := filepath.Join(t.TempDir(), "hub-save.yml")
 		c := NewConfig("test", "testdata/hub1.yml", "zqkunt22r0bewti9", "test", "PhotoPrism/Test", "test")
 
 		if err := c.Load(); err != nil {
@@ -207,17 +209,11 @@ func TestConfig_Save(t *testing.T) {
 		assert.Equal(t, Status("unregistered"), c.Status)
 		assert.Equal(t, "test", c.Version)
 
-		c.FileName = "testdata/hub-save.yml"
+		c.FileName = testFile
 
 		if err := c.Save(); err != nil {
 			t.Fatal(err)
 		}
-
-		t.Cleanup(func() {
-			if err := os.Remove("testdata/hub-save.yml"); err != nil {
-				t.Errorf("failed removing testdata/hub-save.yml: %v", err)
-			}
-		})
 
 		assert.Equal(t, "b32e9ccdc90eb7c0f6f1b9fbc82b8a2b0e993304", c.Key)
 		assert.Equal(t, "5991ea36a9611e9e00a8360c10b91567", c.Secret)
@@ -225,7 +221,7 @@ func TestConfig_Save(t *testing.T) {
 		assert.Equal(t, Status("unregistered"), c.Status)
 		assert.Equal(t, "test", c.Version)
 
-		assert.FileExists(t, "testdata/hub-save.yml")
+		assert.FileExists(t, testFile)
 
 		if err := c.Load(); err != nil {
 			t.Log(err.Error())
@@ -238,7 +234,8 @@ func TestConfig_Save(t *testing.T) {
 		assert.Equal(t, "test", c.Version)
 	})
 	t.Run("NotExistingFilename", func(t *testing.T) {
-		c := NewConfig("test", "testdata/hub_new.yml", "zqkunt22r0bewti9", "test", "PhotoPrism/Test", "test")
+		testFile := filepath.Join(t.TempDir(), "hub_new.yml")
+		c := NewConfig("test", testFile, "zqkunt22r0bewti9", "test", "PhotoPrism/Test", "test")
 		c.Key = "F60F5B25D59C397989E3CD374F81CDD7710A4FCA"
 		c.Secret = "foo"
 		c.Session = "bar"
@@ -255,10 +252,6 @@ func TestConfig_Save(t *testing.T) {
 		assert.Equal(t, "", c.Secret)
 		assert.Equal(t, "", c.Session)
 
-		assert.FileExists(t, "testdata/hub_new.yml")
-
-		if err := os.Remove("testdata/hub_new.yml"); err != nil {
-			t.Fatal(err)
-		}
+		assert.FileExists(t, testFile)
 	})
 }
