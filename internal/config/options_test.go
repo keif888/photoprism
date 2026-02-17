@@ -1,9 +1,12 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/photoprism/photoprism/pkg/fs"
 )
@@ -49,6 +52,11 @@ func TestOptions_ExpandFilenames(t *testing.T) {
 	assert.Equal(t, "tmp", p.TempPath)
 	assert.Equal(t, "import", p.ImportPath)
 	p.expandFilenames()
-	assert.Equal(t, ProjectRoot+"/internal/config/tmp", p.TempPath)
-	assert.Equal(t, ProjectRoot+"/internal/config/import", p.ImportPath)
+	var cwd string
+	var err error
+	cwd, err = os.Getwd()
+	require.NoError(t, err)
+
+	assert.Equal(t, filepath.Join(cwd, "tmp"), p.TempPath)
+	assert.Equal(t, filepath.Join(cwd, "import"), p.ImportPath)
 }
