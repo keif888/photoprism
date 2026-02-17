@@ -196,6 +196,15 @@ func NewTestOptionsError() *Options {
 	assetsPath := fs.Abs("../..")
 	dataPath := fs.Abs("../../storage/testdata")
 
+	tmpfile, err := os.CreateTemp("", ".test-error-*.db")
+	var dsn string
+	if err == nil {
+		dsn = tmpfile.Name()
+		os.Remove(dsn)
+	} else {
+		dsn = filepath.Join(dataPath, ".test-error.db")
+	}
+
 	c := &Options{
 		DarktableBin:   "/bin/darktable-cli",
 		AssetsPath:     assetsPath,
@@ -205,7 +214,7 @@ func NewTestOptionsError() *Options {
 		ImportPath:     dataPath + "/import",
 		TempPath:       dataPath + "/temp",
 		DatabaseDriver: SQLite3,
-		DatabaseDSN:    ".test-error.db",
+		DatabaseDSN:    dsn,
 	}
 
 	return c

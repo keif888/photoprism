@@ -51,6 +51,7 @@ func TestNewTestOptionsError(t *testing.T) {
 func TestNewTestErrorConfig(t *testing.T) {
 	c := NewTestErrorConfig()
 
+	// This will initiate a connection to SQLite regardless of the DBMS under test.
 	if err := c.connectDb(); err != nil {
 		t.Fatal(err)
 	}
@@ -58,6 +59,8 @@ func TestNewTestErrorConfig(t *testing.T) {
 	db := c.Db()
 
 	assert.IsType(t, &gorm.DB{}, db)
+	c.CloseDb()
+	os.Remove(c.DatabaseDSN())
 }
 
 func TestCleanupTestFolder(t *testing.T) {
