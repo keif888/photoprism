@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -299,7 +300,12 @@ func TestExif(t *testing.T) {
 		assert.Equal(t, "332", data.exif["PixelYDimension"])
 	})
 	t.Run("OrientationJpg", func(t *testing.T) {
-		data, err := Exif("testdata/orientation.jpg", fs.ImageJpeg, true)
+		dir := t.TempDir()
+		sourceFile := filepath.Join(dir, "orientation.jpg")
+		jsonFile := filepath.Join(dir, "orientation.json")
+		fs.Copy("testdata/orientation.jpg", sourceFile, false)
+		fs.Copy("testdata/orientation.json", jsonFile, false)
+		data, err := Exif(sourceFile, fs.ImageJpeg, true)
 
 		if err != nil {
 			t.Fatal(err)
@@ -311,7 +317,7 @@ func TestExif(t *testing.T) {
 		assert.Equal(t, 1836, data.Height)
 		assert.Equal(t, 1, data.Orientation) // TODO: Should be 1
 
-		if err := data.JSON("testdata/orientation.json", "orientation.jpg"); err != nil {
+		if err := data.JSON(jsonFile, "orientation.jpg"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -319,7 +325,7 @@ func TestExif(t *testing.T) {
 		assert.Equal(t, 184, data.Height)
 		assert.Equal(t, 1, data.Orientation)
 
-		if err := data.JSON("testdata/orientation.json", "foo.jpg"); err != nil {
+		if err := data.JSON(jsonFile, "foo.jpg"); err != nil {
 			assert.EqualError(t, err, "metadata: original name foo.jpg does not match orientation.jpg (exiftool)")
 		} else {
 			t.Error("error expected when providing wrong original name")

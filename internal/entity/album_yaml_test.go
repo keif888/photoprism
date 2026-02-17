@@ -156,10 +156,11 @@ func TestAlbum_YamlFileName(t *testing.T) {
 }
 
 func TestAlbum_SaveBackupYaml(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("Success", func(t *testing.T) {
 		m := AlbumFixtures.Get("berlin-2019")
 
-		backupPath := fs.Abs("testdata/TestAlbum_SaveBackupYaml")
+		backupPath := filepath.Join(dir, "TestAlbum_SaveBackupYaml")
 
 		if err := fs.MkdirAll(backupPath); err != nil {
 			t.Fatal(err)
@@ -169,15 +170,11 @@ func TestAlbum_SaveBackupYaml(t *testing.T) {
 		if err := m.SaveBackupYaml(backupPath); err != nil {
 			t.Error(err)
 		}
-
-		if err := os.RemoveAll(backupPath); err != nil {
-			t.Error(err)
-		}
 	})
 	t.Run("NoAlbumUID", func(t *testing.T) {
 		m := Album{}
 
-		backupPath := fs.Abs("testdata/TestAlbum_SaveBackupYaml")
+		backupPath := filepath.Join(dir, "TestAlbum_SaveBackupYaml")
 
 		if err := fs.MkdirAll(backupPath); err != nil {
 			t.Fatal(err)
@@ -187,10 +184,6 @@ func TestAlbum_SaveBackupYaml(t *testing.T) {
 		err := m.SaveBackupYaml(backupPath)
 
 		assert.Error(t, err)
-
-		if err := os.RemoveAll(backupPath); err != nil {
-			t.Error(err)
-		}
 	})
 	t.Run("BackupPathEmpty", func(t *testing.T) {
 		m := AlbumFixtures.Get("berlin-2019")
@@ -202,6 +195,7 @@ func TestAlbum_SaveBackupYaml(t *testing.T) {
 }
 
 func TestAlbum_LoadFromYaml(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("BerlinNum2020", func(t *testing.T) {
 		fileName := "testdata/album/as6sg6bxpoaaaaaa.yml"
 
@@ -250,18 +244,14 @@ func TestAlbum_LoadFromYaml(t *testing.T) {
 	})
 
 	t.Run("GormV1Format", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
+		backupPath := filepath.Join(dir, "albums")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
+		if err := os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 
 		testFileName := backupPath + "/moment/as6sg6bipotaajfa.yml"
-		_, err = os.Stat(testFileName)
+		_, err := os.Stat(testFileName)
 		if errors.Is(err, os.ErrNotExist) {
 			// Gorm V1 format
 			newYaml := []byte("UID: as6sg6bipotaajfa\nSlug: cows\nType: moment\nTitle: Cows\nFilter: public:true label:supercow\nOrder: name\nDeletedAt: 2025-06-30T10:33:49Z\nCountry: zz\nCreatedAt: 2020-01-01T00:00:00Z\nUpdatedAt: 2025-06-30T10:33:49Z\n")
@@ -292,18 +282,14 @@ func TestAlbum_LoadFromYaml(t *testing.T) {
 	})
 
 	t.Run("GormV2Format", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
+		backupPath := filepath.Join(dir, "albums")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
+		if err := os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 
 		testFileName := backupPath + "/moment/as6sg6bipotaajfa.yml"
-		_, err = os.Stat(testFileName)
+		_, err := os.Stat(testFileName)
 		if errors.Is(err, os.ErrNotExist) {
 			// Gorm V2 format
 			newYaml := []byte("UID: as6sg6bipotaajfa\nSlug: cows\nType: moment\nTitle: Cows\nFilter: public:true label:cow\nOrder: name\nCountry: zz\nCreatedAt: 2020-01-01T00:00:00Z\nUpdatedAt: 2025-06-30T10:33:49Z\nDeletedAt:\n  time: 2025-06-30T10:33:50Z\n  valid: true\n")
@@ -334,18 +320,14 @@ func TestAlbum_LoadFromYaml(t *testing.T) {
 	})
 
 	t.Run("GormV1Format_Bad", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
+		backupPath := filepath.Join(dir, "albums")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
+		if err := os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 
 		testFileName := backupPath + "/moment/as6sg6bipotaajfa_bad.yml"
-		_, err = os.Stat(testFileName)
+		_, err := os.Stat(testFileName)
 		if errors.Is(err, os.ErrNotExist) {
 			// Gorm V1 format
 			newYaml := []byte("UID: as6sg6bipotaajfa\nSlug: cows\nType: moment\nTitle: Cows\nFilter: public:true label:supercow\nOrder: name\nDeletedAt: 2025-06-30T10:33:49Z\nCountry: zz\nCreatedAt: 2020-01-01T00:00:00Z\nUpdatedAt: 2025-06-30T10:33:49Z\nYear: TwentyTen\n")
@@ -378,18 +360,14 @@ func TestAlbum_LoadFromYaml(t *testing.T) {
 	})
 
 	t.Run("GormV2Format_Bad", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
+		backupPath := filepath.Join(dir, "albums")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
+		if err := os.MkdirAll(backupPath+"/moment", fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 
 		testFileName := backupPath + "/moment/as6sg6bipotaajfa_Bad.yml"
-		_, err = os.Stat(testFileName)
+		_, err := os.Stat(testFileName)
 		if errors.Is(err, os.ErrNotExist) {
 			// Gorm V2 format
 			newYaml := []byte("UID: as6sg6bipotaajfa\nSlug: cows\nType: moment\nTitle: Cows\nFilter: public:true label:cow\nOrder: name\nCountry: zz\nYear: TwentyTen\nCreatedAt: 2020-01-01T00:00:00Z\nUpdatedAt: 2025-06-30T10:33:49Z\nDeletedAt:\n  time: 2025-06-30T10:33:50Z\n  valid: true\n")

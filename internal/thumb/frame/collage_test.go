@@ -2,7 +2,7 @@ package frame
 
 import (
 	"image"
-	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/disintegration/imaging"
@@ -14,6 +14,7 @@ import (
 )
 
 func TestCollage(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("Polaroid", func(t *testing.T) {
 		var images []image.Image
 
@@ -24,7 +25,7 @@ func TestCollage(t *testing.T) {
 			images = append(images, img)
 		}
 
-		saveName := "testdata/test-polaroid-collage.jpg"
+		saveName := filepath.Join(dir, "test-polaroid-collage.jpg")
 		preview, err := Collage(Polaroid, images)
 
 		assert.NoError(t, err)
@@ -34,8 +35,6 @@ func TestCollage(t *testing.T) {
 		assert.NoError(t, err)
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypeJpeg, mimeType)
-
-		_ = os.Remove(saveName)
 	})
 	t.Run("Two", func(t *testing.T) {
 		var images []image.Image
@@ -47,7 +46,7 @@ func TestCollage(t *testing.T) {
 			images = append(images, img)
 		}
 
-		saveName := "testdata/test-polaroid-collage-two.jpg"
+		saveName := filepath.Join(dir, "test-polaroid-collage-two.jpg")
 		preview, err := Collage(Polaroid, images)
 
 		assert.NoError(t, err)
@@ -57,13 +56,11 @@ func TestCollage(t *testing.T) {
 		assert.NoError(t, err)
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypeJpeg, mimeType)
-
-		_ = os.Remove(saveName)
 	})
 	t.Run("NoImages", func(t *testing.T) {
 		var images []image.Image
 
-		saveName := "testdata/test-no-images-collage.jpg"
+		saveName := filepath.Join(dir, "test-no-images-collage.jpg")
 		preview, err := Collage(Polaroid, images)
 
 		assert.NoError(t, err)
@@ -73,8 +70,6 @@ func TestCollage(t *testing.T) {
 		assert.NoError(t, err)
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypeJpeg, mimeType)
-
-		_ = os.Remove(saveName)
 	})
 	t.Run("UnknownCollageType", func(t *testing.T) {
 		var images []image.Image
@@ -86,7 +81,7 @@ func TestCollage(t *testing.T) {
 			images = append(images, img)
 		}
 
-		saveName := "testdata/test-unknown-type-collage.jpg"
+		saveName := filepath.Join(dir, "test-unknown-type-collage.jpg")
 
 		preview, err := Collage("Unknown", images)
 
@@ -99,8 +94,5 @@ func TestCollage(t *testing.T) {
 
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypeJpeg, mimeType)
-
-		_ = os.Remove(saveName)
-
 	})
 }

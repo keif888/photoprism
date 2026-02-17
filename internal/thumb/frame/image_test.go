@@ -1,7 +1,7 @@
 package frame
 
 import (
-	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/disintegration/imaging"
@@ -13,11 +13,12 @@ import (
 )
 
 func TestImage(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("Polaroid", func(t *testing.T) {
 		img, err := imaging.Open("testdata/500x500.jpg")
 		assert.NoError(t, err)
 
-		saveName := "testdata/test-image.png"
+		saveName := filepath.Join(dir, "test-image.png")
 
 		out, err := Image(Polaroid, img, RandomAngle(30))
 
@@ -28,14 +29,12 @@ func TestImage(t *testing.T) {
 		assert.NoError(t, err)
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypePng, mimeType)
-
-		_ = os.Remove(saveName)
 	})
 	t.Run("TypeUnknown", func(t *testing.T) {
 		img, err := imaging.Open("testdata/500x500.jpg")
 		assert.NoError(t, err)
 
-		saveName := "testdata/test-image.png"
+		saveName := filepath.Join(dir, "test-image.png")
 
 		out, err := Image("unknown", img, RandomAngle(30))
 
@@ -47,7 +46,5 @@ func TestImage(t *testing.T) {
 		assert.NoError(t, err)
 		mimeType, _ := fs.DetectMimeType(saveName)
 		assert.Equal(t, header.ContentTypePng, mimeType)
-
-		_ = os.Remove(saveName)
 	})
 }

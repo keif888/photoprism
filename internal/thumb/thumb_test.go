@@ -22,10 +22,6 @@ func testMain(m *testing.M) (code int) {
 	event.AuditLog = log
 
 	defer Shutdown()
-	// Remove generated test files and folders.
-	defer os.RemoveAll("testdata/1")
-	defer os.RemoveAll("testdata/cache")
-	defer os.RemoveAll("testdata/vips")
 
 	return m.Run()
 }

@@ -63,17 +63,15 @@ func TestPhoto_SaveAsYaml(t *testing.T) {
 }
 
 func TestPhoto_YamlFileName(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("Success", func(t *testing.T) {
 		m := PhotoFixtures.Get("Photo01")
 		m.PreloadFiles()
-		fileName, relative, err := m.YamlFileName("xxx", "yyy")
+		o := filepath.Join(dir, "xxx")
+		fileName, relative, err := m.YamlFileName(o, "yyy")
 		assert.NoError(t, err)
-		assert.Equal(t, "xxx/2790/02/yyy/Photo01.yml", fileName)
+		assert.Equal(t, filepath.Join(o, "2790/02/yyy/Photo01.yml"), fileName)
 		assert.Equal(t, "2790/02/Photo01.yml", relative)
-
-		if err := os.RemoveAll("xxx"); err != nil {
-			t.Fatal(err)
-		}
 	})
 }
 

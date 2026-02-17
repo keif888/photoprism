@@ -65,6 +65,7 @@ func TestSettings_Load(t *testing.T) {
 	})
 }
 func TestSettings_Save(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("ExistingFilename", func(t *testing.T) {
 		s := NewDefaultSettings()
 
@@ -77,7 +78,7 @@ func TestSettings_Save(t *testing.T) {
 		assert.Equal(t, "onyx", s.UI.Theme)
 		assert.Equal(t, "de", s.UI.Language)
 
-		if err := s.Save("testdata/settings.yml"); err != nil {
+		if err := s.Save(filepath.Join(dir, "settings.yml")); err != nil {
 			t.Fatal(err)
 		}
 	})

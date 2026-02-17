@@ -9,6 +9,7 @@ import (
 
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/thumb"
+	"github.com/photoprism/photoprism/pkg/fs"
 )
 
 func TestMediaFile_Thumbnail(t *testing.T) {
@@ -134,7 +135,7 @@ func TestMediaFile_SkipThumbnailSize(t *testing.T) {
 func TestMediaFile_GenerateThumbnails(t *testing.T) {
 	c := config.TestConfig()
 
-	thumbsPath := "./.test_mediafile_createthumbnails"
+	thumbsPath := filepath.Join(t.TempDir(), ".test_mediafile_createthumbnails")
 
 	if p, err := filepath.Abs(thumbsPath); err != nil {
 		t.Fatal(err)
@@ -241,8 +242,12 @@ func TestMediaFile_GenerateThumbnails(t *testing.T) {
 }
 
 func TestMediaFile_ChangeOrientation(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("JPEG", func(t *testing.T) {
-		m, err := NewMediaFile("testdata/orientation.jpg")
+		sourceFile := filepath.Join(dir, "orientation.jpg")
+		fs.Copy("testdata/orientation.jpg", sourceFile, false)
+
+		m, err := NewMediaFile(sourceFile)
 
 		if err != nil {
 			t.Fatal(err)
@@ -259,7 +264,10 @@ func TestMediaFile_ChangeOrientation(t *testing.T) {
 		}
 	})
 	t.Run("PNG", func(t *testing.T) {
-		m, err := NewMediaFile("testdata/orientation.png")
+		sourceFile := filepath.Join(dir, "orientation.png")
+		fs.Copy("testdata/orientation.png", sourceFile, false)
+
+		m, err := NewMediaFile(sourceFile)
 
 		if err != nil {
 			t.Fatal(err)

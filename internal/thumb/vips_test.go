@@ -1,22 +1,28 @@
 package thumb
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/photoprism/photoprism/pkg/fs"
 )
 
 func TestVips(t *testing.T) {
+	dir := t.TempDir()
+	vipsDir := filepath.Join(dir, "vips")
 	t.Run("Colors", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
-		src := "testdata/example.gif"
-		dst := "testdata/vips/1/2/3/123456789098765432_3x3_resize.png"
+		src := filepath.Join(dir, "example.gif")
+		dst := filepath.Join(vipsDir, "1/2/3/123456789098765432_3x3_resize.png")
+		fs.Copy("testdata/example.gif", src, false)
 
 		assert.FileExists(t, src)
 
-		fileName, _, err := Vips(src, nil, "123456789098765432", "testdata/vips", colorThumb.Width, colorThumb.Height, colorThumb.Options...)
+		fileName, _, err := Vips(src, nil, "123456789098765432", vipsDir, colorThumb.Width, colorThumb.Height, colorThumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -28,11 +34,11 @@ func TestVips(t *testing.T) {
 	t.Run("InteropIndexColors", func(t *testing.T) {
 		thumb := Sizes[Tile500]
 		src := "testdata/interop_index.jpg"
-		dst := "testdata/vips/1/3/3/133456789098765432_500x500_center.jpg"
+		dst := filepath.Join(vipsDir, "1/3/3/133456789098765432_500x500_center.jpg")
 
 		assert.FileExists(t, src)
 
-		fileName, _, err := Vips(src, nil, "133456789098765432", "testdata/vips", thumb.Width, thumb.Height, thumb.Options...)
+		fileName, _, err := Vips(src, nil, "133456789098765432", vipsDir, thumb.Width, thumb.Height, thumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -50,11 +56,11 @@ func TestVips(t *testing.T) {
 	t.Run("Left224", func(t *testing.T) {
 		thumb := SizeLeft224
 		src := "testdata/fixed.jpg"
-		dst := "testdata/vips/1/2/3/123456789098765432_224x224_left.jpg"
+		dst := filepath.Join(vipsDir, "1/2/3/123456789098765432_224x224_left.jpg")
 
 		assert.FileExists(t, src)
 
-		fileName, _, err := Vips(src, nil, "123456789098765432", "testdata/vips", thumb.Width, thumb.Height, thumb.Options...)
+		fileName, _, err := Vips(src, nil, "123456789098765432", vipsDir, thumb.Width, thumb.Height, thumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -67,12 +73,12 @@ func TestVips(t *testing.T) {
 		large := Sizes[Tile500]
 		small := Sizes[Tile224]
 		srcName := "testdata/example.jpg"
-		dstLarge := "testdata/vips/1/2/3/123456789098765432_500x500_center.jpg"
-		dstSmall := "testdata/vips/1/2/3/123456789098765432_224x224_center.jpg"
+		dstLarge := filepath.Join(vipsDir, "1/2/3/123456789098765432_500x500_center.jpg")
+		dstSmall := filepath.Join(vipsDir, "1/2/3/123456789098765432_224x224_center.jpg")
 
 		assert.FileExists(t, srcName)
 
-		thumbName, thumbBuffer, err := Vips(srcName, nil, "123456789098765432", "testdata/vips", large.Width, large.Height, large.Options...)
+		thumbName, thumbBuffer, err := Vips(srcName, nil, "123456789098765432", vipsDir, large.Width, large.Height, large.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -81,7 +87,7 @@ func TestVips(t *testing.T) {
 		assert.True(t, strings.HasSuffix(thumbName, dstLarge))
 		assert.FileExists(t, dstLarge)
 
-		thumbName, _, err = Vips(srcName, thumbBuffer, "123456789098765432", "testdata/vips", small.Width, small.Height, small.Options...)
+		thumbName, _, err = Vips(srcName, thumbBuffer, "123456789098765432", vipsDir, small.Width, small.Height, small.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -109,11 +115,11 @@ func TestVips(t *testing.T) {
 	t.Run("Fit1920", func(t *testing.T) {
 		thumb := Sizes[Fit1920]
 		src := "testdata/example.jpg"
-		dst := "testdata/vips/1/2/3/123456789098765432_1920x1200_fit.jpg"
+		dst := filepath.Join(vipsDir, "1/2/3/123456789098765432_1920x1200_fit.jpg")
 
 		assert.FileExists(t, src)
 
-		fileName, _, err := Vips(src, nil, "123456789098765432", "testdata/vips", thumb.Width, thumb.Height, thumb.Options...)
+		fileName, _, err := Vips(src, nil, "123456789098765432", vipsDir, thumb.Width, thumb.Height, thumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)

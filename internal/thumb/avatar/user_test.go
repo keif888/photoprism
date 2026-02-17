@@ -10,7 +10,7 @@ import (
 )
 
 func TestSetUserAvatarURL(t *testing.T) {
-	thumbPath := fs.Abs("testdata/cache")
+	thumbPath := t.TempDir()
 
 	t.Run("PNG", func(t *testing.T) {
 		admin := entity.UserFixtures.Get("alice")
@@ -38,7 +38,7 @@ func TestSetUserAvatarURL(t *testing.T) {
 }
 
 func TestSetUserAvatarImage(t *testing.T) {
-	thumbPath := fs.Abs("testdata/cache")
+	thumbPath := t.TempDir()
 
 	t.Run("Admin", func(t *testing.T) {
 		admin := entity.UserFixtures.Get("friend")

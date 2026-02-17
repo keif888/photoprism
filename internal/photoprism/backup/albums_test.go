@@ -13,13 +13,8 @@ import (
 )
 
 func TestAlbums(t *testing.T) {
-	backupPath, err := filepath.Abs("./testdata/albums")
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = os.MkdirAll(backupPath, fs.ModeDir); err != nil {
+	backupPath := filepath.Join(t.TempDir(), "albums")
+	if err := os.MkdirAll(backupPath, fs.ModeDir); err != nil {
 		t.Fatal(err)
 	}
 
@@ -45,14 +40,10 @@ func TestAlbums(t *testing.T) {
 }
 
 func TestRestoreAlbums(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("EmptyFolder", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath, fs.ModeDir); err != nil {
+		backupPath := filepath.Join(dir, "albums")
+		if err := os.MkdirAll(backupPath, fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 
@@ -70,13 +61,9 @@ func TestRestoreAlbums(t *testing.T) {
 	})
 
 	t.Run("NewDatabase", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/albums")
+		backupPath := filepath.Join(dir, "albums")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err = os.MkdirAll(backupPath, fs.ModeDir); err != nil {
+		if err := os.MkdirAll(backupPath, fs.ModeDir); err != nil {
 			t.Fatal(err)
 		}
 

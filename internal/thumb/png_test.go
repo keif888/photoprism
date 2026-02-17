@@ -2,6 +2,7 @@ package thumb
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,11 +12,12 @@ import (
 
 func TestPng(t *testing.T) {
 	formats := []string{"bmp", "gif", "tif"}
+	dir := t.TempDir()
 
 	for _, ext := range formats {
 		t.Run(ext, func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -37,7 +39,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationFlipH", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -59,7 +61,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationFlipV", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -81,7 +83,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationRotate90", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -103,7 +105,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationRotate180", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -125,7 +127,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationTranspose", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -147,7 +149,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationTransverse", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -169,7 +171,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationUnspecified", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -191,7 +193,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("OrientationNormal", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 
@@ -213,7 +215,7 @@ func TestPng(t *testing.T) {
 		})
 		t.Run("InvalidOrientation", func(t *testing.T) {
 			src := "testdata/example." + ext
-			dst := "testdata/example." + ext + fs.ExtPng
+			dst := filepath.Join(dir, "example."+ext+fs.ExtPng)
 
 			assert.NoFileExists(t, dst)
 

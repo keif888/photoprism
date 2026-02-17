@@ -24,7 +24,7 @@ func TestDialectSQLite3(t *testing.T) {
 	}
 	// Prepare temporary sqlite db.
 	testDbOriginal := "./testdata/migrate_sqlite3"
-	testDbTemp := "./testdata/migrate_sqlite3.db"
+	testDbTemp := filepath.Join(t.TempDir(), "migrate_sqlite3.db")
 	if !fs.FileExists(testDbOriginal) {
 		t.Fatal(testDbOriginal + " not found")
 	}

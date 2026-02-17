@@ -155,13 +155,15 @@ func TestDirIsEmpty(t *testing.T) {
 		assert.Equal(t, false, DirIsEmpty("./xxx"))
 	})
 	t.Run("EmptyDir", func(t *testing.T) {
-		if err := os.Mkdir("./testdata/emptyDir", 0o750); err != nil {
+		dir := t.TempDir()
+		testDir := filepath.Join(dir, "emptyDir")
+		if err := os.Mkdir(testDir, 0o750); err != nil {
 			t.Fatal(err)
 		}
 		t.Cleanup(func() {
-			assert.NoError(t, os.RemoveAll("./testdata/emptyDir"))
+			assert.NoError(t, os.RemoveAll(testDir))
 		})
-		assert.Equal(t, true, DirIsEmpty("./testdata/emptyDir"))
+		assert.Equal(t, true, DirIsEmpty(testDir))
 	})
 }
 

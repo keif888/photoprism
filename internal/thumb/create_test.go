@@ -3,6 +3,7 @@ package thumb
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -148,32 +149,34 @@ func TestSuffix(t *testing.T) {
 }
 
 func TestFileName(t *testing.T) {
+	dir := t.TempDir()
+
 	t.Run("Colors", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := FileName("123456789098765432", "testdata", colorThumb.Width, colorThumb.Height, colorThumb.Options...)
+		result, err := FileName("123456789098765432", dir, colorThumb.Width, colorThumb.Height, colorThumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, "testdata/1/2/3/123456789098765432_3x3_resize.png", result)
+		assert.Equal(t, filepath.Join(dir, "1/2/3/123456789098765432_3x3_resize.png"), result)
 	})
 	t.Run("FitNum720", func(t *testing.T) {
 		fit720 := Sizes[Fit720]
 
-		result, err := FileName("123456789098765432", "testdata", fit720.Width, fit720.Height, fit720.Options...)
+		result, err := FileName("123456789098765432", dir, fit720.Width, fit720.Height, fit720.Options...)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, "testdata/1/2/3/123456789098765432_720x720_fit.jpg", result)
+		assert.Equal(t, filepath.Join(dir, "1/2/3/123456789098765432_720x720_fit.jpg"), result)
 	})
 	t.Run("InvalidWidth", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := FileName("123456789098765432", "testdata", -2, colorThumb.Height, colorThumb.Options...)
+		result, err := FileName("123456789098765432", dir, -2, colorThumb.Height, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -184,7 +187,7 @@ func TestFileName(t *testing.T) {
 	t.Run("InvalidHeight", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := FileName("123456789098765432", "testdata", colorThumb.Width, -3, colorThumb.Options...)
+		result, err := FileName("123456789098765432", dir, colorThumb.Width, -3, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -196,7 +199,7 @@ func TestFileName(t *testing.T) {
 	t.Run("InvalidHash", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := FileName("12", "testdata", colorThumb.Width, colorThumb.Height, colorThumb.Options...)
+		result, err := FileName("12", dir, colorThumb.Width, colorThumb.Height, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -220,10 +223,11 @@ func TestFileName(t *testing.T) {
 }
 
 func TestResolvedName(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("Colors", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := ResolvedName("123456789098765432", "testdata", colorThumb.Width, colorThumb.Height, colorThumb.Options...)
+		result, err := ResolvedName("123456789098765432", dir, colorThumb.Width, colorThumb.Height, colorThumb.Options...)
 
 		assert.Error(t, err)
 		assert.Equal(t, "", result)
@@ -231,7 +235,7 @@ func TestResolvedName(t *testing.T) {
 	t.Run("FitNum720", func(t *testing.T) {
 		fit720 := Sizes[Fit720]
 
-		result, err := ResolvedName("123456789098765432", "testdata", fit720.Width, fit720.Height, fit720.Options...)
+		result, err := ResolvedName("123456789098765432", dir, fit720.Width, fit720.Height, fit720.Options...)
 
 		assert.Error(t, err)
 		assert.Equal(t, "", result)
@@ -239,7 +243,7 @@ func TestResolvedName(t *testing.T) {
 	t.Run("InvalidWidth", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := ResolvedName("123456789098765432", "testdata", -2, colorThumb.Height, colorThumb.Options...)
+		result, err := ResolvedName("123456789098765432", dir, -2, colorThumb.Height, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -250,7 +254,7 @@ func TestResolvedName(t *testing.T) {
 	t.Run("InvalidHeight", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := ResolvedName("123456789098765432", "testdata", colorThumb.Width, -3, colorThumb.Options...)
+		result, err := ResolvedName("123456789098765432", dir, colorThumb.Width, -3, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -262,7 +266,7 @@ func TestResolvedName(t *testing.T) {
 	t.Run("InvalidHash", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
 
-		result, err := ResolvedName("12", "testdata", colorThumb.Width, colorThumb.Height, colorThumb.Options...)
+		result, err := ResolvedName("12", dir, colorThumb.Width, colorThumb.Height, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -288,12 +292,14 @@ func TestResolvedName(t *testing.T) {
 func TestFromFile(t *testing.T) {
 	t.Run("Colors", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
-		src := "testdata/example.gif"
-		dst := "testdata/1/2/3/123456789098765432_3x3_resize.png"
+		dir := t.TempDir()
+		src := filepath.Join(dir, "example.gif")
+		dst := filepath.Join(dir, "1/2/3/123456789098765432_3x3_resize.png")
+		fs.Copy("testdata/example.gif", src, false)
 
 		assert.FileExists(t, src)
 
-		fileName, err := FromFile(src, "123456789098765432", "testdata", colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
+		fileName, err := FromFile(src, "123456789098765432", dir, colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -304,12 +310,14 @@ func TestFromFile(t *testing.T) {
 	})
 	t.Run("OrientationGreaterThanOne", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
-		src := "testdata/example.gif"
-		dst := "testdata/1/2/3/123456789098765432_3x3_resize.png"
+		dir := t.TempDir()
+		src := filepath.Join(dir, "example.gif")
+		dst := filepath.Join(dir, "1/2/3/123456789098765432_3x3_resize.png")
+		fs.Copy("testdata/example.gif", src, false)
 
 		assert.FileExists(t, src)
 
-		fileName, err := FromFile(src, "123456789098765432", "testdata", colorThumb.Width, colorThumb.Height, 3, colorThumb.Options...)
+		fileName, err := FromFile(src, "123456789098765432", dir, colorThumb.Width, colorThumb.Height, 3, colorThumb.Options...)
 
 		if err != nil {
 			t.Fatal(err)
@@ -320,19 +328,21 @@ func TestFromFile(t *testing.T) {
 	})
 	t.Run("MissingFile", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
+		dir := t.TempDir()
 		src := "testdata/example.xxx"
 
 		assert.NoFileExists(t, src)
 
-		fileName, err := FromFile(src, "193456789098765432", "testdata", colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
+		fileName, err := FromFile(src, "193456789098765432", dir, colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
 
 		assert.Equal(t, "", fileName)
 		assert.Error(t, err)
 	})
 	t.Run("EmptyFilename", func(t *testing.T) {
 		colorThumb := Sizes[Colors]
+		dir := t.TempDir()
 
-		fileName, err := FromFile("", "193456789098765432", "testdata", colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
+		fileName, err := FromFile("", "193456789098765432", dir, colorThumb.Width, colorThumb.Height, OrientationNormal, colorThumb.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -343,13 +353,14 @@ func TestFromFile(t *testing.T) {
 }
 
 func TestFromCache(t *testing.T) {
+	dir := t.TempDir()
 	t.Run("MissingThumb", func(t *testing.T) {
 		tile50 := Sizes[Tile50]
 		src := "testdata/example.jpg"
 
 		assert.FileExists(t, src)
 
-		fileName, err := FromCache(src, "193456789098765432", "testdata", tile50.Width, tile50.Height, tile50.Options...)
+		fileName, err := FromCache(src, "193456789098765432", dir, tile50.Width, tile50.Height, tile50.Options...)
 
 		assert.Equal(t, "", fileName)
 
@@ -363,7 +374,7 @@ func TestFromCache(t *testing.T) {
 
 		assert.NoFileExists(t, src)
 
-		fileName, err := FromCache(src, "193456789098765432", "testdata", tile50.Width, tile50.Height, tile50.Options...)
+		fileName, err := FromCache(src, "193456789098765432", dir, tile50.Width, tile50.Height, tile50.Options...)
 
 		assert.Equal(t, "", fileName)
 		assert.Error(t, err)
@@ -374,7 +385,7 @@ func TestFromCache(t *testing.T) {
 
 		assert.FileExists(t, src)
 
-		fileName, err := FromCache(src, "12", "testdata", tile50.Width, tile50.Height, tile50.Options...)
+		fileName, err := FromCache(src, "12", dir, tile50.Width, tile50.Height, tile50.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -386,7 +397,7 @@ func TestFromCache(t *testing.T) {
 	t.Run("EmptyFilename", func(t *testing.T) {
 		tile50 := Sizes[Tile50]
 
-		fileName, err := FromCache("", "193456789098765432", "testdata", tile50.Width, tile50.Height, tile50.Options...)
+		fileName, err := FromCache("", "193456789098765432", dir, tile50.Width, tile50.Height, tile50.Options...)
 
 		if err == nil {
 			t.Fatal("error expected")
@@ -401,7 +412,7 @@ func TestCreate(t *testing.T) {
 	t.Run("TileNum500", func(t *testing.T) {
 		tile500 := Sizes[Tile500]
 		src := "testdata/example.jpg"
-		dst := "testdata/example.tile_500.jpg"
+		dst := filepath.Join(t.TempDir(), "example.tile_500.jpg")
 
 		assert.FileExists(t, src)
 		assert.NoFileExists(t, dst)
@@ -438,7 +449,7 @@ func TestCreate(t *testing.T) {
 	t.Run("WidthHeightLessOrEqualNum150", func(t *testing.T) {
 		tile500 := Sizes[Tile500]
 		src := "testdata/example.jpg"
-		dst := "testdata/example.tile_500.jpg"
+		dst := filepath.Join(t.TempDir(), "example.tile_500.jpg")
 
 		assert.FileExists(t, src)
 		assert.NoFileExists(t, dst)
@@ -475,7 +486,7 @@ func TestCreate(t *testing.T) {
 	t.Run("InvalidWidth", func(t *testing.T) {
 		tile500 := Sizes[Tile500]
 		src := "testdata/example.jpg"
-		dst := "testdata/example.tile_500.jpg"
+		dst := filepath.Join(t.TempDir(), "example.tile_500.jpg")
 
 		assert.FileExists(t, src)
 		assert.NoFileExists(t, dst)
@@ -502,7 +513,7 @@ func TestCreate(t *testing.T) {
 	t.Run("InvalidHeight", func(t *testing.T) {
 		tile500 := Sizes[Tile500]
 		src := "testdata/example.jpg"
-		dst := "testdata/example.tile_500.jpg"
+		dst := filepath.Join(t.TempDir(), "example.tile_500.jpg")
 
 		assert.FileExists(t, src)
 		assert.NoFileExists(t, dst)

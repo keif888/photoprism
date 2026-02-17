@@ -11,12 +11,10 @@ import (
 )
 
 func TestDatabase(t *testing.T) {
+	dir := t.TempDir()
+	var err error
 	t.Run("Force", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/sqlite")
-
-		if err != nil {
-			t.Fatal(err)
-		}
+		backupPath := filepath.Join(dir, "sqlite")
 
 		if err = os.MkdirAll(backupPath, fs.ModeDir); err != nil {
 			t.Fatal(err)
@@ -31,11 +29,7 @@ func TestDatabase(t *testing.T) {
 		}
 	})
 	t.Run("ForceStdOut", func(t *testing.T) {
-		backupPath, err := filepath.Abs("./testdata/sqlite")
-
-		if err != nil {
-			t.Fatal(err)
-		}
+		backupPath := filepath.Join(dir, "sqlite")
 
 		if err = os.MkdirAll(backupPath, fs.ModeDir); err != nil {
 			t.Fatal(err)
