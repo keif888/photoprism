@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/photoprism/photoprism/internal/event"
-	"github.com/photoprism/photoprism/pkg/clean"
 	"github.com/photoprism/photoprism/pkg/dsn"
+	pfs "github.com/photoprism/photoprism/pkg/fs"
 )
 
 // Stores the number of test databases that are supported.
@@ -30,16 +32,17 @@ type TestDBChoice struct {
 
 // TestDBMutex structure to store the currently active mutex
 type TestDBMutex struct {
-	ID        uint      `gorm:"primaryKey;"`
-	CreateAt  time.Time `sql:"index:idx_testdbmutex_create_at"`
-	ProcessID int
-	Caller    string `gorm:"size:255"`
+	ID          uint      `gorm:"primaryKey;autoIncrement:false"`
+	RequestType string    `gorm:"primaryKey;autoIncrement:false;size:50"`
+	CreateAt    time.Time `sql:"index:idx_testdbmutex_create_at"`
+	ProcessID   int
+	Caller      string `gorm:"size:255"`
 }
 
-// LockDBMutex Attempts to acquire a database controlled mutex.  Using the table primary key to prevent more than 1 insert succeeding.
+// lockDBMutex Attempts to acquire a database controlled mutex.  Using the table primary key to prevent more than 1 insert succeeding.
 // Will retry 60 times with 10s interval, before returning false on failure to get mutex.
-// The mutex uses the process id to ensure uniqueness between processes.
-func LockDBMutex(db *gorm.DB, caller string) (ok bool, dbNum int) {
+// The mutex uses the process id and request type to ensure uniqueness between processes.
+func lockDBMutex(db *gorm.DB, requestType, caller string) (ok bool, dbNum int) {
 	type Result struct {
 		ID uint
 	}
@@ -55,7 +58,7 @@ func LockDBMutex(db *gorm.DB, caller string) (ok bool, dbNum int) {
 			caller = caller[:255]
 		}
 
-		if err = db.Model(&TestDBChoice{}).Select("test_db_choices.id").Joins("left join test_db_mutexes on test_db_choices.id = test_db_mutexes.id").Where("test_db_mutexes.id is null").Order("test_db_choices.id ASC").First(&result).Error; err != nil {
+		if err = db.Model(&TestDBChoice{}).Select("test_db_choices.id").Joins("left join test_db_mutexes on test_db_choices.id = test_db_mutexes.id and test_db_mutexes.request_type = ?", requestType).Where("test_db_mutexes.id is null").Order("test_db_choices.id ASC").First(&result).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				LogMessage(db, fmt.Sprintf("%v LockDBMutex No Database Available %v", caller, counter))
 				counter++
@@ -98,7 +101,7 @@ func LockDBMutex(db *gorm.DB, caller string) (ok bool, dbNum int) {
 				return ok, dbNum
 			}
 		} else {
-			record := TestDBMutex{ID: result.ID, CreateAt: time.Now().UTC(), ProcessID: pid, Caller: caller}
+			record := TestDBMutex{ID: result.ID, RequestType: requestType, CreateAt: time.Now().UTC(), ProcessID: pid, Caller: caller}
 			if err = db.Create(&record).Error; err != nil {
 				// Assumption is that this will be a unique index error, because someone else got it before us...
 				LogMessage(db, fmt.Sprintf("%v LockDBMutex Failed Attempt %v with %s", caller, counter, err.Error()))
@@ -108,13 +111,10 @@ func LockDBMutex(db *gorm.DB, caller string) (ok bool, dbNum int) {
 			}
 		}
 	}
-	dbID = dbNum
 	return ok, dbNum
 }
 
 // UnlockDBMutex deletes the mutex using the processes id.  This should be called with a defer to try and ensure that it always get cleared.
-// But, if it's a really nasty internal error (eg. SIGFAULT) then go wont free the mutex and this will require manual intervention.
-// The photoprism makefile tests drop the database, which will clear the mutex at the start of the testing.
 func UnlockDBMutex(db *gorm.DB) {
 	pid := os.Getpid()
 	record := TestDBMutex{ProcessID: pid}
@@ -141,34 +141,54 @@ func AcquireDBMutex(log event.Logger, caller string) (dbc *DbConn, dbn int, err 
 		driver = SQLite3
 	}
 
-	// Set default database DSN.
-	if driver == SQLite3 {
-		switch dsn {
-		case "":
-			dsn = SQLiteMutexDSN
-			// Try to create the path, ignoring errors
-			_ = os.MkdirAll("/go/src/github.com/photoprism/photoprism/storage/testdata", fs.ModePerm)
-		case SQLiteTestDB:
-			if err := os.Remove(dsn); err == nil {
-				log.Debugf("sqlite: test file %s removed", clean.Log(dsn))
-			}
+	dbc, dbn, err = acquireDBMutexCore(log, dsn, dbc, caller, driver, dbn, err)
+	dbID = dbn
+	return dbc, dbn, err
+}
+
+// AcquireMigrationDBMutex opens a database connection, and then attempts to acquire a mutex for this process
+// for the purpose of Migration command testing.
+func AcquireMigrationDBMutex(log event.Logger, caller string) (dbc *DbConn, dbn int, err error) {
+
+	err = nil
+	var dsn string
+	return acquireDBMutexCore(log, dsn, dbc, caller, "migration", dbn, err)
+}
+
+// acquireDBMutexCore is the core logic to acquiring a database mutex.
+// opens a database connection, and then attempts to acquire a mutex for this process
+func acquireDBMutexCore(log event.Logger, dsn string, dbc *DbConn, caller string, requestType string, dbn int, err error) (*DbConn, int, error) {
+	var dbPath string
+	if cwd, err := os.Getwd(); err == nil {
+		tmpPaths := strings.SplitAfter(cwd, "photoprism/photoprism")
+		if len(tmpPaths) == 2 {
+			dbPath = filepath.Join(tmpPaths[0], pfs.StorageDir)
 		}
+	} else {
+		log.Warningf("testextras: Getwd error %s", err.Error())
 	}
 
-	// Create gorm.DB connection provider.
+	dbPath = filepath.Join(dbPath, "testdata")
+	dbFile := filepath.Join(dbPath, "unit.mutex.db")
+	dsn = fmt.Sprintf("%s?_busy_timeout=5000&_foreign_keys=on", dbFile)
+	// Try to create the path, ignoring errors
+	_ = os.MkdirAll(dbPath, fs.ModePerm)
+
+	// Create gorm.DB connection provider to SQLite3 as all tests share the same mutex database
 	dbc = &DbConn{
-		Driver: driver,
+		Driver: SQLite3,
 		Dsn:    dsn,
 	}
 
 	SetDbProvider(dbc)
 	log.Info("migrating test extras")
-	MigrateTestExtras(dbc.Db())
+	MigrateTestExtras(dbc.Db().Debug())
 	LogMessage(dbc.Db(), fmt.Sprintf("%v starting", caller))
-	if ok, n := LockDBMutex(dbc.Db(), caller); ok {
+	if ok, n := lockDBMutex(dbc.Db(), requestType, caller); ok {
 		LogMessage(dbc.Db(), fmt.Sprintf("%v LockDBMutex database %d acquired", caller, n))
 		log.Info("database mutex acquired")
 		dbn = n
+		dbID = n
 	} else {
 		log.Error("Unable to get DBMutex")
 		err = errors.New("unable to acquire DBMutex")

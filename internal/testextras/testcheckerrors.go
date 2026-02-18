@@ -24,6 +24,7 @@ func (Error) TableName() string {
 	return "errors"
 }
 
+// ValidateDBErrors forces code to 1 if there was any error messages about photo.Save inconsistencies.
 func ValidateDBErrors(db *gorm.DB, log event.Logger, beforeTimestamp time.Time, code int) int {
 	errorMessage := "%threw photo.Save has inconsistent%"
 	var afterErrors Errors

@@ -63,7 +63,7 @@ func (g *DbConn) Db() *gorm.DB {
 	return g.db
 }
 
-// Replicated here to avoid import loop.
+// OpenPostgreSQL is replicated here to avoid import loop.
 func OpenPostgreSQL(dsn string) (db *sql.DB, pool *pgxpool.Pool) {
 	ctx := context.Background()
 	pgxPoolConfig, err := pgxpool.ParseConfig(dsn)
@@ -71,7 +71,7 @@ func OpenPostgreSQL(dsn string) (db *sql.DB, pool *pgxpool.Pool) {
 		log.Fatal(err)
 	}
 
-	pgxPoolConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+	pgxPoolConfig.AfterConnect = func(_ context.Context, conn *pgx.Conn) error {
 		conn.TypeMap().RegisterType(&pgtype.Type{
 			Name:  "timestamptz",
 			OID:   pgtype.TimestamptzOID,
@@ -120,9 +120,8 @@ func (g *DbConn) Open() {
 
 			if db != nil && err == nil {
 				break
-			} else {
-				time.Sleep(5 * time.Second)
 			}
+			time.Sleep(5 * time.Second)
 		}
 
 		if err != nil || db == nil {
