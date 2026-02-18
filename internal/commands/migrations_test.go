@@ -29,6 +29,16 @@ func TestMigrationCommand(t *testing.T) {
 	dir := t.TempDir()
 	srcFile := fs.Abs("./testdata/transfer_sqlite3")
 	tgtFile := filepath.Join(dir, "migration.test.db")
+	dbc, migrateDBId, err := testextras.AcquireMigrationDBMutex(log, "internal/commands/migrations_test.go/TestMigrationCommand")
+	defer func() {
+		testextras.UnlockDBMutex(dbc.Db())
+		dbc.Close()
+	}()
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+	}
 
 	t.Run("NoMigrateSettings", func(t *testing.T) {
 		// Run command with test context.
@@ -109,7 +119,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("TargetPopulated", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Setup target database
 		os.Remove(tgtFile)
@@ -165,7 +175,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("TargetPopulatedBatch500", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Setup target database
 		os.Remove(tgtFile)
@@ -221,19 +231,19 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("MySQLtoPostgreSQL", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
-		tfDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "postgres:5432", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		tfDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "postgres:5432", User: "migrate", Password: "migrate"}
 
 		// Load migrate database as source
 		if dumpName, err := filepath.Abs("./testdata/transfer_mysql"); err != nil {
 			t.Fatal(err)
-		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()),
+		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", migrateDBId),
 			"-e", "source "+dumpName).Run(); err != nil {
 			t.Fatal(err)
 		}
 
 		// Clear PostgreSQL target (migrate)
-		if err := testextras.ResetPostgresDB("migrate", testextras.GetDBMutexID()); err != nil {
+		if err := testextras.ResetPostgresDB("migrate", migrateDBId); err != nil {
 			t.Fatal(err)
 		}
 
@@ -328,7 +338,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("MySQLtoSQLite", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Remove target database file
 		os.Remove(tgtFile)
@@ -336,7 +346,7 @@ func TestMigrationCommand(t *testing.T) {
 		// Load migrate database as source
 		if dumpName, err := filepath.Abs("./testdata/transfer_mysql"); err != nil {
 			t.Fatal(err)
-		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()),
+		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", migrateDBId),
 			"-e", "source "+dumpName).Run(); err != nil {
 			t.Fatal(err)
 		}
@@ -436,7 +446,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("MySQLtoSQLitePopulated", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Remove target database file
 		os.Remove(tgtFile)
@@ -447,7 +457,7 @@ func TestMigrationCommand(t *testing.T) {
 		// Load migrate database as source
 		if dumpName, err := filepath.Abs("./testdata/transfer_mysql"); err != nil {
 			t.Fatal(err)
-		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()),
+		} else if err = exec.Command("mariadb", "-u", "migrate", "-pmigrate", fmt.Sprintf("migrate_%02d", migrateDBId),
 			"-e", "source "+dumpName).Run(); err != nil {
 			t.Fatal(err)
 		}
@@ -547,15 +557,15 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("PostgreSQLtoMySQL", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "postgres:5432", User: "migrate", Password: "migrate"}
-		tfDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "postgres:5432", User: "migrate", Password: "migrate"}
+		tfDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Load migrate database as source
 		if dumpName, err := filepath.Abs("./testdata/transfer_postgresql"); err != nil {
 			t.Fatal(err)
 		} else {
 			// Clear Postgres source (migrate)
-			if err := testextras.ResetPostgresDB("migrate", testextras.GetDBMutexID()); err != nil {
+			if err := testextras.ResetPostgresDB("migrate", migrateDBId); err != nil {
 				t.Fatal(err)
 			}
 			if err = exec.Command("psql", dbDSN.ForPSQL(), "--file="+dumpName).Run(); err != nil {
@@ -564,7 +574,7 @@ func TestMigrationCommand(t *testing.T) {
 		}
 
 		// Clear MySQL target (migrate)
-		if err := testextras.ResetMariaDB("migrate", testextras.GetDBMutexID()); err != nil {
+		if err := testextras.ResetMariaDB("migrate", migrateDBId); err != nil {
 			t.Fatal(err)
 		}
 
@@ -658,7 +668,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("PostgreSQLtoSQLite", func(t *testing.T) {
-		dbDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "postgres:5432", User: "migrate", Password: "migrate"}
+		dbDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "postgres:5432", User: "migrate", Password: "migrate"}
 
 		// Remove target database file
 		os.Remove(tgtFile)
@@ -668,7 +678,7 @@ func TestMigrationCommand(t *testing.T) {
 			t.Fatal(err)
 		} else {
 			// Clear Postgres source (migrate)
-			if err := testextras.ResetPostgresDB("migrate", testextras.GetDBMutexID()); err != nil {
+			if err := testextras.ResetPostgresDB("migrate", migrateDBId); err != nil {
 				t.Fatal(err)
 			}
 
@@ -772,7 +782,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("SQLiteToMySQL", func(t *testing.T) {
-		tfDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
+		tfDSN := dsn.DSN{Driver: dsn.DriverMariaDB, Net: "tcp", Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "mariadb:4001", User: "migrate", Password: "migrate"}
 
 		// Remove target database file
 		os.Remove(tgtFile)
@@ -783,7 +793,7 @@ func TestMigrationCommand(t *testing.T) {
 		}
 
 		// Clear MySQL target (migrate)
-		if err := testextras.ResetMariaDB("migrate", testextras.GetDBMutexID()); err != nil {
+		if err := testextras.ResetMariaDB("migrate", migrateDBId); err != nil {
 			t.Fatal(err)
 		}
 
@@ -882,7 +892,7 @@ func TestMigrationCommand(t *testing.T) {
 	})
 
 	t.Run("SQLiteToPostgreSQL", func(t *testing.T) {
-		tfDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", testextras.GetDBMutexID()), Server: "postgres:5432", User: "migrate", Password: "migrate"}
+		tfDSN := dsn.DSN{Driver: dsn.DriverPostgreSQL, Name: fmt.Sprintf("migrate_%02d", migrateDBId), Server: "postgres:5432", User: "migrate", Password: "migrate"}
 
 		// Remove target database file
 		os.Remove(tgtFile)
@@ -893,7 +903,7 @@ func TestMigrationCommand(t *testing.T) {
 		}
 
 		// Clear PostgreSQL target (migrate)
-		if err := testextras.ResetPostgresDB("migrate", testextras.GetDBMutexID()); err != nil {
+		if err := testextras.ResetPostgresDB("migrate", migrateDBId); err != nil {
 			t.Fatal(err)
 		}
 
