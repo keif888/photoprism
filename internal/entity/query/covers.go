@@ -30,6 +30,7 @@ func UpdateAlbumManualCovers(albums ...entity.Album) (err error) {
 	var res *gorm.DB
 
 	if len(albums) > 0 {
+		updateAlbumCount := 0
 		for _, album := range albums {
 			if album.AlbumType != entity.AlbumManual || album.ThumbSrc != entity.SrcAuto || album.AlbumUID == "" {
 				continue
@@ -38,8 +39,9 @@ func UpdateAlbumManualCovers(albums ...entity.Album) (err error) {
 			if err = refreshAlbumCover(album); err != nil {
 				return err
 			}
+			updateAlbumCount++
 		}
-
+		log.Debugf("covers: processed %s [%s]", english.Plural(int(updateAlbumCount), "album", "albums"), time.Since(start))
 		return nil
 	}
 
@@ -108,6 +110,7 @@ func UpdateAlbumFolderCovers(albums ...entity.Album) (err error) {
 	var res *gorm.DB
 
 	if len(albums) > 0 {
+		updateAlbumCount := 0
 		for _, album := range albums {
 			if album.AlbumType != entity.AlbumFolder || album.ThumbSrc != entity.SrcAuto || album.AlbumUID == "" {
 				continue
@@ -116,8 +119,9 @@ func UpdateAlbumFolderCovers(albums ...entity.Album) (err error) {
 			if err = refreshAlbumCover(album); err != nil {
 				return err
 			}
+			updateAlbumCount++
 		}
-
+		log.Debugf("covers: processed %s [%s]", english.Plural(int(updateAlbumCount), "folder", "folders"), time.Since(start))
 		return nil
 	}
 
@@ -187,6 +191,7 @@ func UpdateAlbumMonthCovers(albums ...entity.Album) (err error) {
 	var res *gorm.DB
 
 	if len(albums) > 0 {
+		updateAlbumCount := 0
 		for _, album := range albums {
 			if album.AlbumType != entity.AlbumMonth || album.ThumbSrc != entity.SrcAuto || album.AlbumUID == "" {
 				continue
@@ -195,8 +200,10 @@ func UpdateAlbumMonthCovers(albums ...entity.Album) (err error) {
 			if err = refreshAlbumCover(album); err != nil {
 				return err
 			}
+			updateAlbumCount++
 		}
 
+		log.Debugf("covers: processed %s [%s]", english.Plural(int(updateAlbumCount), "month", "months"), time.Since(start))
 		return nil
 	}
 
@@ -442,7 +449,7 @@ func refreshMonthAlbumCover(album entity.Album) error {
 				) p2 
 			WHERE p2.photo_id = f.photo_id AND f.file_primary = TRUE AND f.file_error = '' AND f.file_type IN (?)
 			) b
-		WHERE b.photo_year = albums.album_year AND b.photo_month = albums.album_month AND b.photo_path = albums.album_path 
+		WHERE b.photo_year = albums.album_year AND b.photo_month = albums.album_month
 		AND albums.album_uid = ? AND albums.album_type = ? AND albums.thumb_src = ?`,
 			album.AlbumYear,
 			album.AlbumMonth,
