@@ -38,7 +38,7 @@ type Subject struct {
 	ThumbSrc     string         `gorm:"type:bytes;size:8;default:'';" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
 	CreatedAt    time.Time      `json:"CreatedAt" yaml:"-"`
 	UpdatedAt    time.Time      `json:"UpdatedAt" yaml:"-"`
-	DeletedAt    gorm.DeletedAt `sql:"index" json:"DeletedAt,omitempty" yaml:"-"`
+	DeletedAt    gorm.DeletedAt `sql:"index" json:"DeletedAt" yaml:"-"`
 }
 
 // TableName returns the entity table name.
@@ -192,12 +192,12 @@ func (m *Subject) Restore() error {
 }
 
 // Update updates an entity value in the database.
-func (m *Subject) Update(attr string, value interface{}) error {
+func (m *Subject) Update(attr string, value any) error {
 	return UnscopedDb().Model(m).UpdateColumn(attr, value).Error
 }
 
 // Updates multiple values in the database.
-func (m *Subject) Updates(values interface{}) error {
+func (m *Subject) Updates(values any) error {
 	return UnscopedDb().Model(m).Updates(values).Error
 }
 

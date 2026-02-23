@@ -16,6 +16,7 @@ import (
 	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/http/dns"
 	"github.com/photoprism/photoprism/pkg/http/header"
+	"github.com/photoprism/photoprism/pkg/http/proxy"
 	"github.com/photoprism/photoprism/pkg/list"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
@@ -24,7 +25,7 @@ import (
 var DefaultPortalUrl = "https://portal.${PHOTOPRISM_CLUSTER_DOMAIN}"
 
 // DefaultNodeRole is the default node role assigned when none is configured.
-var DefaultNodeRole = cluster.RoleApp
+var DefaultNodeRole = cluster.RoleInstance
 
 // DefaultJWTAllowedScopes lists default OAuth scopes for cluster-issued JWTs.
 var DefaultJWTAllowedScopes = "config cluster vision metrics"
@@ -99,6 +100,15 @@ func (c *Config) PortalUrl() string {
 // PortalProxy reports whether portal proxy routing is enabled on this node.
 func (c *Config) PortalProxy() bool {
 	return c.Portal() && c.options.PortalProxy
+}
+
+// PortalProxyPrefix returns the configured path prefix for portal proxy routing.
+func (c *Config) PortalProxyPrefix() string {
+	if prefix := strings.TrimSpace(c.options.PortalProxyPrefix); prefix != "" {
+		return prefix
+	}
+
+	return proxy.DefaultPathPrefix
 }
 
 // PortalConfigPath returns the path to the default configuration for cluster portals.
@@ -313,16 +323,16 @@ func (c *Config) NodeName() string {
 	return "node-" + s
 }
 
-// NodeRole returns the cluster node role (portal, app, or service).
+// NodeRole returns the cluster node role (portal, instance, or service).
 func (c *Config) NodeRole() string {
 	if c.Edition() == Portal {
 		c.options.NodeRole = cluster.RolePortal
 		return c.options.NodeRole
 	}
 
-	switch c.options.NodeRole {
-	case cluster.RolePortal, cluster.RoleApp, cluster.RoleService:
-		return c.options.NodeRole
+	switch role := cluster.NormalizeNodeRole(c.options.NodeRole); role {
+	case cluster.RolePortal, cluster.RoleInstance, cluster.RoleService:
+		return string(role)
 	default:
 		return DefaultNodeRole
 	}

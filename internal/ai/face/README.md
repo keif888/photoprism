@@ -1,6 +1,6 @@
-## Face Detection and Embedding Guidelines
+## Face Detection & Embedding Guidelines
 
-**Last Updated:** December 23, 2025
+**Last Updated:** February 14, 2026
 
 ### Overview
 
@@ -69,7 +69,7 @@ This guarantees that Euclidean distance comparisons are equivalent to cosine com
 #### Face Kind Reference
 
 | Kind             | Value | Source                                     | Matching Behavior                               | Notes                                                                                                   |
-|------------------|:-----:|--------------------------------------------|-------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+|:-----------------|:-----:|:-------------------------------------------|:------------------------------------------------|:--------------------------------------------------------------------------------------------------------|
 | `RegularFace`    |   1   | Default embedding classification           | Eligible for matching and clustering            | Produced when embeddings are distinct and not flagged as child/background.                              |
 | `ChildrenFace`   |   2   | `Embedding.IsChild()` vs. curated samples  | Excluded from matching (`SkipMatching = true`)  | Helps avoid unreliable matches on juvenile faces; clusters are retained but not auto-assigned.          |
 | `BackgroundFace` |   3   | `Embedding.IsBackground()` heuristics      | Excluded from matching and clustering           | Used for non-face artifacts and background detections; prevents noise from entering optimization runs.  |
@@ -123,7 +123,7 @@ Additional safeguards were introduced in October 2025 so stubborn clusters are o
 ### Configuration Summary
 
 | Setting                  | Default                      | Description                                                                                     |
-|--------------------------|------------------------------|-------------------------------------------------------------------------------------------------|
+|:-------------------------|:-----------------------------|:------------------------------------------------------------------------------------------------|
 | `FACE_ENGINE`            | `auto`                       | Detection engine (`auto`, `pigo`, `onnx`). `auto` resolves to ONNX when the SCRFD model exists. |
 | `FACE_ENGINE_THREADS`    | `runtime.NumCPU()/2` (≥1)    | ONNX inference threads; ignored by Pigo.                                                        |
 | `FACE_ANGLE`             | `-0.3,0,0.3`                 | Detection angles (radians) swept by Pigo.                                                       |
@@ -138,7 +138,7 @@ When the model is left on the default `auto` run mode, face detection participat
 ### Benchmark Reference
 
 | Benchmark                     | Before             | After           |
-|-------------------------------|--------------------|-----------------|
+|:------------------------------|:-------------------|:----------------|
 | `BenchmarkEmbeddingDist`      | ~242 ns/op         | ~155 ns/op      |
 | `BenchmarkEmbeddingsMidpoint` | ~194 µs/op, 528 KB | ~99 µs/op, 4 KB |
 

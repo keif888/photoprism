@@ -33,7 +33,7 @@ import (
 // Supported cluster node register flags.
 var (
 	regNameFlag       = &cli.StringFlag{Name: "name", Usage: "node `NAME` (lowercase letters, digits, hyphens)"}
-	regRoleFlag       = &cli.StringFlag{Name: "role", Usage: "node `ROLE` (app, service)", Value: "app"}
+	regRoleFlag       = &cli.StringFlag{Name: "role", Usage: "node `ROLE` (instance, service)", Value: "instance"}
 	regIntUrlFlag     = &cli.StringFlag{Name: "advertise-url", Usage: "internal service `URL`"}
 	regSiteUrlFlag    = &cli.StringFlag{Name: "site-url", Usage: "public site `URL` (https://...)"}
 	regAppNameFlag    = &cli.StringFlag{Name: "app-name", Usage: "override app `NAME` reported to the portal"}
@@ -91,11 +91,11 @@ func clusterRegisterAction(ctx *cli.Context) error {
 			return cli.Exit(fmt.Errorf("node name is required (use --name or set node-name)"), 2)
 		}
 
-		nodeRole := clean.TypeLowerDash(ctx.String("role"))
+		nodeRole := cluster.NormalizeNodeRole(clean.TypeLowerDash(ctx.String("role")))
 		switch nodeRole {
-		case cluster.RoleApp, cluster.RoleService:
+		case cluster.RoleInstance, cluster.RoleService:
 		default:
-			return cli.Exit(fmt.Errorf("invalid --role (must be app or service)"), 2)
+			return cli.Exit(fmt.Errorf("invalid --role (must be instance or service)"), 2)
 		}
 
 		portalURL := ctx.String("portal-url")
@@ -332,7 +332,7 @@ func (e *httpError) Error() string { return fmt.Sprintf("http %d: %s", e.Status,
 func postWithBackoff(url, token string, payload []byte, out any) error {
 	// backoff: 500ms -> max ~8s, 6 attempts with jitter
 	delay := 500 * time.Millisecond
-	for attempt := 0; attempt < 6; attempt++ {
+	for range 6 {
 		req, _ := http.NewRequest(http.MethodPost, url, bytes.NewReader(payload))
 		header.SetAuthorization(req, token)
 		req.Header.Set(header.ContentType, "application/json")

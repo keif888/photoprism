@@ -13,6 +13,7 @@ import (
 	"github.com/photoprism/photoprism/internal/service/cluster"
 	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/http/dns"
+	"github.com/photoprism/photoprism/pkg/http/proxy"
 	"github.com/photoprism/photoprism/pkg/list"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
@@ -114,6 +115,17 @@ func TestConfig_Cluster(t *testing.T) {
 
 		c.options.PortalProxy = false
 		assert.False(t, c.PortalProxy())
+	})
+	t.Run("PortalProxyPrefix", func(t *testing.T) {
+		c := NewConfig(CliTestContext())
+
+		assert.Equal(t, proxy.DefaultPathPrefix, c.PortalProxyPrefix())
+
+		c.options.PortalProxyPrefix = "/instance"
+		assert.Equal(t, "/instance", c.PortalProxyPrefix())
+
+		c.options.PortalProxyPrefix = "  "
+		assert.Equal(t, proxy.DefaultPathPrefix, c.PortalProxyPrefix())
 	})
 	t.Run("JWKSUrlSetter", func(t *testing.T) {
 		const existing = "https://existing.example/.well-known/jwks.json"
@@ -383,7 +395,7 @@ func TestConfig_Cluster(t *testing.T) {
 		ctx := CliTestContext()
 		assert.NoError(t, ctx.Set("config-path", tempCfg))
 		c := NewConfig(ctx)
-		c.options.NodeRole = cluster.RoleApp
+		c.options.NodeRole = cluster.RoleInstance
 
 		expected := filepath.Join(c.NodeConfigPath(), fs.SecretsDir, fs.JoinTokenFile)
 		assert.Equal(t, expected, c.JoinTokenFile())
@@ -476,13 +488,15 @@ func TestConfig_Cluster(t *testing.T) {
 
 		// Default / unknown → node
 		c.options.NodeRole = ""
-		assert.Equal(t, string(cluster.RoleApp), c.NodeRole())
+		assert.Equal(t, string(cluster.RoleInstance), c.NodeRole())
 		c.options.NodeRole = "unknown"
-		assert.Equal(t, string(cluster.RoleApp), c.NodeRole())
+		assert.Equal(t, string(cluster.RoleInstance), c.NodeRole())
 
 		// Explicit values
-		c.options.NodeRole = string(cluster.RoleApp)
-		assert.Equal(t, string(cluster.RoleApp), c.NodeRole())
+		c.options.NodeRole = string(cluster.RoleInstance)
+		assert.Equal(t, string(cluster.RoleInstance), c.NodeRole())
+		c.options.NodeRole = "app"
+		assert.Equal(t, string(cluster.RoleInstance), c.NodeRole())
 		c.options.NodeRole = string(cluster.RolePortal)
 		assert.Equal(t, string(cluster.RolePortal), c.NodeRole())
 		c.options.NodeRole = string(cluster.RoleService)

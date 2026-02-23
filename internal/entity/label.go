@@ -46,7 +46,7 @@ type Label struct {
 	CreatedAt        time.Time      `json:"CreatedAt" yaml:"-"`
 	UpdatedAt        time.Time      `json:"UpdatedAt" yaml:"-"`
 	PublishedAt      *time.Time     `sql:"index" json:"PublishedAt,omitempty" yaml:"PublishedAt,omitempty"`
-	DeletedAt        gorm.DeletedAt `sql:"index" json:"DeletedAt,omitempty" yaml:"-"`
+	DeletedAt        gorm.DeletedAt `sql:"index" json:"DeletedAt" yaml:"-"`
 	New              bool           `gorm:"-" json:"-" yaml:"-"`
 }
 
@@ -198,7 +198,7 @@ func (m *Label) Skip() bool {
 }
 
 // Update a label property in the database.
-func (m *Label) Update(attr string, value interface{}) error {
+func (m *Label) Update(attr string, value any) error {
 	if m == nil {
 		return errors.New("label must not be nil - you may have found a bug")
 	} else if !m.HasID() {
@@ -209,7 +209,7 @@ func (m *Label) Update(attr string, value interface{}) error {
 }
 
 // Updates multiple columns in the database.
-func (m *Label) Updates(values interface{}) error {
+func (m *Label) Updates(values any) error {
 	if values == nil {
 		return nil
 	} else if m == nil {

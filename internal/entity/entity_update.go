@@ -8,12 +8,12 @@ import (
 )
 
 // Checks if the primary key is populated
-func NewRecord(m interface{}) (result bool, err error) {
+func NewRecord(m any) (result bool, err error) {
 	tx := UnscopedDb()
 	tx.Statement.Dest = m
 
 	reflectValue := reflect.Indirect(reflect.ValueOf(m))
-	for reflectValue.Kind() == reflect.Ptr || reflectValue.Kind() == reflect.Interface {
+	for reflectValue.Kind() == reflect.Pointer || reflectValue.Kind() == reflect.Interface {
 		reflectValue = reflect.Indirect(reflectValue)
 	}
 
@@ -33,7 +33,7 @@ func NewRecord(m interface{}) (result bool, err error) {
 }
 
 // Update updates the values of an existing database record.
-func Update(m interface{}, keyNames ...string) (err error) {
+func Update(m any, keyNames ...string) (err error) {
 	// Use an unscoped *gorm.DB connection, so that
 	// soft-deleted database records can also be updated.
 	db := UnscopedDb()
@@ -49,7 +49,7 @@ func Update(m interface{}, keyNames ...string) (err error) {
 
 	// Create a backup to use as otherwise we are going to remove a bunch of data from m
 	// which may break other things.
-	var backup interface{} = reflect.New(reflect.ValueOf(m).Elem().Type()).Interface()
+	var backup any = reflect.New(reflect.ValueOf(m).Elem().Type()).Interface()
 	//log.Debugf("backup = %v", backup)
 	if err = deepcopier.Copy(m).To(backup); err != nil {
 		log.Debugf("entity_update deepcopier failed with error %v", err)

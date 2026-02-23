@@ -85,7 +85,7 @@ type User struct {
 	RefID         string         `gorm:"type:bytes;size:16;" json:"-" yaml:"-"`
 	CreatedAt     time.Time      `json:"CreatedAt" yaml:"-"`
 	UpdatedAt     time.Time      `json:"UpdatedAt" yaml:"-"`
-	DeletedAt     gorm.DeletedAt `sql:"index" json:"DeletedAt,omitempty" yaml:"-"`
+	DeletedAt     gorm.DeletedAt `sql:"index" json:"DeletedAt" yaml:"-"`
 }
 
 // TableName returns the entity table name.
@@ -384,7 +384,7 @@ func (m *User) SaveRelated() *User {
 }
 
 // Updates multiple properties in the database.
-func (m *User) Updates(values interface{}) error {
+func (m *User) Updates(values any) error {
 	return UnscopedDb().Model(m).Updates(values).Error
 }
 

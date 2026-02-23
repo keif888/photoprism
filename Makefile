@@ -169,6 +169,10 @@ fix-permissions:
 	fi
 gettext-merge:
 	./scripts/gettext-merge.sh
+gettext-extract:
+	./scripts/gettext-extract.sh
+gettext-compile:
+	$(MAKE) -C frontend gettext-compile
 gettext-clear-fuzzy:
 	./scripts/gettext-clear-fuzzy.sh
 clean:
@@ -299,6 +303,7 @@ audit: audit-frontend audit-backend
 audit-frontend:
 	$(MAKE) -C frontend audit
 audit-backend: dep-vuln
+dep-audit: dep-vuln
 dep-vuln:
 	@echo "Checking Go production dependencies for security vulnerabilities..."
 	go run golang.org/x/vuln/cmd/govulncheck@latest ./pkg/... ./internal/...
@@ -331,6 +336,27 @@ dep-codex:
 	else \
 	  npm install -g --location=global --no-fund --no-audit "@openai/codex@latest"; \
 	fi
+claude:
+	@echo "Installing Claude Code..."
+	@[ -n "$(HOME)" ] && [ "$(HOME)" != "/" ] || (echo "ERROR: Unsafe HOME path '$(HOME)'"; exit 1)
+	@if [ -e "$(HOME)/.cache" ] && [ ! -w "$(HOME)/.cache" ]; then \
+	  echo "Fixing ownership of \"$(HOME)/.cache\"..."; \
+	  if command -v sudo >/dev/null 2>&1; then \
+	    sudo chown "$(UID):$(GID)" "$(HOME)/.cache"; \
+	  else \
+	    chown "$(UID):$(GID)" "$(HOME)/.cache"; \
+	  fi; \
+	fi
+	@if [ -e "$(HOME)/.cache/claude" ] && [ ! -w "$(HOME)/.cache/claude" ]; then \
+	  echo "Fixing ownership of \"$(HOME)/.cache/claude\"..."; \
+	  if command -v sudo >/dev/null 2>&1; then \
+	    sudo chown -R "$(UID):$(GID)" "$(HOME)/.cache/claude"; \
+	  else \
+	    chown -R "$(UID):$(GID)" "$(HOME)/.cache/claude"; \
+	  fi; \
+	fi
+	install -d -m 700 -- "$(HOME)/.cache/claude"
+	curl -fsSL https://claude.ai/install.sh | bash
 dep-go:
 	go build -v ./...
 dep-upgrade:

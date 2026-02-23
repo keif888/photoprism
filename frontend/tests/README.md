@@ -1,8 +1,8 @@
-# Frontend Tests and Linting
+## Frontend Tests & Linting
 
-**Last Updated:** February 11, 2026
+**Last Updated:** February 22, 2026
 
-## Purpose
+### Purpose
 
 This guide documents the frontend test and lint workflows for PhotoPrism.  
 It is intended for both humans and coding agents.
@@ -14,7 +14,7 @@ Use this file when you need to:
 - lint/format frontend code;
 - evaluate frontend tool upgrades safely.
 
-## Quick Start
+### Quick Start
 
 From the repository root:
 
@@ -33,7 +33,7 @@ From `frontend/`:
 - `npm run lint` runs ESLint.
 - `npm run fmt` runs ESLint with `--fix`.
 
-## Test Suite Layout
+### Test Suite Layout
 
 - Unit and component tests: `frontend/tests/vitest/**/*`
 - Vitest setup: `frontend/tests/vitest/setup.js`
@@ -43,23 +43,24 @@ From `frontend/`:
 - Acceptance config: `frontend/testcaferc.json` and `frontend/tests/testcafeconfig.json`
 - Upload fixtures: `frontend/tests/upload-files/**/*`
 
-## Overlay Test Notes (Plus and Pro)
+### Overlay Test Notes (Plus, Pro, & Portal)
 
-Plus and Pro frontend overlays reuse the same frontend test and lint toolchain:
+Plus, Pro, and Portal frontend overlays reuse the same frontend test and lint toolchain:
 
 - Plus test run: `make -C plus test-js`
 - Pro test run: `make -C pro test-js`
 - Plus build smoke: `make -C plus build-js`
 - Pro build smoke: `make -C pro build-js`
+- Portal build smoke: `make -C portal build-js`
 
-When evaluating frontend tooling changes, test at least one CE run plus Plus and Pro overlay runs.
+When evaluating frontend tooling changes, test at least one CE run plus Plus and Pro overlay runs, and a Portal build smoke.
 
-## Tool Versions
+### Tool Versions
 
 Current frontend tool versions are defined in `frontend/package.json` unless stated otherwise.
 
 | Tool                                 | Version     |
-|--------------------------------------|-------------|
+|:-------------------------------------|:------------|
 | Node.js engine                       | `>= 18.0.0` |
 | npm engine                           | `>= 9.0.0`  |
 | Vitest                               | `^3.2.4`    |
@@ -80,13 +81,13 @@ Current frontend tool versions are defined in `frontend/package.json` unless sta
 | `eslint-plugin-vuetify`              | `^2.5.3`    |
 | `eslint-webpack-plugin`              | `^5.0.2`    |
 | Prettier                             | `^3.8.1`    |
-| TestCafe CLI (dev environment)       | `3.7.2`     |
+| TestCafe CLI (dev environment)       | `3.7.4`     |
 
 Note: TestCafe is available in the development environment but is currently not pinned as a direct dependency in `frontend/package.json`. Verify with `testcafe --version`.
 
-## Upgrade Guidance
+### Upgrade Guidance
 
-### General Upgrade Flow
+#### General Upgrade Flow
 
 1. Review release notes and migration guides for each tool.
 2. Check peer dependency compatibility before installing:
@@ -98,10 +99,11 @@ Note: TestCafe is available in the development environment but is currently not 
    - `cd frontend && npm run build`
    - `cd frontend && env BUILD_ENV=production NODE_ENV=production CUSTOM_SRC="../plus/frontend" CUSTOM_NAME="PhotoPrism+" npm run build`
    - `cd frontend && env BUILD_ENV=production NODE_ENV=production CUSTOM_SRC="../pro/frontend" CUSTOM_NAME="PhotoPrism Pro" npm run build`
+   - `cd frontend && env BUILD_ENV=production NODE_ENV=production CUSTOM_SRC="../portal/frontend" CUSTOM_NAME="PhotoPrism Portal" npm run build`
 5. If dependencies changed, regenerate notices with `make notice`.
 6. Revert the trial changes if validation fails.
 
-### ESLint v10 Status (As of February 11, 2026)
+#### ESLint v10 Status (As of February 11, 2026)
 
 A trial upgrade from ESLint v9 to ESLint v10 is currently not safe for this repository.
 
@@ -121,7 +123,7 @@ Current recommendation:
 - stay on ESLint v9 until `eslint-plugin-vuetify` and related plugins officially support ESLint v10;
 - re-run the validation flow above before attempting another upgrade.
 
-## See Also
+### See Also
 
 - Frontend architecture map: `frontend/CODEMAP.md`
 - Frontend focus and dialog behavior: `frontend/src/common/README.md`

@@ -9,7 +9,7 @@ import (
 // MigrateTestExtras creates the tables in the test database to support test package separation
 func MigrateTestExtras(db *gorm.DB) {
 	var err error
-	for migrateRetry := 0; migrateRetry < 10; migrateRetry++ {
+	for migrateRetry := range 10 {
 		if err = db.AutoMigrate(&TestLog{}); err != nil {
 			log.Warnf("migratetestextras: automigrate testlog encountered %+v on loop %d", err, migrateRetry)
 			if migrateRetry < 10 {
@@ -22,7 +22,7 @@ func MigrateTestExtras(db *gorm.DB) {
 	if err != nil {
 		panic(err)
 	}
-	for migrateRetry := 0; migrateRetry < 10; migrateRetry++ {
+	for migrateRetry := range 10 {
 		if err = db.AutoMigrate(&TestDBMutex{}); err != nil {
 			log.Warnf("migratetestextras: automigrate testdbmutex encountered %+v on loop %d", err, migrateRetry)
 			if migrateRetry < 10 {
@@ -35,7 +35,7 @@ func MigrateTestExtras(db *gorm.DB) {
 	if err != nil {
 		panic(err)
 	}
-	for migrateRetry := 0; migrateRetry < 10; migrateRetry++ {
+	for migrateRetry := range 10 {
 		if err = db.AutoMigrate(&TestDBChoice{}); err != nil {
 			log.Warnf("migratetestextras: automigrate testdbchoice encountered %+v on loop %d", err, migrateRetry)
 			if migrateRetry < 10 {
