@@ -29,9 +29,14 @@ func TestMigrationCommand(t *testing.T) {
 	dir := t.TempDir()
 	srcFile := fs.Abs("./testdata/transfer_sqlite3")
 	tgtFile := filepath.Join(dir, "migration.test.db")
-	dbc, migrateDBId, err := testextras.AcquireMigrationDBMutex(log, "internal/commands/migrations_test.go/TestMigrationCommand")
+	caller := "internal/commands/migrations_test.go/TestMigrationCommand"
+	dbc, migrateDBId, err := testextras.AcquireMigrationDBMutex(log, caller)
 	defer func() {
-		testextras.UnlockDBMutex(dbc.Db())
+		code := 0
+		if t.Failed() {
+			code = 1
+		}
+		testextras.ReleaseMigrationDBMutex(dbc.Db(), log, caller, code)
 		dbc.Close()
 	}()
 

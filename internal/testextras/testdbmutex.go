@@ -129,6 +129,16 @@ func ReleaseDBMutex(db *gorm.DB, log event.Logger, caller string, code int) {
 	LogMessage(db, fmt.Sprintf("%v ending with %v", caller, code))
 }
 
+// ReleaseMigrationDBMutex clears out a migration mutex lock and logs messages about it
+func ReleaseMigrationDBMutex(db *gorm.DB, log event.Logger, caller string, code int) {
+	LogMessage(db, fmt.Sprintf("%v UnlockDBMutex for Migration", caller))
+	pid := os.Getpid()
+	record := TestDBMutex{ProcessID: pid}
+	db.Where("process_id = ? and request_type = ?", pid, "migration").Delete(&record)
+	log.Info("database migration mutex released")
+	LogMessage(db, fmt.Sprintf("%v ending with %v", caller, code))
+}
+
 // AcquireDBMutex opens a database connection, and then attempts to acquire a mutex for this process.
 func AcquireDBMutex(log event.Logger, caller string) (dbc *DbConn, dbn int, err error) {
 
@@ -182,10 +192,10 @@ func acquireDBMutexCore(log event.Logger, dsn string, dbc *DbConn, caller string
 
 	SetDbProvider(dbc)
 	log.Info("migrating test extras")
-	MigrateTestExtras(dbc.Db().Debug())
+	MigrateTestExtras(dbc.Db())
 	LogMessage(dbc.Db(), fmt.Sprintf("%v starting", caller))
 	if ok, n := lockDBMutex(dbc.Db(), requestType, caller); ok {
-		LogMessage(dbc.Db(), fmt.Sprintf("%v LockDBMutex database %d acquired", caller, n))
+		LogMessage(dbc.Db(), fmt.Sprintf("%v LockDBMutex with requestType %s database %d acquired", caller, requestType, n))
 		log.Info("database mutex acquired")
 		dbn = n
 		dbID = n
