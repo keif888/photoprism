@@ -4,7 +4,7 @@ export default class Page {
   constructor() {}
 
   async openContextMenu() {
-    if (!(await Selector(".action-clear").visible)) {
+    if (!(await Selector(".action-clear", { timeout: 1000 }).visible)) {
       await t.click(Selector("button.action-menu"));
     }
   }
@@ -40,19 +40,21 @@ export default class Page {
       await t.click(Selector("button.action-confirm"));
     }
     if ((action === "album") || (action === "clone")) {
-      await t.click(Selector(".input-albums"));
 
       // Handle single album name or array of album names
       const albumNames = Array.isArray(albumName) ? albumName : [albumName];
 
       for (const name of albumNames) {
-        if (await Selector("div").withText(name).parent('div[role="option"]').visible) {
+        await t.click(Selector(".input-albums"));
+        if (await Selector("div").withText(name).parent('div[role="option"]').visible) {  // This is probably going to wait for 15s if the text is not there.
           // Click on the album option to select it
           await t
             .click(Selector("div").withText(name).parent('div[role="option"]'))
-            .click(Selector("div i.mdi-bookmark"));
+            .click(Selector("div .v-toolbar-title__placeholder"));
         } else {
-          await t.typeText(Selector(".input-albums input"), name).click(Selector("div i.mdi-bookmark"));
+          await t
+            .typeText(Selector(".input-albums input"), name)
+            .click(Selector("div .v-toolbar-title__placeholder"));
         }
         await t.expect(Selector("span.v-chip").withText(name).visible).ok();
       }
