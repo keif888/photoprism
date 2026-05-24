@@ -4,8 +4,17 @@ import PhotoViewer from "../page-model/photoviewer";
 import Menu from "../page-model/menu";
 import Label from "../page-model/label";
 import Album from "../page-model/album";
+import { helperBeforeEach, helperAfterEach, helperRevertPhoto, helperRemoveLabel, helperRemoveAlbum} from "../page-model/helpers";
 
-fixture`Test lightbox sidebar inline editing`.page`${testcafeconfig.url}`;
+fixture`Test lightbox sidebar inline editing`
+.page`${testcafeconfig.url}`
+.beforeEach(async t => {
+  await helperBeforeEach(t);
+})
+.afterEach(async t => {
+  await helperAfterEach(t);
+})
+;
 
 const photoviewer = new PhotoViewer();
 const menu = new Menu();
@@ -15,7 +24,8 @@ const album = new Album();
 test.meta("testID", "sidebar-edit-001").meta({ mode: "public" })(
   "Common: Edits title, caption, keywords, notes, and plain-text inline fields from the sidebar",
   async (t) => {
-    await photoviewer.openSidebarOnFirstPhoto();
+    const uid = await photoviewer.openSidebarOnFirstPhoto();
+    await helperRevertPhoto(t, uid);
 
     const titleInput = Selector(".p-lightbox-sidebar .meta-inline-title input", { timeout: 15000 });
     await photoviewer.startInlineEditOrAdd("meta-title", "Title");
@@ -47,6 +57,7 @@ test.meta("testID", "sidebar-edit-001").meta({ mode: "public" })(
 
 test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a label and an album inline and persists them to the photo", async (t) => {
   const uid = await photoviewer.openSidebarOnFirstPhoto();
+  await helperRevertPhoto(t, uid);
 
   // Date-stamp names so reruns don't collide with leftovers from previous failed runs.
   const stamp = Date.now();
@@ -54,7 +65,9 @@ test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a
   const albumTitle = `SidebarEditAlbum-${stamp}`;
 
   await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
+  await helperRemoveLabel(t, labelTitle);
   await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
+  await helperRemoveAlbum(t, albumTitle);
 
   await photoviewer.triggerPhotoViewerAction("close-button");
 
@@ -70,7 +83,9 @@ test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a
 test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
   "Common: Edits every taken-at, camera, and location field and confirms persistence",
   async (t) => {
-    await photoviewer.openSidebarOnFirstPhoto();
+    const uid = await photoviewer.openSidebarOnFirstPhoto();
+    await helperRevertPhoto(t, uid);
+
 
     const dateTimeDialog = photoviewer.dateTimeDialog;
     const cameraDialog = photoviewer.cameraDialog;
@@ -95,7 +110,7 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     const initialLocalTime = await dateTimeDialog.localTime.value;
     const initialTimezone = await dateTimeDialog.timezoneValue.innerText;
     await t.click(dateTimeDialog.cancel);
-    await t.expect(dateTimeDialog.root.visible).notOk();
+    await t.expect(dateTimeDialog.root.exists).notOk({ timeout: 10000 });
 
     await photoviewer.openSidebarDialog("camera");
     const initialCamera = await cameraDialog.cameraValue.innerText;
@@ -105,12 +120,12 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     const initialFnumber = await cameraDialog.fnumber.value;
     const initialFocalLength = await cameraDialog.focalLength.value;
     await t.click(cameraDialog.cancel);
-    await t.expect(cameraDialog.root.visible).notOk();
+    await t.expect(cameraDialog.root.exists).notOk({ timeout: 5000 });
 
     await photoviewer.openSidebarDialog("location");
     const initialCoordinates = await locationDialog.coordinates.value;
     await t.click(locationDialog.cancel);
-    await t.expect(locationDialog.root.visible).notOk();
+    await t.expect(locationDialog.root.exists).notOk({ timeout: 2000 });
 
     await photoviewer.openSidebarDialog("takenAt");
     await pickAutocomplete(dateTimeDialog.year, "2022");
@@ -119,7 +134,7 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     await t.typeText(dateTimeDialog.localTime, "13:45:30", { replace: true }).pressKey("tab");
     await pickAutocomplete(dateTimeDialog.timezone, "UTC");
     await t.click(dateTimeDialog.confirm);
-    await t.expect(dateTimeDialog.root.visible).notOk();
+    await t.expect(dateTimeDialog.root.exists).notOk({ timeout: 15000 });
 
     // formatTime() drops the zone abbreviation on UTC photos, so "UTC" never appears
     // in the sidebar text — it's only checked via the dialog below.
@@ -135,7 +150,7 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     await t.expect(dateTimeDialog.localTime.value).eql("13:45:30");
     await t.expect(dateTimeDialog.timezoneValue.innerText).eql("UTC");
     await t.click(dateTimeDialog.cancel);
-    await t.expect(dateTimeDialog.root.visible).notOk();
+    await t.expect(dateTimeDialog.root.exists).notOk({ timeout: 15000 });
 
     const cameraName = "Canon EOS M10";
     const lensName = "EF-M15-45mm f/3.5-6.3 IS STM";
@@ -146,8 +161,9 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     await t.typeText(cameraDialog.exposure, "1/250", { replace: true });
     await t.typeText(cameraDialog.fnumber, "1.8", { replace: true });
     await t.typeText(cameraDialog.focalLength, "35", { replace: true });
+    await t.typeText(cameraDialog.iso, "6400", { replace: true });
     await t.click(cameraDialog.confirm);
-    await t.expect(cameraDialog.root.visible).notOk();
+    await t.expect(cameraDialog.root.exists).notOk({ timeout: 15000 });
 
     const cameraRow = photoviewer.sidebarRow("mdi-camera");
     await t.expect(cameraRow.withText(cameraName).exists).ok();
@@ -162,7 +178,7 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     await t.expect(cameraDialog.fnumber.value).eql("1.8");
     await t.expect(cameraDialog.focalLength.value).eql("35");
     await t.click(cameraDialog.cancel);
-    await t.expect(cameraDialog.root.visible).notOk();
+    await t.expect(cameraDialog.root.exists).notOk({ timeout: 15000 });
 
     // Raw coordinates avoid hitting the external reverse-geocoder.
     await photoviewer.openSidebarDialog("location");
@@ -170,7 +186,7 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     await t.expect(locationDialog.coordinates.visible).ok();
     await t.typeText(locationDialog.coordinates, "52.5200, 13.4050", { replace: true }).pressKey("enter");
     await t.click(locationDialog.confirm);
-    await t.expect(locationDialog.root.visible).notOk();
+    await t.expect(locationDialog.root.exists).notOk({ timeout: 15000 });
     await t.expect(Selector(".p-lightbox-sidebar .p-map").exists).ok();
 
     // Thumb.getLatLngShort() formats as 4-digit decimals with °N / °E suffix —
@@ -178,55 +194,5 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
     const locationRow = photoviewer.sidebarRow("mdi-map-marker");
     await t.expect(locationRow.withText("52.5200°N").visible).ok();
     await t.expect(locationRow.withText("13.4050°E").visible).ok();
-
-    // Restore the snapshotted initial values. Skip empty ones — typeText("") is
-    // a no-op and v-select has no clear.
-    await photoviewer.openSidebarDialog("takenAt");
-    if (initialYear) {
-      await pickAutocomplete(dateTimeDialog.year, initialYear);
-    }
-    if (initialMonth) {
-      await pickAutocomplete(dateTimeDialog.month, initialMonth);
-    }
-    if (initialDay) {
-      await pickAutocomplete(dateTimeDialog.day, initialDay);
-    }
-    if (initialLocalTime) {
-      await t.typeText(dateTimeDialog.localTime, initialLocalTime, { replace: true }).pressKey("tab");
-    }
-    if (initialTimezone) {
-      await pickAutocomplete(dateTimeDialog.timezone, initialTimezone);
-    }
-    await t.click(dateTimeDialog.confirm);
-    await t.expect(dateTimeDialog.root.visible).notOk();
-
-    await photoviewer.openSidebarDialog("camera");
-    if (initialCamera) {
-      await pickFromSelect(cameraDialog.camera, initialCamera);
-    }
-    if (initialLens) {
-      await pickFromSelect(cameraDialog.lens, initialLens);
-    }
-    if (initialIso) {
-      await t.typeText(cameraDialog.iso, initialIso, { replace: true });
-    }
-    if (initialExposure) {
-      await t.typeText(cameraDialog.exposure, initialExposure, { replace: true });
-    }
-    if (initialFnumber) {
-      await t.typeText(cameraDialog.fnumber, initialFnumber, { replace: true });
-    }
-    if (initialFocalLength) {
-      await t.typeText(cameraDialog.focalLength, initialFocalLength, { replace: true });
-    }
-    await t.click(cameraDialog.confirm);
-    await t.expect(cameraDialog.root.visible).notOk();
-
-    if (initialCoordinates) {
-      await photoviewer.openSidebarDialog("location");
-      await t.typeText(locationDialog.coordinates, initialCoordinates, { replace: true }).pressKey("enter");
-      await t.click(locationDialog.confirm);
-      await t.expect(locationDialog.root.visible).notOk();
-    }
   }
 );

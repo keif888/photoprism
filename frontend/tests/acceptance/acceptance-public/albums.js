@@ -10,8 +10,17 @@ import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
 import PhotoEdit from "../page-model/photo-edit";
 import Notifies from "../page-model/notifications";
+import { logTime, logTimeEnd, helperBeforeEach, helperAfterEach, helperRemoveAlbum, helperRevertAlbum} from "../page-model/helpers";
 
-fixture`Test albums`.page`${testcafeconfig.url}`;
+fixture`Test albums`
+.page`${testcafeconfig.url}`
+.beforeEach(async t => {
+  await helperBeforeEach(t);
+})
+.afterEach(async t => {
+  await helperAfterEach(t);
+})
+;
 
 const menu = new Menu();
 const album = new Album();
@@ -30,6 +39,7 @@ test.meta("testID", "albums-001").meta({ type: "short", mode: "public" })("Commo
   await toolbar.triggerToolbarAction("add");
   const AlbumCountAfterCreate = await album.getAlbumCount("all");
   const NewAlbumUid = await album.getNthAlbumUid("all", 0);
+  await helperRemoveAlbum(t, NewAlbumUid);
 
   await t.expect(AlbumCountAfterCreate).eql(AlbumCount + 1);
 
@@ -52,9 +62,11 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
 
   await t
     .click(photoedit.infoTab)
-    .expect(Selector("td").withText("Albums").visible)
+    .expect(Selector("td").withText("Favorite").visible) // make sure the UI is there
+    .ok()
+    .expect(Selector("td").withText("Albums").exists)
     .notOk()
-    .expect(Selector("td").withText("NotYetExistingAlbum").visible)
+    .expect(Selector("td").withText("NotYetExistingAlbum").exists)
     .notOk()
     .click(photoedit.dialogClose);
 
@@ -79,6 +91,7 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
 
   await toolbar.search("NotYetExistingAlbum");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
+  await helperRemoveAlbum(t, AlbumUid);
   await album.openAlbumWithUid(AlbumUid);
   await toolbar.triggerToolbarAction("delete");
   await t.navigateTo("/library/albums");
@@ -93,9 +106,11 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
 
   await t
     .click(photoedit.infoTab)
-    .expect(Selector("td").withText("Albums").visible)
+    .expect(Selector("td").withText("Favorite").visible) // make sure the UI is there
+    .ok()
+    .expect(Selector("td").withText("Albums").exists)
     .notOk()
-    .expect(Selector("td").withText("NotYetExistingAlbum").visible)
+    .expect(Selector("td").withText("NotYetExistingAlbum").exists)
     .notOk()
     .click(photoedit.dialogClose);
 });
@@ -104,6 +119,7 @@ test.meta("testID", "albums-003").meta({ type: "short", mode: "public" })("Commo
   await menu.openPage("albums");
   await toolbar.search("Holiday");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
+  await helperRevertAlbum(t, AlbumUid);
 
   await t.expect(page.cardTitle.nth(0).innerText).contains("Holiday");
 
@@ -157,16 +173,20 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
 
   // Verify photos are not in any albums initially
   await page.clickCardTitleOfUID(FirstPhotoUid);
+  logTime('infoTab');
   await t
     .click(photoedit.infoTab)
-    .expect(Selector("td").withText("Albums").visible)
+    .expect(Selector("td").withText("Favorite").visible) // make sure the UI is there
+    .ok()
+    .expect(Selector("td").withText("Albums").exists) // visible.notOk takes 5 seconds 
     .notOk()
-    .expect(Selector("td").withText("Holiday").visible)
+    .expect(Selector("td").withText("Holiday").exists) // visible.notOk takes 5 seconds
     .notOk()
-    .expect(Selector("td").withText("Christmas").visible)
+    .expect(Selector("td").withText("Christmas").exists) // visible.notOk takes 5 seconds
     .notOk()
     .click(photoedit.dialogClose);
 
+  logTimeEnd('infoTab');
   // Select both photos and add to multiple albums simultaneously
   await photo.selectPhotoFromUID(SecondPhotoUid);
   await photoviewer.openPhotoViewer("uid", FirstPhotoUid);
@@ -223,9 +243,9 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await page.clickCardTitleOfUID(FirstPhotoUid);
   await t
     .click(photoedit.infoTab)
-    .expect(Selector("td").withText("Albums").visible)
+    .expect(Selector("td").withText("Albums").visible)  // We now know the UI is there
     .ok()
-    .expect(Selector("td").withText("Holiday").visible)
+    .expect(Selector("td").withText("Holiday").exists)  // visible.notOk takes 5 seconds
     .notOk()
     .expect(Selector("td").withText("Christmas").visible)
     .ok()
@@ -244,6 +264,7 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await menu.openPage("albums");
   await toolbar.search("Food");
   const FoodUid = await album.getNthAlbumUid("all", 0);
+  await helperRemoveAlbum(t, FoodUid);
   await album.selectAlbumFromUID(FoodUid);
   await contextmenu.triggerContextMenuAction("delete", "");
 
@@ -253,13 +274,15 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await page.clickCardTitleOfUID(FirstPhotoUid);
   await t
     .click(photoedit.infoTab)
-    .expect(Selector("td").withText("Albums").visible)
+    .expect(Selector("td").withText("Favorite").visible) // make sure the UI is there
+    .ok()
+    .expect(Selector("td").withText("Albums").exists)// visible.notOk takes 5 seconds
     .notOk()
-    .expect(Selector("td").withText("Food").visible)
+    .expect(Selector("td").withText("Food").exists) // visible.notOk takes 5 seconds
     .notOk()
-    .expect(Selector("td").withText("Holiday").visible)
+    .expect(Selector("td").withText("Holiday").exists) // visible.notOk takes 5 seconds
     .notOk()
-    .expect(Selector("td").withText("Christmas").visible)
+    .expect(Selector("td").withText("Christmas").exists) // visible.notOk takes 5 seconds
     .notOk()
     .click(photoedit.dialogClose);
 });
