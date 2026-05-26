@@ -10,6 +10,7 @@ import AlbumDialog from "../page-model/dialog-album";
 import { helperBeforeEach, helperAfterEach, helperRemoveAlbum, helperRevertAlbum, helperRevertPhoto } from "../page-model/helpers";
 
 fixture`Test moments`
+.page`${testcafeconfig.url}`
 .beforeEach(async t => {
   await helperBeforeEach(t);
 })
