@@ -7,6 +7,7 @@ import ContextMenu from "./context-menu";
 import ShareDialog from "./dialog-share";
 import Photo from "./photo";
 import PhotoViewer from "./photoviewer";
+import { helperRevertAlbum } from "./helpers";
 
 const logger = RequestLogger(/http:\/\/localhost:2343\/api\/v1\/*/, {
   logResponseHeaders: true,
@@ -185,6 +186,7 @@ export default class Page {
           continue;
         }
         foundSuitableAlbum = true;
+        await helperRevertAlbum(t, AlbumUid);
 
         await photoviewerHelper.openPhotoViewer("uid", CoverPhotoUid);
         await photoviewerHelper.checkPhotoViewerActionAvailability("cover", true);

@@ -20,8 +20,8 @@ fixture`Test photos`
 })
 .afterEach(async t => {
   await helperAfterEach(t);
-})
-;
+});
+
 const menu = new Menu();
 const toolbar = new Toolbar();
 const contextmenu = new ContextMenu();

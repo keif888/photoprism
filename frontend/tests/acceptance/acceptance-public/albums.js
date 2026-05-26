@@ -39,7 +39,7 @@ test.meta("testID", "albums-001").meta({ type: "short", mode: "public" })("Commo
   await toolbar.triggerToolbarAction("add");
   const AlbumCountAfterCreate = await album.getAlbumCount("all");
   const NewAlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRemoveAlbum(t, NewAlbumUid);
+  await helperRemoveAlbum(t, "uid", NewAlbumUid);
 
   await t.expect(AlbumCountAfterCreate).eql(AlbumCount + 1);
 
@@ -73,6 +73,7 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
   await photo.selectPhotoFromUID(SecondPhotoUid);
   await photo.selectPhotoFromUID(FirstPhotoUid);
   await contextmenu.triggerContextMenuAction("album", "NotYetExistingAlbum");
+  await helperRemoveAlbum(t, "name", "NotYetExistingAlbum");
 
   await page.clickCardTitleOfUID(FirstPhotoUid);
 
@@ -91,7 +92,6 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
 
   await toolbar.search("NotYetExistingAlbum");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRemoveAlbum(t, AlbumUid);
   await album.openAlbumWithUid(AlbumUid);
   await toolbar.triggerToolbarAction("delete");
   await t.navigateTo("/library/albums");
@@ -193,6 +193,7 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await photoviewer.triggerPhotoViewerAction("select-toggle");
   await photoviewer.triggerPhotoViewerAction("close-button");
   await contextmenu.triggerContextMenuAction("album", ["Holiday", "Christmas", "Food"]);
+  await helperRemoveAlbum(t, "name", "Food");
 
   // Verify photos were added to Holiday album
   await menu.openPage("albums");
@@ -264,7 +265,6 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await menu.openPage("albums");
   await toolbar.search("Food");
   const FoodUid = await album.getNthAlbumUid("all", 0);
-  await helperRemoveAlbum(t, FoodUid);
   await album.selectAlbumFromUID(FoodUid);
   await contextmenu.triggerContextMenuAction("delete", "");
 
