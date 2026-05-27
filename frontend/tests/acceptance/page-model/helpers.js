@@ -62,10 +62,14 @@ export function helperBeforeEach(t) {
 
 // this function stores the current information about a photo that will need to be reverted.
 export async function helperRevertAlbum (t, uid) {
+  // Get the album details
   const apiResponse = await t.request(`${testcafeconfig.api}albums/${uid}`);
+  // Get the list of 1st 50 photos.  If there are more than 50, it's not acceptance!
+  const photoApiResponse = await t.request(`${testcafeconfig.api}photos?count=50&offset=0&s=${uid}`);
   const revertAlbum = {
     "uid": uid,
-    "data": apiResponse.body
+    "data": apiResponse.body,
+    "photos": photoApiResponse.body
   }
   t.ctx.testChanges.revertAlbums.push(revertAlbum);
 }
@@ -134,15 +138,76 @@ export async function helperAfterEach(t) {
   logMessage("helperAfterEach Queued Requests");
   logMessage(JSON.stringify(t.ctx.testChanges));
   // Revert Albums state
-  for (const revertAlbum of t.ctx.testChanges.revertAlbums) {
-    const apiResponse = await t.request({
+  // This MAY result in a different UID if the album has been deleted, and it wasn't created by the current user.
+  for (let revertAlbum of t.ctx.testChanges.revertAlbums) {
+    let apiResponse = await t.request({
       url: `${testcafeconfig.api}albums/${revertAlbum.uid}`,
       method: 'put',
       body: revertAlbum.data
     });
+    if (apiResponse.status == 404) {
+      logMessage("Attempt to create the album");
+      let apiPostResponse = await t.request({
+        url: `${testcafeconfig.api}albums`,
+        method: 'post',
+        body: revertAlbum.data
+      });
+
+      if (apiPostResponse.status == 201) { // The Album has been created with a different UID!
+        logMessage("Need to handle newly created " + JSON.stringify(apiPostResponse));
+        revertAlbum.data.UID = apiPostResponse.body.UID;
+        revertAlbum.data.ID = apiPostResponse.body.ID;
+        revertAlbum.uid = apiPostResponse.body.UID;
+        if (revertAlbum.data.Thumb) {
+          revertAlbum.data.ThumbSrc = "manual"; // To revert a thumb it must be manual
+        }
+        // Updating the NEW album
+        apiResponse = await t.request({
+          url: `${testcafeconfig.api}albums/${revertAlbum.uid}`,
+          method: 'put',
+          body: revertAlbum.data
+        });
+        // ToDo: handle a bad apiResponse
+        if (apiResponse.status != 200 || apiResponse.status === null) { // Ignore Ok
+          logMessage("helperAfterEach revert albums " + JSON.stringify(apiResponse));
+        }
+      }
+    }
     // ToDo: handle a bad apiResponse
     if (apiResponse.status != 200 || apiResponse.status === null) { // Ignore Ok
       logMessage("helperAfterEach revert albums " + JSON.stringify(apiResponse));
+    }
+    // Restore the photos connections
+    let photos = [];
+    for (const photo of revertAlbum.photos) {
+      photos.push(photo.UID);
+    }
+    if (photos.length > 0){
+      const photoApiResponse = await t.request({
+        url: `${testcafeconfig.api}albums/${revertAlbum.uid}/photos`,
+        method: 'post',
+        body: { "photos": photos }
+      });
+      // ToDo: handle a bad apiResponse
+      if (photoApiResponse.status != 200 || photoApiResponse.status === null) { // Ignore Ok
+        logMessage("helperAfterEach revert albums photos " + JSON.stringify(photoApiResponse));
+      }
+      logMessage("2nd Attempt to put album");
+      // Try updating the album again in case the thumb was from a removed photo.
+      if (revertAlbum.data.Thumb) {
+        revertAlbum.data.ThumbSrc = "manual"; // To revert a thumb it must be manual
+      }
+
+      let apiResponse = await t.request({
+        url: `${testcafeconfig.api}albums/${revertAlbum.uid}`,
+        method: 'put',
+        body: revertAlbum.data
+      });
+      // ToDo: handle a bad apiResponse
+      if (apiResponse.status != 200 || apiResponse.status === null) { // Ignore Ok
+        logMessage("helperAfterEach revert albums " + JSON.stringify(apiResponse));
+      }
+
     }
   }
   
