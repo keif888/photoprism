@@ -104,7 +104,7 @@ export async function helperRemoveAlbum (t, how, id) {
 
 // this function stores the need to remove a label from a photo.
 export async function helperRemoveLabelFromPhotos (t, labelUid, photoUid) {
-  if (labelUid.length > 0) {
+  if (photoUid.length > 0) {
     if (!isNaN(+labelUid)) {
       const removeLabelFromPhoto = {
         "labelUid": labelUid,
@@ -135,8 +135,7 @@ export async function helperRemoveLabel (t, name) {
 
 // This function will undo what the test has done (to the best of it's ability)
 export async function helperAfterEach(t) {
-  logMessage("helperAfterEach Queued Requests");
-  logMessage(JSON.stringify(t.ctx.testChanges));
+  logMessage("helperAfterEach Queued Requests " + JSON.stringify(t.ctx.testChanges));
   // Revert Albums state
   // This MAY result in a different UID if the album has been deleted, and it wasn't created by the current user.
   for (let revertAlbum of t.ctx.testChanges.revertAlbums) {
@@ -146,7 +145,6 @@ export async function helperAfterEach(t) {
       body: revertAlbum.data
     });
     if (apiResponse.status == 404) {
-      logMessage("Attempt to create the album");
       let apiPostResponse = await t.request({
         url: `${testcafeconfig.api}albums`,
         method: 'post',
@@ -154,7 +152,6 @@ export async function helperAfterEach(t) {
       });
 
       if (apiPostResponse.status == 201) { // The Album has been created with a different UID!
-        logMessage("Need to handle newly created " + JSON.stringify(apiPostResponse));
         revertAlbum.data.UID = apiPostResponse.body.UID;
         revertAlbum.data.ID = apiPostResponse.body.ID;
         revertAlbum.uid = apiPostResponse.body.UID;
@@ -192,7 +189,6 @@ export async function helperAfterEach(t) {
       if (photoApiResponse.status != 200 || photoApiResponse.status === null) { // Ignore Ok
         logMessage("helperAfterEach revert albums photos " + JSON.stringify(photoApiResponse));
       }
-      logMessage("2nd Attempt to put album");
       // Try updating the album again in case the thumb was from a removed photo.
       if (revertAlbum.data.Thumb) {
         revertAlbum.data.ThumbSrc = "manual"; // To revert a thumb it must be manual
@@ -233,7 +229,7 @@ export async function helperAfterEach(t) {
     for (const label of apiResponse.body.Labels) {
       const exists = revertPhoto.data.Labels.some(slug => slug.Label.Slug === label.Label.Slug);
       if (!exists) {
-        helperRemoveLabelFromPhotos(t, label.Label.ID, revertPhoto.uid);
+        await helperRemoveLabelFromPhotos(t, label.Label.ID, revertPhoto.uid);
       }
     }
     // Add
@@ -252,6 +248,17 @@ export async function helperAfterEach(t) {
               "Thumb": label.Label.Thumb,
               "ThumbSrc": label.ThumbSrc,
               "Uncertanty": label.Label.Uncertanty
+          }
+        });
+        if (labelApiResponse.status != 200 || labelApiResponse.status === null) { // Ignore Ok
+          logMessage("helperAfterEach add label " + JSON.stringify(labelApiResponse));
+        }
+      } else {
+        const labelApiResponse = await t.request({
+          url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
+          method: 'put',
+          body: {
+              "Uncertanty": 1 // Although this doesn't match the previous number, it forces a manual label back into place.  All that can be done.
           }
         });
         if (labelApiResponse.status != 200 || labelApiResponse.status === null) { // Ignore Ok
@@ -301,11 +308,9 @@ export async function helperAfterEach(t) {
         const rFile = revertPhoto.data.Files.find(fileI => fileI.UID === file.UID)
         if (rFile) {
           const rMarker = rFile.Markers.find(m => m.UID === marker.UID && m.FileUID === marker.FileUID);
-          logMessage("helperAfterEach rMarker (1)" + JSON.stringify(rMarker));
           var markerApiResponse;
           if (rMarker) {
             // reset
-            logMessage(`reset ${testcafeconfig.api}markers/${rMarker.UID}`);
             markerApiResponse = await t.request({
               url: `${testcafeconfig.api}markers/${rMarker.UID}`,
               method: 'put',
@@ -313,7 +318,6 @@ export async function helperAfterEach(t) {
             });
           } else {
             // inactivate
-            logMessage(`invalidate ${testcafeconfig.api}markers/${marker.UID}`);
             markerApiResponse = await t.request({
               url: `${testcafeconfig.api}markers/${marker.UID}`,
               method: 'put',
@@ -332,8 +336,6 @@ export async function helperAfterEach(t) {
     for (const file of revertPhoto.data.Files) {
       for (const marker of file.Markers) {
         const rMarker = apiResponse.body.Files.find(file => file.Markers.UID === marker.UID && file.Markers.FileUID === marker.FileUID);
-        logMessage("helperAfterEach rMarker (2)" + JSON.stringify(rMarker));
-        logMessage(`reset ${testcafeconfig.api}markers/${marker.UID}`);
         const markerApiResponse = await t.request({
             url: `${testcafeconfig.api}markers/${marker.UID}`,
             method: 'put',
@@ -382,7 +384,6 @@ export async function helperAfterEach(t) {
     if (listApiResponse.status != 200 || listApiResponse.status === null) { // Ignore Ok
       logMessage("helperAfterEach list albums " + JSON.stringify(listApiResponse));
     }
-    logMessage("remove album " + JSON.stringify(listApiResponse));
     for (const album of listApiResponse.body) {
       const apiResponse = await t.request({
         url: `${testcafeconfig.api}albums/${album.UID}`,
