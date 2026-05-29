@@ -13,29 +13,30 @@ type Codec = string
 // - https://cconcolato.github.io/media-mime-support/
 // - https://thorium.rocks/misc/h265-tester.html
 const (
-	CodecUnknown Codec = ""
-	CodecAvc1    Codec = "avc1" // Advanced Video Coding (AVC), also known as H.264
-	CodecDva1    Codec = "dva1" // AVC-based Dolby Vision derived from avc1
-	CodecAvc2    Codec = "avc2" // Advanced Video Coding (AVC), might not be fully supported on macOS
-	CodecAvc3    Codec = "avc3" // Advanced Video Coding (AVC), might not be fully supported on macOS
-	CodecAvc4    Codec = "avc4" // Advanced Video Coding (AVC), might not be fully supported on macOS
-	CodecDvav    Codec = "dvav" // AVC-based Dolby Vision derived from avc3
-	CodecHvc1    Codec = "hvc1" // High Efficiency Video Coding (HEVC), also known as H.265
-	CodecDvh1    Codec = "dvh1" // HEVC-based Dolby Vision derived from hvc1
-	CodecHvc2    Codec = "hvc2" // HEVC video with constrained extractors and/or aggregators and parameter sets only in the Sample Entry
-	CodecHvc3    Codec = "hvc3" // HEVC video with extractors and/or aggregators and parameter sets only in the Sample Entry
-	CodecHev1    Codec = "hev1" // HEVC video with parameter sets also in the Samples, not supported on macOS
-	CodecDvhe    Codec = "dvhe" // HEVC-based Dolby Vision derived from hev1
-	CodecHev2    Codec = "hev2" // HEVC video with constrained extractors and/or aggregators and parameter sets in the Sample Entry or samples
-	CodecHev3    Codec = "hev3" // HEVC video with extractors and/or aggregators and parameter sets in the Sample Entry or samples
-	CodecVvc1    Codec = "vvc1" // Versatile Video Coding (VVC), also known as H.266
-	CodecEvc1    Codec = "evc1" // MPEG-5 Essential Video Coding (EVC), also known as ISO/IEC 23094-1
-	CodecAv01    Codec = "av01" // AOMedia Video 1 (AV1)
-	CodecVp08    Codec = "vp08" // Google VP8
-	CodecVp09    Codec = "vp09" // Google VP9
-	CodecTheora  Codec = "ogv"  // Ogg Vorbis Video
-	CodecM2TS    Codec = "m2t"  // MPEG-2 Transport Stream
-	CodecWebm    Codec = "webm" // Google WebM
+	CodecUnknown  Codec = ""
+	CodecAvc1     Codec = "avc1"     // Advanced Video Coding (AVC), also known as H.264
+	CodecDva1     Codec = "dva1"     // AVC-based Dolby Vision derived from avc1
+	CodecAvc2     Codec = "avc2"     // Advanced Video Coding (AVC), might not be fully supported on macOS
+	CodecAvc3     Codec = "avc3"     // Advanced Video Coding (AVC), might not be fully supported on macOS
+	CodecAvc4     Codec = "avc4"     // Advanced Video Coding (AVC), might not be fully supported on macOS
+	CodecDvav     Codec = "dvav"     // AVC-based Dolby Vision derived from avc3
+	CodecHvc1     Codec = "hvc1"     // High Efficiency Video Coding (HEVC), also known as H.265
+	CodecDvh1     Codec = "dvh1"     // HEVC-based Dolby Vision derived from hvc1
+	CodecHvc2     Codec = "hvc2"     // HEVC video with constrained extractors and/or aggregators and parameter sets only in the Sample Entry
+	CodecHvc3     Codec = "hvc3"     // HEVC video with extractors and/or aggregators and parameter sets only in the Sample Entry
+	CodecHev1     Codec = "hev1"     // HEVC video with parameter sets also in the Samples, not supported on macOS
+	CodecDvhe     Codec = "dvhe"     // HEVC-based Dolby Vision derived from hev1
+	CodecHev2     Codec = "hev2"     // HEVC video with constrained extractors and/or aggregators and parameter sets in the Sample Entry or samples
+	CodecHev3     Codec = "hev3"     // HEVC video with extractors and/or aggregators and parameter sets in the Sample Entry or samples
+	CodecVvc1     Codec = "vvc1"     // Versatile Video Coding (VVC), also known as H.266
+	CodecEvc1     Codec = "evc1"     // MPEG-5 Essential Video Coding (EVC), also known as ISO/IEC 23094-1
+	CodecAv01     Codec = "av01"     // AOMedia Video 1 (AV1)
+	CodecVp08     Codec = "vp08"     // Google VP8
+	CodecVp09     Codec = "vp09"     // Google VP9
+	CodecTheora   Codec = "ogv"      // Ogg Vorbis Video
+	CodecM2TS     Codec = "m2t"      // MPEG-2 Transport Stream
+	CodecWebm     Codec = "webm"     // Google WebM
+	CodecMagicYUV Codec = "magicyuv" // MagicYUV lossless video
 )
 
 // Codecs maps supported string identifiers to standard Codec types.
@@ -122,6 +123,15 @@ var Codecs = StandardCodecs{
 	"theora":           CodecTheora,
 	"v_theora":         CodecTheora,
 	CodecWebm:          CodecWebm,
+	CodecMagicYUV:      CodecMagicYUV,
+	"m8rg":             CodecMagicYUV, // RGB
+	"m8ra":             CodecMagicYUV, // RGBA
+	"m8rb":             CodecMagicYUV, // RGB (alt)
+	"m8y0":             CodecMagicYUV, // YUV 4:2:0
+	"m8y2":             CodecMagicYUV, // YUV 4:2:2
+	"m8y4":             CodecMagicYUV, // YUV 4:4:4
+	"m8ya":             CodecMagicYUV, // YUVA 4:4:4:4
+	"m8g0":             CodecMagicYUV, // Grayscale
 }
 
 // StandardCodecs maps strings to codec types.

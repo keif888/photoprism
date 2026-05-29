@@ -37,15 +37,22 @@ func UpdateUser(router *gin.RouterGroup) {
 			return
 		}
 
-		// Check if the session user is allowed to manage all accounts or update his/her own account.
+		// Require user management or own-account update access.
 		s := AuthAny(c, acl.ResourceUsers, acl.Permissions{acl.ActionManage, acl.AccessOwn, acl.ActionUpdate, acl.ActionUpdateOwn})
 
 		if s.Abort(c) {
 			return
 		}
 
-		// UserUID.
+		// Check whether the role can manage all user accounts.
+		isAdmin := acl.Rules.AllowAll(acl.ResourceUsers, s.GetUserRole(), acl.Permissions{acl.AccessAll, acl.ActionManage})
 		uid := clean.UID(c.Param("uid"))
+
+		// Non-admin users may only update their own profile.
+		if !isAdmin && s.GetUser().UserUID != uid {
+			AbortForbidden(c)
+			return
+		}
 
 		// Find user.
 		m := entity.FindUserByUID(uid)
@@ -55,7 +62,7 @@ func UpdateUser(router *gin.RouterGroup) {
 			return
 		}
 
-		// Init form with model values.
+		// Initialize form with model values.
 		f, err := m.Form()
 
 		if err != nil {
@@ -77,8 +84,6 @@ func UpdateUser(router *gin.RouterGroup) {
 			return
 		}
 
-		// Check if the session user has user management privileges.
-		isAdmin := acl.Rules.AllowAll(acl.ResourceUsers, s.GetUserRole(), acl.Permissions{acl.AccessAll, acl.ActionManage})
 		privilegeLevelChange := isAdmin && m.PrivilegeLevelChange(f)
 
 		// Check if the user account quota has been exceeded.
@@ -91,7 +96,7 @@ func UpdateUser(router *gin.RouterGroup) {
 		// Get user from session.
 		u := s.GetUser()
 
-		// Save model with values from form.
+		// Persist form values.
 		if err = m.SaveForm(f, u); err != nil {
 			event.AuditErr([]string{ClientIP(c), "session %s", "users", m.UserName, "update", err.Error()}, s.RefID)
 			AbortSaveFailed(c)

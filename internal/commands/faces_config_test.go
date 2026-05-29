@@ -8,6 +8,11 @@ import (
 )
 
 func TestFacesConfigCommand(t *testing.T) {
+	// "faces config" calls InitCore, which creates storage dirs and an index database under
+	// ".photoprism" in the working directory when no storage path is set; run from a temp
+	// dir so the test does not leave files in the repository.
+	t.Chdir(t.TempDir())
+
 	output, err := RunWithTestContext(FacesConfigCommand, []string{})
 
 	if err != nil {
@@ -28,6 +33,11 @@ func TestFacesConfigCommand(t *testing.T) {
 }
 
 func TestFacesConfigCommandJSON(t *testing.T) {
+	// "faces config" calls InitCore, which creates storage dirs and an index database under
+	// ".photoprism" in the working directory when no storage path is set; run from a temp
+	// dir so the test does not leave files in the repository.
+	t.Chdir(t.TempDir())
+
 	output, err := RunWithTestContext(FacesConfigCommand, []string{"config", "--json"})
 
 	if err != nil {

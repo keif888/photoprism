@@ -31,7 +31,7 @@ func (w *Convert) PngConvertCmds(f *MediaFile, pngName string) (result ConvertCm
 	}
 
 	// Use FFmpeg to extract video stills from videos, e.g. to use them as cover images.
-	if f.IsAnimated() && !f.IsWebp() && w.conf.FFmpegEnabled() {
+	if f.IsAnimated() && !f.IsWebp() && w.conf.FFmpegEnabled() && w.FFmpegAllowed(f) {
 		// Use "ffmpeg" to extract a PNG still image from the video.
 		result = append(result, NewConvertCmd(
 			ffmpeg.ExtractPngImageCmd(f.FileName(), pngName, encode.NewPreviewImageOptions(w.conf.FFmpegBin(), f.Duration()))),

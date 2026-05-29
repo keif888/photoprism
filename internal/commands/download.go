@@ -261,6 +261,12 @@ func downloadAction(ctx *cli.Context) error {
 				continue
 			}
 
+			if ffmpeg.Exclude().Contains(result.Info.VCodec, result.Info.Ext, result.Info.Container) {
+				log.Warnf("skipping %s because format %s is on the FFmpeg exclude list", clean.Log(u.String()), clean.Log(result.Info.VCodec))
+				failures++
+				continue
+			}
+
 			// Best-effort creation time for file method when not remuxing locally.
 			if ytRemux {
 				if created := dl.CreatedFromInfo(result.Info); !created.IsZero() {

@@ -40,20 +40,28 @@ func UploadUserAvatar(router *gin.RouterGroup) {
 			return
 		}
 
+		// Require user management or own-account access.
 		s := AuthAny(c, acl.ResourceUsers, acl.Permissions{acl.ActionManage, acl.AccessOwn})
 
 		if s.Abort(c) {
 			return
 		}
 
-		// Check if the session user is has user management privileges.
+		// Check whether the role can manage all user accounts.
 		isAdmin := acl.Rules.AllowAll(acl.ResourceUsers, s.GetUserRole(), acl.Permissions{acl.AccessAll, acl.ActionManage})
 		uid := clean.UID(c.Param("uid"))
 
-		// Users may only change their own avatar.
+		// Non-admin users may only change their own avatar.
 		if !isAdmin && s.GetUser().UserUID != uid {
 			event.AuditErr([]string{ClientIP(c), "session %s", "upload avatar", "user does not match"}, s.RefID)
 			AbortForbidden(c)
+			return
+		}
+
+		// Abort if there is not enough free storage to upload a new avatar.
+		if conf.InsufficientStorage() {
+			event.AuditErr([]string{ClientIP(c), "session %s", "upload avatar", status.InsufficientStorage}, s.RefID)
+			Abort(c, http.StatusInsufficientStorage, i18n.ErrInsufficientStorage)
 			return
 		}
 

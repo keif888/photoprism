@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -25,6 +26,8 @@ import (
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
+var postgresSupportWarnOnce sync.Once
+
 // Auto requests automatic detection of an implementation-defined default
 // (e.g. the database driver). The canonical SQL driver identifiers live in
 // pkg/dsn (dsn.DriverMySQL, dsn.DriverSQLite3, …).
@@ -37,7 +40,13 @@ func (c *Config) DatabaseDriver() string {
 	switch dsn.ParseDriver(c.options.DatabaseDriver) {
 	case dsn.DriverMySQL, dsn.DriverMariaDB:
 		c.options.DatabaseDriver = dsn.DriverMySQL
-	case dsn.DriverSQLite3:
+	case dsn.DriverPostgres:
+		// See issue #47 and <https://github.com/photoprism/photoprism/pull/4831>.
+		postgresSupportWarnOnce.Do(func() {
+			log.Warnf("config: support for PostgreSQL is not yet available in this version")
+		})
+		c.options.DatabaseDriver = dsn.DriverPostgres
+	case dsn.DriverSQLite3, dsn.DriverNone, dsn.DriverAuto:
 		c.options.DatabaseDriver = dsn.DriverSQLite3
 	case dsn.DriverTiDB:
 		log.Warnf("config: database driver 'tidb' is deprecated, using sqlite")
@@ -58,10 +67,14 @@ func (c *Config) DatabaseDriverName() string {
 	switch c.DatabaseDriver() {
 	case dsn.DriverMySQL:
 		return "MariaDB"
+	case dsn.DriverPostgres:
+		return "PostgreSQL"
 	case dsn.DriverSQLite3:
 		return "SQLite"
+	case dsn.DriverAuto:
+		return "Auto"
 	default:
-		return "unsupported database"
+		return "Unsupported"
 	}
 }
 
@@ -130,13 +143,19 @@ func (c *Config) DatabaseDSN() string {
 				c.DatabaseTimeout(),
 			)
 		case dsn.DriverPostgres:
+			databaseServer := c.DatabaseServer()
+			d := dsn.DSN{
+				Driver: dsn.DriverPostgres,
+				Server: databaseServer,
+			}
+
 			return fmt.Sprintf(
 				"user=%s password=%s dbname=%s host=%s port=%d connect_timeout=%d %s",
 				c.DatabaseUser(),
 				c.DatabasePassword(),
 				c.DatabaseName(),
-				c.DatabaseHost(),
-				c.DatabasePort(),
+				d.Host(),
+				d.Port(),
 				c.DatabaseTimeout(),
 				dsn.Params[dsn.DriverPostgres],
 			)

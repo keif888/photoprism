@@ -9,7 +9,7 @@ The following 3rd-party software packages may be used by or distributed with
 PhotoPrism. Any information relevant to third-party vendors listed below are
 collected using common, reasonable means.
 
-Date generated: 2026-05-20
+Date generated: 2026-05-26
 
 ================================================================================
 
@@ -2387,8 +2387,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 --------------------------------------------------------------------------------
 
 Package: github.com/golang/geo
-Version: v0.0.0-20260512202753-e3c51de6d1b6
-License: Apache-2.0 (https://github.com/golang/geo/blob/e3c51de6d1b6/LICENSE)
+Version: v0.0.0-20260526120156-e21b7802b0ee
+License: Apache-2.0 (https://github.com/golang/geo/blob/e21b7802b0ee/LICENSE)
 
 
                                  Apache License
@@ -4723,8 +4723,8 @@ SOFTWARE.
 --------------------------------------------------------------------------------
 
 Package: github.com/modelcontextprotocol/go-sdk
-Version: v1.6.0
-License: Apache-2.0 (https://github.com/modelcontextprotocol/go-sdk/blob/v1.6.0/LICENSE)
+Version: v1.6.1
+License: Apache-2.0 (https://github.com/modelcontextprotocol/go-sdk/blob/v1.6.1/LICENSE)
 
 The MCP project is undergoing a licensing transition from the MIT License to the Apache License, Version 2.0 ("Apache-2.0"). All new code and specification contributions to the project are licensed under Apache-2.0. Documentation contributions (excluding specifications) are licensed under CC-BY-4.0.
 
@@ -9025,8 +9025,8 @@ License: Apache-2.0 (https://github.com/go4org/go4/blob/a5071408f32f/LICENSE)
 --------------------------------------------------------------------------------
 
 Package: golang.org/x/crypto
-Version: v0.51.0
-License: BSD-3-Clause (https://cs.opensource.google/go/x/crypto/+/v0.51.0:LICENSE)
+Version: v0.52.0
+License: BSD-3-Clause (https://cs.opensource.google/go/x/crypto/+/v0.52.0:LICENSE)
 
 Copyright 2009 The Go Authors.
 
@@ -9059,8 +9059,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 
 Package: golang.org/x/image
-Version: v0.40.0
-License: BSD-3-Clause (https://cs.opensource.google/go/x/image/+/v0.40.0:LICENSE)
+Version: v0.41.0
+License: BSD-3-Clause (https://cs.opensource.google/go/x/image/+/v0.41.0:LICENSE)
 
 Copyright 2009 The Go Authors.
 
@@ -9127,8 +9127,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 
 Package: golang.org/x/net
-Version: v0.54.0
-License: BSD-3-Clause (https://cs.opensource.google/go/x/net/+/v0.54.0:LICENSE)
+Version: v0.55.0
+License: BSD-3-Clause (https://cs.opensource.google/go/x/net/+/v0.55.0:LICENSE)
 
 Copyright 2009 The Go Authors.
 
@@ -9229,8 +9229,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------
 
 Package: golang.org/x/sys
-Version: v0.44.0
-License: BSD-3-Clause (https://cs.opensource.google/go/x/sys/+/v0.44.0:LICENSE)
+Version: v0.45.0
+License: BSD-3-Clause (https://cs.opensource.google/go/x/sys/+/v0.45.0:LICENSE)
 
 Copyright 2009 The Go Authors.
 
