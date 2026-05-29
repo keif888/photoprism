@@ -81,7 +81,8 @@ export async function helperRevertAlbum (t, uid) {
 // Automatically generated titles may be updated to match new format (over old in acceptance data), or reflect labels reverted
 // Labels will change type and uncertainty if they were not manual and need to be reverted
 // Updated timestamps will change
-// 
+// Can not restack a file that has been unstacked from a photo
+// Can not undelete a file that has been deleted from a photo
 export async function helperRevertPhoto (t, uid) {
   logMessage(`helperRevertPhoto (t, ${uid})`);
   const apiResponse = await t.request(`${testcafeconfig.api}photos/${uid}`);
@@ -383,6 +384,20 @@ export async function helperAfterEach(t) {
         if (markerApiResponse.status != 200 || markerApiResponse.status === null) { // Ignore Ok
           logMessage("helperAfterEach sync markers (2) " + JSON.stringify(markerApiResponse));
         }
+      }
+    }
+
+    // Revert any changes to Primary file.
+    const originalPrimary = revertPhoto.data.Files.find((element) => element.Primary == true).UID
+    const currentPrimary = apiResponse.body.Files.find((element) => element.Primary == true).UID
+    if (originalPrimary != currentPrimary) {
+      const primaryApiResponse = await t.request({
+        url: `${testcafeconfig.api}photos/${revertPhoto.uid}/files/${originalPrimary}/primary`,
+        method: 'post'
+      });
+      // ToDo: handle a bad apiResponse
+      if (primaryApiResponse.status != 200 || primaryApiResponse.status === null) { // Ignore Ok
+        logMessage("helperAfterEach revert photo primary " + JSON.stringify(primaryApiResponse));
       }
     }
 

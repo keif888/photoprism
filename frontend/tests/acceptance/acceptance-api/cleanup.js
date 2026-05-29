@@ -866,3 +866,49 @@ test.meta("testID", "cleanup-011").meta({ type: "short", mode: "api" })("Common:
     cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
     await t.expect(afterPhotoResponse).eql(beforeArchivePhotoResponse);
 })
+
+test.meta("testID", "cleanup-012").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert primary", async (t) => {
+    await helperBeforeEach(t);
+    let beforePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 1,
+          q: `stacks`
+        }
+      });
+    await t.expect(beforePhotoResponse.status).eql(200);
+    const photoUID = beforePhotoResponse.body[0].UID;
+    beforePhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(beforePhotoResponse.status).eql(200);
+
+    await helperRevertPhoto(t, photoUID);
+
+    const currentPrimary = beforePhotoResponse.body.Files.find((element) => element.Primary == true).UID
+    const targetPrimary = beforePhotoResponse.body.Files.find((element) => element.Primary == false).UID
+
+    let apiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${photoUID}/files/${targetPrimary}/primary`,
+      method: 'post'
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+    await helperAfterEach(t);
+
+    let afterPhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(afterPhotoResponse).notEql(beforePhotoResponse);
+    // Remove the fields that are impacted by changes
+    delete beforePhotoResponse.headers["content-length"]; // Will change (timestamp)
+    delete afterPhotoResponse.headers["content-length"];
+    delete beforePhotoResponse.headers.date; // May change if second ticks over
+    delete afterPhotoResponse.headers.date;
+    delete beforePhotoResponse.body.UpdatedAt;
+    delete afterPhotoResponse.body.UpdatedAt;
+    delete beforePhotoResponse.body.EditedAt;
+    delete afterPhotoResponse.body.EditedAt;
+    delete beforePhotoResponse.body.Details.UpdatedAt;
+    delete afterPhotoResponse.body.Details.UpdatedAt;
+    cleanAlbumsFilesAndLabels(beforePhotoResponse.body);
+    cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
+    await t.expect(afterPhotoResponse).eql(beforePhotoResponse);
+})
