@@ -8,8 +8,16 @@ import Page from "../page-model/page";
 import PhotoEdit from "../page-model/photo-edit";
 import Library from "../page-model/library";
 import Notifies from "../page-model/notifications";
+import { helperBeforeEach, helperAfterEach, helperRevertPhoto } from "../page-model/helpers";
 
-fixture`Test stacks`.page`${testcafeconfig.url}`;
+fixture`Test stacks`
+.page`${testcafeconfig.url}`
+.beforeEach(async t => {
+  await helperBeforeEach(t);
+})
+.afterEach(async t => {
+  await helperAfterEach(t);
+});
 
 const menu = new Menu();
 const toolbar = new Toolbar();
@@ -41,6 +49,7 @@ test.meta("testID", "stacks-001").meta({ type: "short", mode: "public" })(
 test.meta("testID", "stacks-002").meta({ type: "short", mode: "public" })("Common: Change primary file", async (t) => {
   await toolbar.search("ski");
   const SequentialPhotoUid = await photo.getNthPhotoUid("all", 0);
+  await helperRevertPhoto(t, SequentialPhotoUid);
   await t.click(toolbar.cardsViewAction);
   await page.clickCardTitleOfUID(SequentialPhotoUid);
   await t.click(photoedit.filesTab);
