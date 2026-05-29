@@ -77,6 +77,11 @@ export async function helperRevertAlbum (t, uid) {
 }
 
 // this function stores the current information about a photo that will need to be reverted.
+// Known issues after executing helperAfterEach:
+// Automatically generated titles may be updated to match new format (over old in acceptance data), or reflect labels reverted
+// Labels will change type and uncertainty if they were not manual and need to be reverted
+// Updated timestamps will change
+// 
 export async function helperRevertPhoto (t, uid) {
   logMessage(`helperRevertPhoto (t, ${uid})`);
   const apiResponse = await t.request(`${testcafeconfig.api}photos/${uid}`);
@@ -129,6 +134,7 @@ export async function helperRemoveLabelFromPhotos (t, labelUid, photoUid) {
 }
 
 // this function stores the need to remove a label from ALL photos.
+// Please note that this may leave invalid titles on photos.
 export async function helperRemoveLabel (t, name) {
   logMessage(`helperRemoveLabel (t, ${name})`);
   const removeLabel = {
@@ -139,6 +145,7 @@ export async function helperRemoveLabel (t, name) {
 
 
 // This function will undo what the test has done (to the best of it's ability)
+// as requested by the helperRemove and helperRevert functions.
 export async function helperAfterEach(t) {
   logMessage("helperAfterEach Queued Requests " + JSON.stringify(t.ctx.testChanges));
   // Revert Albums state

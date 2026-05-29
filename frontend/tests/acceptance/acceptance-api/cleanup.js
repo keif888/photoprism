@@ -225,7 +225,7 @@ test.meta("testID", "cleanup-004").meta({ type: "short", mode: "api" })("Common:
 test.meta("testID", "cleanup-005").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert Labels", async (t) => {
     await helperBeforeEach(t);
     const stamp = Date.now();
-    const labelTitle = `SidebarEditLabel-${stamp}`;
+    const labelTitle = `CleanupLabel-${stamp}`;
     let beforePhotoResponse = await t.request({
         url: `${testcafeconfig.api}photos`,
         method: 'get',
@@ -290,7 +290,7 @@ test.meta("testID", "cleanup-005").meta({ type: "short", mode: "api" })("Common:
 test.meta("testID", "cleanup-006").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert manual deleted Label", async (t) => {
     await helperBeforeEach(t);
     const stamp = Date.now();
-    const labelTitle = `SidebarEditLabel-${stamp}`;
+    const labelTitle = `CleanupLabel-${stamp}`;
     let beforePhotoResponse = await t.request({
         url: `${testcafeconfig.api}photos`,
         method: 'get',
@@ -365,7 +365,7 @@ test.meta("testID", "cleanup-006").meta({ type: "short", mode: "api" })("Common:
 test.meta("testID", "cleanup-007").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert Albums", async (t) => {
     await helperBeforeEach(t);
     const stamp = Date.now();
-    const albumTitle = `SidebarEditAlbum-${stamp}`;
+    const albumTitle = `CleanupAlbum-${stamp}`;
     let beforePhotoResponse = await t.request({
         url: `${testcafeconfig.api}photos`,
         method: 'get',
@@ -446,6 +446,8 @@ test.meta("testID", "cleanup-007").meta({ type: "short", mode: "api" })("Common:
     await t.expect(albumApiResponse.status).eql(404);
 })
 
+// This test can fail due to order of label results changing (which testcafe thinks is an actual change),
+// or if a named person is chosen, then the title can change, assuming the original title isn't up to date.
 test.meta("testID", "cleanup-008").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert Markers", async (t) => {
     await helperBeforeEach(t);
     let beforePhotoResponse = await t.request({
@@ -453,7 +455,7 @@ test.meta("testID", "cleanup-008").meta({ type: "short", mode: "api" })("Common:
         method: 'get',
         params: {
           count: 1,
-          q: `faces:1`
+          q: `faces:new` // faces:new so that the title can't change, and labels are less likely to change order.
         }
       });
     await t.expect(beforePhotoResponse.status).eql(200);
@@ -541,5 +543,203 @@ test.meta("testID", "cleanup-008").meta({ type: "short", mode: "api" })("Common:
       }
     }
     await t.expect(afterPhotoResponse).eql(beforePhotoResponse);
+
+})
+
+// This test will leave a junk album behind if it fails, as it's testing that manual albums are reverted correctly from a photo.
+test.meta("testID", "cleanup-009").meta({ type: "short", mode: "api" })("Common: Cleanup helperRemoveAlbum", async (t) => {
+    await helperBeforeEach(t);
+    const stamp = Date.now();
+    const albumTitle1 = `CleanupAlbum1-${stamp}`;
+    const albumTitle2 = `CleanupAlbum2-${stamp}`;
+
+    // Add a manual album
+    let albumApiResponse = await t.request({
+      url: `${testcafeconfig.api}albums`,
+      method: 'post',
+      body: {
+          "Caption": "cleanup-009",
+          "Title": albumTitle1
+      }
+    });
+    await t.expect(albumApiResponse.status).eql(201);
+    const newAlbum1UID = albumApiResponse.body.UID;
+
+    // Add a manual album
+    albumApiResponse = await t.request({
+      url: `${testcafeconfig.api}albums`,
+      method: 'post',
+      body: {
+          "Caption": "cleanup-009",
+          "Title": albumTitle2
+      }
+    });
+    await t.expect(albumApiResponse.status).eql(201);
+    const newAlbum2UID = albumApiResponse.body.UID;
+
+    await helperRemoveAlbum(t, "uid", newAlbum1UID);
+    await helperRemoveAlbum(t, "name", albumTitle2);
+
+    await helperAfterEach(t);
+
+    albumApiResponse = await t.request({
+      url: `${testcafeconfig.api}albums/${newAlbum1UID}`,
+      method: 'get'
+    });
+    await t.expect(albumApiResponse.status).eql(404);
+    albumApiResponse = await t.request({
+      url: `${testcafeconfig.api}albums/${newAlbum2UID}`,
+      method: 'get'
+    });
+    await t.expect(albumApiResponse.status).eql(404);
+})
+
+test.meta("testID", "cleanup-010").meta({ type: "short", mode: "api" })("Common: Cleanup helperRemoveLabelFromPhotos", async (t) => {
+    await helperBeforeEach(t);
+    const stamp = Date.now();
+    const label1Title = `CleanupLabel1-${stamp}`;
+    const label2Title = `CleanupLabel2-${stamp}`;
+    let beforePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 1,
+          q: `label:beach`
+        }
+      });
+    await t.expect(beforePhotoResponse.status).eql(200);
+    const photoUID = beforePhotoResponse.body[0].UID;
+    beforePhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(beforePhotoResponse.status).eql(200);
+
+    // Add a manual label
+    let labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${photoUID}/label`,
+      method: 'post',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": label1Title,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(200);
+    await helperRemoveLabelFromPhotos(t, labelApiResponse.body.Labels.find((element) => element.Label.Name == label1Title).Label.ID, photoUID);
+
+    // Add a manual label
+    labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${photoUID}/label`,
+      method: 'post',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": label2Title,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(200);
+    await helperRemoveLabelFromPhotos(t, labelApiResponse.body.Labels.find((element) => element.Label.Name == label2Title).Label.UID, photoUID);
+
+    await helperAfterEach(t);
+
+    const afterPhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(afterPhotoResponse).notEql(beforePhotoResponse);
+    // Remove the fields that are impacted by changes
+    delete beforePhotoResponse.headers["content-length"]; // Will change (timestamp)
+    delete afterPhotoResponse.headers["content-length"];
+    delete beforePhotoResponse.headers.date; // May change if second ticks over
+    delete afterPhotoResponse.headers.date;
+    delete beforePhotoResponse.body.UpdatedAt;
+    delete afterPhotoResponse.body.UpdatedAt;
+    delete beforePhotoResponse.body.EditedAt;
+    delete afterPhotoResponse.body.EditedAt;
+    delete beforePhotoResponse.body.Details.UpdatedAt;
+    delete afterPhotoResponse.body.Details.UpdatedAt;
+    cleanAlbumsFilesAndLabels(beforePhotoResponse.body);
+    cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
+    await t.expect(afterPhotoResponse).eql(beforePhotoResponse);
+})
+
+test.meta("testID", "cleanup-010").meta({ type: "short", mode: "api" })("Common: Cleanup helperRemoveLabel", async (t) => {
+    await helperBeforeEach(t);
+    const stamp = Date.now();
+    const labelTitle = `CleanupLabel-${stamp}`;
+    let beforePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 2,
+          q: `label:beach`
+        }
+      });
+    await t.expect(beforePhotoResponse.status).eql(200);
+    await t.expect(beforePhotoResponse.body.length).eql(2);
+    const photo1UID = beforePhotoResponse.body[0].UID;
+    const photo2UID = beforePhotoResponse.body[1].UID;
+
+    // Add a manual label
+    let labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${photo1UID}/label`,
+      method: 'post',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": labelTitle,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(200);
+    const label1UID = labelApiResponse.body.Labels.find((element) => element.Label.Name == labelTitle).Label.UID;
+
+    // Add a manual label
+    labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${photo2UID}/label`,
+      method: 'post',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": labelTitle,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(200);
+    const label2UID = labelApiResponse.body.Labels.find((element) => element.Label.Name == labelTitle).Label.UID;
+
+    await helperRemoveLabel(t, labelTitle);
+
+    await helperAfterEach(t);
+
+    await t.expect(label1UID).eql(label2UID);
+    await t.expect(label1UID.length).eql(16);
+
+    labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}labels/${label1UID}`,
+      method: 'put',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": labelTitle,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(404);
+
+    labelApiResponse = await t.request({
+      url: `${testcafeconfig.api}labels/${label2UID}`,
+      method: 'put',
+      body: {
+          "Description": "Testing Label",
+          "Favorite": false,
+          "Name": labelTitle,
+          "Priority": 0,
+          "Uncertainty": 0
+      }
+    });
+    await t.expect(labelApiResponse.status).eql(404);
 
 })
