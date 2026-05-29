@@ -36,7 +36,7 @@ export async function clickIfVisible(t, sel) {
 
 export function logMessage(message) {
     if (showLogs) {
-        var now = new Date();
+        const now = new Date();
         console.log(now.toISOString() + " " + message);
     }
 }
@@ -225,8 +225,32 @@ export async function helperAfterEach(t) {
   // be restored as a keyword based label.  Otherwise it will be a manual
   // style label.
   for (const revertPhoto of t.ctx.testChanges.revertPhotos) {
+    // Get current photo status
+    let apiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${revertPhoto.uid}`,
+      method: 'get'
+    });
+    // ToDo: handle a bad apiResponse
+    if (apiResponse.status != 200 || apiResponse.status === null) { // Ignore Ok
+      logMessage("helperAfterEach revert photo " + JSON.stringify(apiResponse));
+    }
+
+    if (!revertPhoto.data.DeletedAt && apiResponse.body.DeletedAt) {
+      // Need to restore the photo
+      const restoreResponse = await t.request({
+        url: `${testcafeconfig.api}batch/photos/restore`,
+        method: 'post',
+        body: {
+          "photos": [ revertPhoto.uid ]
+        }
+      });
+      if (restoreResponse.status != 200 || restoreResponse.status === null) { // Ignore Ok
+        logMessage("helperAfterEach revert restore photo " + JSON.stringify(restoreResponse));
+      }
+    }
+
     // Revert the photo
-    var apiResponse = await t.request({
+    apiResponse = await t.request({
       url: `${testcafeconfig.api}photos/${revertPhoto.uid}`,
       method: 'put',
       body: revertPhoto.data
@@ -323,7 +347,7 @@ export async function helperAfterEach(t) {
         const rFile = revertPhoto.data.Files.find(fileI => fileI.UID === file.UID)
         if (rFile) {
           const rMarker = rFile.Markers.find(m => m.UID === marker.UID && m.FileUID === marker.FileUID);
-          var markerApiResponse;
+          let markerApiResponse;
           if (rMarker) {
             // reset
             markerApiResponse = await t.request({
@@ -372,11 +396,24 @@ export async function helperAfterEach(t) {
     if (apiResponse.status != 200 || apiResponse.status === null) { // Ignore Ok
       logMessage("helperAfterEach revert photo again " + JSON.stringify(apiResponse));
     }
+    if (revertPhoto.data.DeletedAt && !apiResponse.body.DeletedAt) {
+      // Need to archive the photo
+      const archiveResponse = await t.request({
+        url: `${testcafeconfig.api}batch/photos/archive`,
+        method: 'post',
+        body: {
+          "photos": [ revertPhoto.uid ]
+        }
+      });
+      if (archiveResponse.status != 200 || archiveResponse.status === null) { // Ignore Ok
+        logMessage("helperAfterEach revert archive photo " + JSON.stringify(archiveResponse));
+      }
+    }
 
   }
   // Remove albums
   for (const removeAlbum of t.ctx.testChanges.removeAlbums) {
-    var listApiResponse
+    let listApiResponse
     if (removeAlbum.uid === "name") {
       listApiResponse = await t.request({
         url: `${testcafeconfig.api}albums`,
@@ -426,7 +463,7 @@ export async function helperAfterEach(t) {
   }
   // Remove Labels
   if (t.ctx.testChanges.removeLabels.length > 0) {
-    var labels = [];
+    let labels = [];
     for (const removeLabel of t.ctx.testChanges.removeLabels) {
       const listApiResponse = await t.request({
         url: `${testcafeconfig.api}labels`,

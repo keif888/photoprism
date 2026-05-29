@@ -743,3 +743,126 @@ test.meta("testID", "cleanup-010").meta({ type: "short", mode: "api" })("Common:
     await t.expect(labelApiResponse.status).eql(404);
 
 })
+
+test.meta("testID", "cleanup-011").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert archive and restore", async (t) => {
+    await helperBeforeEach(t);
+    let beforeRestorePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 1,
+          q: `archived:true photo:yes`
+        }
+      });
+    await t.expect(beforeRestorePhotoResponse.status).eql(200);
+    const archivedPhotoUID = beforeRestorePhotoResponse.body[0].UID;
+    beforeRestorePhotoResponse = await t.request(`${testcafeconfig.api}photos/${archivedPhotoUID}`);
+    await t.expect(beforeRestorePhotoResponse.status).eql(200);
+
+    await helperRevertPhoto(t, archivedPhotoUID);
+
+    // Change the name and other stuff on the photo
+    let apiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${archivedPhotoUID}`,
+      method: 'put',
+      body: {
+        "Title": "Cleanup test data",
+        "Description": "This should be removed",
+        "CameraID": 7,
+        "LensID": 10,
+        "CellID": "s2:47a85a634bcc",
+        "PlaceID": "de:ukLS8nroIoB7"
+      }
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+    apiResponse = await t.request({
+      url: `${testcafeconfig.api}batch/photos/restore`,
+      method: 'post',
+      body: {
+        "photos": [ archivedPhotoUID ]
+      }
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+    let beforeArchivePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 1,
+          q: `archived:false photo:yes`
+        }
+      });
+    await t.expect(beforeArchivePhotoResponse.status).eql(200);
+    const restoredPhotoUID = beforeArchivePhotoResponse.body[0].UID;
+    beforeArchivePhotoResponse = await t.request(`${testcafeconfig.api}photos/${restoredPhotoUID}`);
+    await t.expect(beforeArchivePhotoResponse.status).eql(200);
+
+    await helperRevertPhoto(t, restoredPhotoUID);
+
+    // Change the name and other stuff on the photo
+    apiResponse = await t.request({
+      url: `${testcafeconfig.api}photos/${restoredPhotoUID}`,
+      method: 'put',
+      body: {
+        "Title": "Cleanup test data",
+        "Description": "This should be removed",
+        "CameraID": 7,
+        "LensID": 10,
+        "CellID": "s2:47a85a634bcc",
+        "PlaceID": "de:ukLS8nroIoB7"
+      }
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+    apiResponse = await t.request({
+      url: `${testcafeconfig.api}batch/photos/archive`,
+      method: 'post',
+      body: {
+        "photos": [ restoredPhotoUID ]
+      }
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+
+    await helperAfterEach(t);
+
+    let afterPhotoResponse = await t.request(`${testcafeconfig.api}photos/${archivedPhotoUID}`);
+    await t.expect(afterPhotoResponse).notEql(beforeRestorePhotoResponse);
+    // Remove the fields that are impacted by changes
+    delete beforeRestorePhotoResponse.headers["content-length"]; // Will change (timestamp)
+    delete afterPhotoResponse.headers["content-length"];
+    delete beforeRestorePhotoResponse.headers.date; // May change if second ticks over
+    delete afterPhotoResponse.headers.date;
+    delete beforeRestorePhotoResponse.body.UpdatedAt;
+    delete afterPhotoResponse.body.UpdatedAt;
+    delete beforeRestorePhotoResponse.body.EditedAt;
+    delete afterPhotoResponse.body.EditedAt;
+    delete beforeRestorePhotoResponse.body.Details.UpdatedAt;
+    delete afterPhotoResponse.body.Details.UpdatedAt;
+    cleanAlbumsFilesAndLabels(beforeRestorePhotoResponse.body);
+    cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
+    // DeletedAt will be different.
+    await t.expect(beforeRestorePhotoResponse.body.DeletedAt).contains("Z");
+    await t.expect(afterPhotoResponse.body.DeletedAt).contains("Z");
+    delete beforeRestorePhotoResponse.body.DeletedAt;
+    delete afterPhotoResponse.body.DeletedAt;
+    await t.expect(afterPhotoResponse).eql(beforeRestorePhotoResponse);
+
+    afterPhotoResponse = await t.request(`${testcafeconfig.api}photos/${restoredPhotoUID}`);
+    await t.expect(afterPhotoResponse).notEql(beforeArchivePhotoResponse);
+    // Remove the fields that are impacted by changes
+    delete beforeArchivePhotoResponse.headers["content-length"]; // Will change (timestamp)
+    delete afterPhotoResponse.headers["content-length"];
+    delete beforeArchivePhotoResponse.headers.date; // May change if second ticks over
+    delete afterPhotoResponse.headers.date;
+    delete beforeArchivePhotoResponse.body.UpdatedAt;
+    delete afterPhotoResponse.body.UpdatedAt;
+    delete beforeArchivePhotoResponse.body.EditedAt;
+    delete afterPhotoResponse.body.EditedAt;
+    delete beforeArchivePhotoResponse.body.Details.UpdatedAt;
+    delete afterPhotoResponse.body.Details.UpdatedAt;
+    cleanAlbumsFilesAndLabels(beforeArchivePhotoResponse.body);
+    cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
+    await t.expect(afterPhotoResponse).eql(beforeArchivePhotoResponse);
+})
