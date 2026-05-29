@@ -51,6 +51,7 @@ export function logTimeEnd(key) {
 
 // helperBeforeEach will setup the context for test reversion
 export function helperBeforeEach(t) {
+  logMessage("helperBeforeEach");
   t.ctx.testChanges = {
     "revertAlbums": [],
     "revertPhotos": [],
@@ -62,6 +63,7 @@ export function helperBeforeEach(t) {
 
 // this function stores the current information about a photo that will need to be reverted.
 export async function helperRevertAlbum (t, uid) {
+  logMessage(`helperRevertAlbum (t, ${uid})`);
   // Get the album details
   const apiResponse = await t.request(`${testcafeconfig.api}albums/${uid}`);
   // Get the list of 1st 50 photos.  If there are more than 50, it's not acceptance!
@@ -76,6 +78,7 @@ export async function helperRevertAlbum (t, uid) {
 
 // this function stores the current information about a photo that will need to be reverted.
 export async function helperRevertPhoto (t, uid) {
+  logMessage(`helperRevertPhoto (t, ${uid})`);
   const apiResponse = await t.request(`${testcafeconfig.api}photos/${uid}`);
   const revertPhoto = {
     "uid": uid,
@@ -86,7 +89,7 @@ export async function helperRevertPhoto (t, uid) {
 
 // this function stores the need to remove an album.
 export async function helperRemoveAlbum (t, how, id) {
-  logMessage(`helperRemoveAlbum ${how} -> ${id}`);
+  logMessage(`helperRemoveAlbum (t, ${how}, ${id})`);
   if (how === "name") {
     const removeAlbum = {
       "name": id,
@@ -104,6 +107,7 @@ export async function helperRemoveAlbum (t, how, id) {
 
 // this function stores the need to remove a label from a photo.
 export async function helperRemoveLabelFromPhotos (t, labelUid, photoUid) {
+  logMessage(`helperRemoveLabelFromPhotos (t, ${labelUid}, ${photoUid})`);
   if (photoUid.length > 0) {
     if (!isNaN(+labelUid)) {
       const removeLabelFromPhoto = {
@@ -126,6 +130,7 @@ export async function helperRemoveLabelFromPhotos (t, labelUid, photoUid) {
 
 // this function stores the need to remove a label from ALL photos.
 export async function helperRemoveLabel (t, name) {
+  logMessage(`helperRemoveLabel (t, ${name})`);
   const removeLabel = {
     "name": name
   }
@@ -235,6 +240,7 @@ export async function helperAfterEach(t) {
     // Add
     for (const label of revertPhoto.data.Labels) {
       const exists = apiResponse.body.Labels.some(slug => slug.Label.Slug === label.Label.Slug);
+      logMessage(`helperAfterEach ${label.LabelID} ${label.Label.Slug} ${exists}`);
       if (!exists) {
         const labelApiResponse = await t.request({
           url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label`,
@@ -247,9 +253,10 @@ export async function helperAfterEach(t) {
               "Priority": label.Priority,
               "Thumb": label.Label.Thumb,
               "ThumbSrc": label.ThumbSrc,
-              "Uncertanty": label.Label.Uncertanty
+              "Uncertainty": label.Label.Uncertainty
           }
         });
+        logMessage("helperAfterEach add label " + JSON.stringify(labelApiResponse));
         if (labelApiResponse.status != 200 || labelApiResponse.status === null) { // Ignore Ok
           logMessage("helperAfterEach add label " + JSON.stringify(labelApiResponse));
         }
@@ -258,11 +265,12 @@ export async function helperAfterEach(t) {
           url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
           method: 'put',
           body: {
-              "Uncertanty": 1 // Although this doesn't match the previous number, it forces a manual label back into place.  All that can be done.
+              "Uncertainty": 0 // Although this doesn't match the previous number, it forces a manual label back into place.  All that can be done.
           }
         });
+        logMessage("helperAfterEach reset label " + JSON.stringify(labelApiResponse));
         if (labelApiResponse.status != 200 || labelApiResponse.status === null) { // Ignore Ok
-          logMessage("helperAfterEach add label " + JSON.stringify(labelApiResponse));
+          logMessage("helperAfterEach reset label " + JSON.stringify(labelApiResponse));
         }
       }
     }
