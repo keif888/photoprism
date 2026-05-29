@@ -350,7 +350,7 @@ export async function helperAfterEach(t) {
             body: marker
           });
         if (markerApiResponse.status != 200 || markerApiResponse.status === null) { // Ignore Ok
-          logMessage("helperAfterEach sync markers (1) " + JSON.stringify(markerApiResponse));
+          logMessage("helperAfterEach sync markers (2) " + JSON.stringify(markerApiResponse));
         }
       }
     }

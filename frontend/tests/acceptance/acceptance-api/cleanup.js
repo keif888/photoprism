@@ -445,3 +445,101 @@ test.meta("testID", "cleanup-007").meta({ type: "short", mode: "api" })("Common:
     });
     await t.expect(albumApiResponse.status).eql(404);
 })
+
+test.meta("testID", "cleanup-008").meta({ type: "short", mode: "api" })("Common: Cleanup helperRevertPhoto revert Markers", async (t) => {
+    await helperBeforeEach(t);
+    let beforePhotoResponse = await t.request({
+        url: `${testcafeconfig.api}photos`,
+        method: 'get',
+        params: {
+          count: 1,
+          q: `faces:1`
+        }
+      });
+    await t.expect(beforePhotoResponse.status).eql(200);
+    const photoUID = beforePhotoResponse.body[0].UID;
+    beforePhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(beforePhotoResponse.status).eql(200);
+
+    await helperRevertPhoto(t, photoUID);
+
+    // Loop files and markers.  Invalidate the 1st marker found.  Store the FileUID and MarkerUID
+    let fileUID = "";
+    let markerUID = "";
+
+    for (const file of beforePhotoResponse.body.Files){
+      for (const marker of file.Markers) {
+        if (!marker.Invalid) {
+          markerUID = marker.UID;
+          fileUID = marker.FileUID;
+          break;
+        }
+      }
+      if (markerUID != "") {
+        break;
+      }
+    }
+
+    // Remove an existing marker from the photo
+    let apiResponse = await t.request({
+      url: `${testcafeconfig.api}markers/${markerUID}`,
+      method: 'put',
+      body: {
+        "Invalid":true
+      }
+    });
+    await t.expect(apiResponse.status).eql(200);
+
+    // Add a manual marker
+    let markerApiResponse = await t.request({
+      url: `${testcafeconfig.api}markers`,
+      method: 'post',
+      body: {
+        "FileUID":fileUID,
+        "Type":"face",
+        "Src":"manual",
+        "X":0.42172298011844334,
+        "Y":0.35562737944162437,
+        "W":0.1810358502538071,
+        "H":0.13577688769035534
+      }
+    });
+    await t.expect(markerApiResponse.status).eql(201);
+    const newMarkerUID = markerApiResponse.body.UID;
+
+    await helperAfterEach(t);
+
+    const afterPhotoResponse = await t.request(`${testcafeconfig.api}photos/${photoUID}`);
+    await t.expect(afterPhotoResponse).notEql(beforePhotoResponse);
+    // Remove the fields that are impacted by changes
+    delete beforePhotoResponse.headers["content-length"]; // Will change (timestamp)
+    delete afterPhotoResponse.headers["content-length"];
+    delete beforePhotoResponse.headers.date; // May change if second ticks over
+    delete afterPhotoResponse.headers.date;
+    delete beforePhotoResponse.body.UpdatedAt;
+    delete afterPhotoResponse.body.UpdatedAt;
+    delete beforePhotoResponse.body.EditedAt;
+    delete afterPhotoResponse.body.EditedAt;
+    delete beforePhotoResponse.body.Details.UpdatedAt;
+    delete afterPhotoResponse.body.Details.UpdatedAt;
+    cleanAlbumsFilesAndLabels(beforePhotoResponse.body);
+    cleanAlbumsFilesAndLabels(afterPhotoResponse.body);
+    await t.expect(afterPhotoResponse).notEql(beforePhotoResponse);
+
+    // need to remove the new marker as it will be invalid=true, not removed.
+    for (const file of afterPhotoResponse.body.Files){
+      let items = JSON.parse(JSON.stringify(file.Markers));
+      file.Markers.length = 0;
+      for (let item of items) {
+        if (item.UID != newMarkerUID)
+        {
+          delete item.UpdatedAt;
+          file.Markers.push(item);
+        } else {
+          await t.expect(item.Invalid).eql(true);  // Make sure it was marked invalid.
+        }
+      }
+    }
+    await t.expect(afterPhotoResponse).eql(beforePhotoResponse);
+
+})
