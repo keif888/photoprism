@@ -65,8 +65,8 @@ test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a
   const albumTitle = `SidebarEditAlbum-${stamp}`;
 
   await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
-  await helperRemoveLabel(t, labelTitle);
   await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
+  await helperRemoveLabel(t, labelTitle);
   await helperRemoveAlbum(t, "name", albumTitle);
 
   await photoviewer.triggerPhotoViewerAction("close-button");
@@ -91,6 +91,8 @@ test.meta("testID", "sidebar-edit-004").meta({ mode: "public" })(
 
     await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
     await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
+    await helperRemoveLabel(t, labelTitle);
+    await helperRemoveAlbum(t, "name", albumTitle);
 
     const labelChip = photoviewer.chipByTitle("Labels", labelTitle);
     const albumChip = photoviewer.chipByTitle("Albums", albumTitle);
@@ -126,6 +128,8 @@ test.meta("testID", "sidebar-edit-005").meta({ mode: "public" })(
 
     await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
     await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
+    await helperRemoveLabel(t, labelTitle);
+    await helperRemoveAlbum(t, "name", albumTitle);
 
     await photoviewer.removeInlineChip("Labels", labelTitle);
     await photoviewer.removeInlineChip("Albums", albumTitle);
@@ -151,7 +155,6 @@ test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
   async (t) => {
     const uid = await photoviewer.openSidebarOnFirstPhoto();
     await helperRevertPhoto(t, uid);
-
 
     const dateTimeDialog = photoviewer.dateTimeDialog;
     const cameraDialog = photoviewer.cameraDialog;

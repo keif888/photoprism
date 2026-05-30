@@ -6,7 +6,7 @@ import Toolbar from "../page-model/toolbar";
 import ContextMenu from "../page-model/context-menu";
 import Album from "../page-model/album";
 import Originals from "../page-model/originals";
-import { helperRemoveAlbum } from "../page-model/helpers";
+import { helperBeforeEach, helperAfterEach, helperRemoveAlbum } from "../page-model/helpers";
 
 fixture`Test files`
 .page`${testcafeconfig.url}`

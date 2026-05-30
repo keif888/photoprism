@@ -155,7 +155,7 @@ test.meta("testID", "moments-003").meta({ mode: "public" })(
     await helperRevertPhoto(t, SeventhPhotoUid);
     await menu.openPage("moments");
     await album.selectAlbumFromUID(SecondMomentUid);
-    await contextmenu.triggerContextMenuAction("clone", ["NotYetExistingAlbumForMoment", "Holiday"]);
+    await contextmenu.triggerContextMenuAction("clone", ["Holiday", "NotYetExistingAlbumForMoment"]); // NotYetExistingAlbumForMoment happens to be long enough to be the middle of the text box (which causes it to be removed when Holiday is added), so put it second.
     await helperRemoveAlbum(t, "name", "NotYetExistingAlbum");
     await menu.openPage("albums");
     const AlbumCountAfterCreation = await album.getAlbumCount("all");
