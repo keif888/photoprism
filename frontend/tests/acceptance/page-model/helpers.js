@@ -203,16 +203,17 @@ export async function helperAfterEach(t) {
             body: revertAlbum.data
           });
           if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
-            const msg = "helperAfterEach revert albums " + JSON.stringify(apiResponse);
+            const msg = "helperAfterEach revert albums (1) " + JSON.stringify(apiResponse);
             logMessage(msg);
             helperFailures.push(msg);
           }
         }
-      }
-      if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
-        const msg = "helperAfterEach revert albums " + JSON.stringify(apiResponse);
-        logMessage(msg);
-        helperFailures.push(msg);
+      } else {
+        if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
+          const msg = "helperAfterEach revert albums (2) " + JSON.stringify(apiResponse);
+          logMessage(msg);
+          helperFailures.push(msg);
+        }
       }
       // Restore the photos connections
       const albumPhotoApiResponse = await t.request(`${testcafeconfig.api}photos?count=50&offset=0&s=${revertAlbum.uid}`);
@@ -247,7 +248,7 @@ export async function helperAfterEach(t) {
           body: revertAlbum.data
         });
         if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
-          const msg = "helperAfterEach revert albums " + JSON.stringify(apiResponse);
+          const msg = "helperAfterEach revert albums with thumb manual " + JSON.stringify(apiResponse);
           logMessage(msg);
           helperFailures.push(msg);
         }
@@ -271,7 +272,7 @@ export async function helperAfterEach(t) {
         method: 'get'
       });
       if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
-        const msg = "helperAfterEach revert photo " + JSON.stringify(apiResponse);
+        const msg = "helperAfterEach revert photo (1) " + JSON.stringify(apiResponse);
         logMessage(msg);
         helperFailures.push(msg);
       }
@@ -299,7 +300,7 @@ export async function helperAfterEach(t) {
         body: revertPhoto.data
       });
       if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
-        const msg = "helperAfterEach revert photo " + JSON.stringify(apiResponse);
+        const msg = "helperAfterEach revert photo (2) " + JSON.stringify(apiResponse);
         logMessage(msg);
         helperFailures.push(msg);
       }
@@ -392,9 +393,9 @@ export async function helperAfterEach(t) {
       // Loop through the files and markers to update as required
       // Invalidate any that shouldn't be there.
       for (const file of apiResponse.body.Files) {
-        for (const marker of file.Markers) {
-          const rFile = revertPhoto.data.Files.find(fileI => fileI.UID === file.UID)
-          if (rFile) {
+        const rFile = revertPhoto.data.Files.find(fileI => fileI.UID === file.UID)
+        if (rFile) {
+          for (const marker of file.Markers) {
             const rMarker = rFile.Markers.find(m => m.UID === marker.UID && m.FileUID === marker.FileUID);
             let markerApiResponse;
             if (rMarker) {
@@ -420,21 +421,32 @@ export async function helperAfterEach(t) {
               helperFailures.push(msg);
             }
           }
+        } else {
+          const msg = `Choosing not to remove file ${file.UID} which has been added, as that will break future tests as the file is physically deleted.`;
+          logMessage(msg);
+          helperFailures.push(msg);
         }
       }
       for (const file of revertPhoto.data.Files) {
-        for (const marker of file.Markers) {
-          const rMarker = apiResponse.body.Files.find(file => file.Markers.UID === marker.UID && file.Markers.FileUID === marker.FileUID);
-          const markerApiResponse = await t.request({
-              url: `${testcafeconfig.api}markers/${marker.UID}`,
-              method: 'put',
-              body: marker
-            });
-          if (markerApiResponse.status !== 200 || markerApiResponse.status === null) { // Ignore Ok
-            const msg = "helperAfterEach sync markers (2)" + JSON.stringify(markerApiResponse);
-            logMessage(msg);
-            helperFailures.push(msg);
+        const cFile = apiResponse.body.Files.find(fileI => fileI.UID === file.UID)
+        if (cFile) {
+          for (const marker of file.Markers) {
+            // Restore the marker whether it is there or not.
+            const markerApiResponse = await t.request({
+                url: `${testcafeconfig.api}markers/${marker.UID}`,
+                method: 'put',
+                body: marker
+              });
+            if (markerApiResponse.status !== 200 || markerApiResponse.status === null) { // Ignore Ok
+              const msg = "helperAfterEach sync markers (2)" + JSON.stringify(markerApiResponse);
+              logMessage(msg);
+              helperFailures.push(msg);
+            }
           }
+        } else {
+          const msg = `Unable to restore file ${file.UID} which has been removed.  Flagging error as this situation indicated that a fila has been deleted from the file system.`;
+          logMessage(msg);
+          helperFailures.push(msg);
         }
       }
 
@@ -600,5 +612,5 @@ export async function helperAfterEach(t) {
   }
 
   // Error if there were any API or try/catch failures.
-  t.expect(helperFailures).eql([]);
+  await t.expect(helperFailures).eql([]);
 }
