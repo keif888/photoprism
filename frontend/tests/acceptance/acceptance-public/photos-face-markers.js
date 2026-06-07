@@ -1,7 +1,7 @@
 import testcafeconfig from "../../testcafeconfig.json";
 import PhotoViewer from "../page-model/photoviewer";
 import Menu from "../page-model/menu";
-import { helperBeforeEach, helperAfterEach, helperRevertPhoto } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test face markers in the photo viewer`
 .page`${testcafeconfig.url}`
@@ -10,6 +10,9 @@ fixture`Test face markers in the photo viewer`
 })
 .afterEach(async t => {
   await helperAfterEach(t);
+})
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
 });
 
 const photoviewer = new PhotoViewer();
@@ -43,8 +46,7 @@ test.meta("testID", "face-markers-002").meta({ mode: "public" })(
 
 test.meta("testID", "face-markers-003").meta({ mode: "public" })("Common: Drawing a new face marker persists it and shows it in the People list", async (t) => {
   // `faces:no` ensures the photo has no pre-existing markers, so the cleanup at the end targets the marker we drew.
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
 
   const beforeRows = await photoviewer.getPersonRowCount();
 
@@ -62,8 +64,7 @@ test.meta("testID", "face-markers-003").meta({ mode: "public" })("Common: Drawin
 });
 
 test.meta("testID", "face-markers-004").meta({ mode: "public" })("Common: Cancelling a draft does not persist anything", async (t) => {
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
 
   const beforeRows = await photoviewer.getPersonRowCount();
 
@@ -79,8 +80,7 @@ test.meta("testID", "face-markers-004").meta({ mode: "public" })("Common: Cancel
 test.meta("testID", "face-markers-005").meta({ mode: "public" })(
   "Common: Removing an unnamed marker requires confirmation via the overlay pill",
   async (t) => {
-    const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-    await helperRevertPhoto(t, uid);
+    await photoviewer.openSidebarOnFirstPhoto("faces:no");
 
     // Add an unnamed marker so the removal flow is deterministic and self-undoing.
     await photoviewer.startMarkersEdit();
@@ -106,8 +106,7 @@ test.meta("testID", "face-markers-005").meta({ mode: "public" })(
 );
 
 test.meta("testID", "face-markers-006").meta({ mode: "public" })("Common: Named markers expose only the Unassign icon in edit mode", async (t) => {
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
 
   // Create a named marker we control so the assertion is non-vacuous.
   await photoviewer.startMarkersEdit();
@@ -130,7 +129,6 @@ test.meta("testID", "face-markers-006").meta({ mode: "public" })("Common: Named 
 
 test.meta("testID", "face-markers-007").meta({ mode: "public" })("Common: Newly added markers persist across photo viewer reopens", async (t) => {
   const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
   const beforeRows = await photoviewer.getPersonRowCount();
 
   await photoviewer.startMarkersEdit();
@@ -156,8 +154,7 @@ test.meta("testID", "face-markers-007").meta({ mode: "public" })("Common: Newly 
 });
 
 test.meta("testID", "face-markers-008").meta({ mode: "public" })("Common: Naming an unnamed marker via the inline combobox persists the subject", async (t) => {
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
   const beforeRows = await photoviewer.getPersonRowCount();
 
   await photoviewer.startMarkersEdit();
@@ -183,8 +180,7 @@ test.meta("testID", "face-markers-008").meta({ mode: "public" })("Common: Naming
 });
 
 test.meta("testID", "face-markers-010").meta({ mode: "public" })("Common: Blurring an unnamed marker with a novel name opens the Add-name dialog", async (t) => {
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
   const beforeRows = await photoviewer.getPersonRowCount();
 
   await photoviewer.startMarkersEdit();
@@ -213,8 +209,7 @@ test.meta("testID", "face-markers-010").meta({ mode: "public" })("Common: Blurri
 });
 
 test.meta("testID", "face-markers-009").meta({ mode: "public" })("Common: Unassigning a named marker removes the subject link but keeps the marker", async (t) => {
-  const uid = await photoviewer.openSidebarOnFirstPhoto("faces:no");
-  await helperRevertPhoto(t, uid);
+  await photoviewer.openSidebarOnFirstPhoto("faces:no");
   const beforeRows = await photoviewer.getPersonRowCount();
 
   // Draw + name a marker we control so the test is deterministic.

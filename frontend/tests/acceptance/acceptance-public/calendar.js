@@ -7,7 +7,7 @@ import ContextMenu from "../page-model/context-menu";
 import Photo from "../page-model/photo";
 import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
-import { helperBeforeEach, helperAfterEach, helperRevertAlbum, helperRemoveAlbum } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test calendar`.page`${testcafeconfig.url}`
 .beforeEach(async t => {
@@ -16,7 +16,9 @@ fixture`Test calendar`.page`${testcafeconfig.url}`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const menu = new Menu();
 const album = new Album();
@@ -40,7 +42,6 @@ test.meta("testID", "calendar-002").meta({ mode: "public" })("Common: Update cal
   await menu.openPage("calendar");
   await toolbar.search("March 2014");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRevertAlbum(t, AlbumUid);
 
   await t.expect(page.cardTitle.nth(0).innerText).contains("March 2014");
 
@@ -143,7 +144,6 @@ test.meta("testID", "calendar-004").meta({ type: "short", mode: "public" })(
     await menu.openPage("calendar");
     await album.selectAlbumFromUID(SecondCalendarUid);
     await contextmenu.triggerContextMenuAction("clone", ["NotYetExistingAlbumForCalendar", "Holiday"]);
-    await helperRemoveAlbum(t, "name", "NotYetExistingAlbumForCalendar");
     await menu.openPage("albums");
     const AlbumCountAfterCreation = await album.getAlbumCount("all");
 

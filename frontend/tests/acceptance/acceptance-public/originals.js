@@ -6,7 +6,7 @@ import Toolbar from "../page-model/toolbar";
 import ContextMenu from "../page-model/context-menu";
 import Album from "../page-model/album";
 import Originals from "../page-model/originals";
-import { helperBeforeEach, helperAfterEach, helperRemoveAlbum } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test files`
 .page`${testcafeconfig.url}`
@@ -15,6 +15,9 @@ fixture`Test files`
 })
 .afterEach(async t => {
   await helperAfterEach(t);
+})
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
 });
 
 const menu = new Menu();
@@ -75,7 +78,6 @@ test.meta("testID", "originals-002").meta({ type: "short", mode: "public" })(
     await originals.triggerHoverAction("is-folder", "uid", KanadaFolderUid, "select");
     await contextmenu.checkContextMenuCount("1");
     await contextmenu.triggerContextMenuAction("album", "KanadaVacation");
-    await helperRemoveAlbum(t, "name", "KanadaVacation");
     await menu.openPage("albums");
     await toolbar.search("KanadaVacation");
     const AlbumUid = await album.getNthAlbumUid("all", 0);

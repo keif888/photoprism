@@ -4,7 +4,7 @@ import PhotoViewer from "../page-model/photoviewer";
 import Menu from "../page-model/menu";
 import Label from "../page-model/label";
 import Album from "../page-model/album";
-import { helperBeforeEach, helperAfterEach, helperRevertPhoto, helperRemoveLabel, helperRemoveAlbum} from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test lightbox sidebar inline editing`
 .page`${testcafeconfig.url}`
@@ -14,7 +14,9 @@ fixture`Test lightbox sidebar inline editing`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const photoviewer = new PhotoViewer();
 const menu = new Menu();
@@ -24,8 +26,7 @@ const album = new Album();
 test.meta("testID", "sidebar-edit-001").meta({ mode: "public" })(
   "Common: Edits title, caption, keywords, notes, and plain-text inline fields from the sidebar",
   async (t) => {
-    const uid = await photoviewer.openSidebarOnFirstPhoto();
-    await helperRevertPhoto(t, uid);
+    await photoviewer.openSidebarOnFirstPhoto();
 
     const titleInput = Selector(".p-lightbox-sidebar .meta-inline-title input", { timeout: 15000 });
     await photoviewer.startInlineEditOrAdd("meta-title", "Title");
@@ -57,7 +58,6 @@ test.meta("testID", "sidebar-edit-001").meta({ mode: "public" })(
 
 test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a label and an album inline and persists them to the photo", async (t) => {
   const uid = await photoviewer.openSidebarOnFirstPhoto();
-  await helperRevertPhoto(t, uid);
 
   // Date-stamp names so reruns don't collide with leftovers from previous failed runs.
   const stamp = Date.now();
@@ -66,8 +66,6 @@ test.meta("testID", "sidebar-edit-002").meta({ mode: "public" })("Common: Adds a
 
   await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
   await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
-  await helperRemoveLabel(t, labelTitle);
-  await helperRemoveAlbum(t, "name", albumTitle);
 
   await photoviewer.triggerPhotoViewerAction("close-button");
 
@@ -91,8 +89,6 @@ test.meta("testID", "sidebar-edit-004").meta({ mode: "public" })(
 
     await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
     await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
-    await helperRemoveLabel(t, labelTitle);
-    await helperRemoveAlbum(t, "name", albumTitle);
 
     const labelChip = photoviewer.chipByTitle("Labels", labelTitle);
     const albumChip = photoviewer.chipByTitle("Albums", albumTitle);
@@ -128,8 +124,6 @@ test.meta("testID", "sidebar-edit-005").meta({ mode: "public" })(
 
     await photoviewer.typeAndConfirmInlineChip("Labels", labelTitle);
     await photoviewer.typeAndConfirmInlineChip("Albums", albumTitle);
-    await helperRemoveLabel(t, labelTitle);
-    await helperRemoveAlbum(t, "name", albumTitle);
 
     await photoviewer.removeInlineChip("Labels", labelTitle);
     await photoviewer.removeInlineChip("Albums", albumTitle);
@@ -153,8 +147,7 @@ test.meta("testID", "sidebar-edit-005").meta({ mode: "public" })(
 test.meta("testID", "sidebar-edit-003").meta({ mode: "public" })(
   "Common: Edits every taken-at, camera, and location field and confirms persistence",
   async (t) => {
-    const uid = await photoviewer.openSidebarOnFirstPhoto();
-    await helperRevertPhoto(t, uid);
+    await photoviewer.openSidebarOnFirstPhoto();
 
     const dateTimeDialog = photoviewer.dateTimeDialog;
     const cameraDialog = photoviewer.cameraDialog;

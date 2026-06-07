@@ -7,7 +7,7 @@ import ContextMenu from "../page-model/context-menu";
 import Photo from "../page-model/photo";
 import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
-import { helperBeforeEach, helperAfterEach, helperRevertAlbum, helperRemoveAlbum } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test folders`.page`${testcafeconfig.url}`
 .beforeEach(async t => {
@@ -16,7 +16,9 @@ fixture`Test folders`.page`${testcafeconfig.url}`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const menu = new Menu();
 const album = new Album();
@@ -42,7 +44,6 @@ test.meta("testID", "folders-002").meta({ mode: "public" })("Common: Update fold
   await menu.openPage("folders");
   await toolbar.search("Kanada");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRevertAlbum(t, AlbumUid);
   await t.expect(page.cardTitle.nth(0).innerText).contains("Kanada");
 
   await t.click(page.cardTitle.nth(0));
@@ -153,7 +154,6 @@ test.meta("testID", "folders-004").meta({ mode: "public" })(
     await menu.openPage("folders");
     await album.selectAlbumFromUID(ThirdFolderUid);
     await contextmenu.triggerContextMenuAction("clone", ["Holiday", "NotYetExistingAlbumForFolder"]);
-    await helperRemoveAlbum(t, "name", "NotYetExistingAlbumForFolder");
     await menu.openPage("albums");
     const AlbumCountAfterCreation = await album.getAlbumCount("all");
 

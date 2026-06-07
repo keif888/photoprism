@@ -7,7 +7,6 @@ import ContextMenu from "./context-menu";
 import ShareDialog from "./dialog-share";
 import Photo from "./photo";
 import PhotoViewer from "./photoviewer";
-import { helperRevertAlbum } from "./helpers";
 
 const logger = RequestLogger(/http:\/\/localhost:2343\/api\/v1\/*/, {
   logResponseHeaders: true,
@@ -67,6 +66,10 @@ export default class Page {
 
   async clickCardTitleOfUID(uid) {
     await t.click(Selector('div[data-uid="' + uid + '"] button.action-title-edit'));
+  }
+
+  async clickCardImageLabelOfUID(uid) {
+    await t.click(Selector('div[data-uid="' + uid + '"] button.meta-image'));
   }
 
   async testCreateEditDeleteSharingLink(type) {
@@ -186,7 +189,6 @@ export default class Page {
           continue;
         }
         foundSuitableAlbum = true;
-        await helperRevertAlbum(t, AlbumUid);
 
         await photoviewerHelper.openPhotoViewer("uid", CoverPhotoUid);
         await photoviewerHelper.checkPhotoViewerActionAvailability("cover", true);

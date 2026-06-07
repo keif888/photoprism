@@ -9,7 +9,7 @@ import PhotoViewer from "../page-model/photoviewer";
 import Page from "../page-model/page";
 import PhotoEdit from "../page-model/photo-edit";
 import Notifies from "../page-model/notifications";
-import { helperBeforeEach, helperAfterEach, helperRevertPhoto } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test batch edit`
 .page`${testcafeconfig.url}`
@@ -18,6 +18,9 @@ fixture`Test batch edit`
 })
 .afterEach(async t => {
   await helperAfterEach(t);
+})
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
 });
 
 const menu = new Menu();
@@ -33,20 +36,16 @@ test.meta("testID", "batch-001").meta({ mode: "public" })("Common: Test batch di
   await menu.openPage("browse");
   await toolbar.search("cat");
   await photo.toggleSelectNthPhoto(0, "image");
-  let uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("canada");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("album:holiday");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("archived:true");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await contextmenu.checkContextMenuCount("4");
   await contextmenu.triggerContextMenuAction("edit");
   // verify that archived photo is excluded
@@ -78,20 +77,16 @@ test.meta("testID", "batch-002").meta({ mode: "public" })("Common: Test batch di
   await menu.openPage("browse");
   await toolbar.search("cat");
   await photo.toggleSelectNthPhoto(0, "image");
-  let uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("canada");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("album:holiday");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("archived:true");
   await photo.toggleSelectNthPhoto(0, "image");
-  uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await contextmenu.checkContextMenuCount("4");
   await contextmenu.triggerContextMenuAction("edit");
   await t.expect(photoedit.batchDialogCloseAction.innerText).contains("CLOSE");
@@ -117,20 +112,16 @@ test.meta("testID", "batch-003").meta({ mode: "public" })("Common: Test batch di
   await menu.openPage("browse");
   await toolbar.search("cat");
   await photo.toggleSelectNthPhoto(0, "image");
-  var uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("canada");
   await photo.toggleSelectNthPhoto(0, "image");
-  var uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("album:holiday");
   await photo.toggleSelectNthPhoto(0, "image");
-  var uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await toolbar.search("archived:true");
   await photo.toggleSelectNthPhoto(0, "image");
-  var uid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, uid);
+  await photo.getNthPhotoUid("image", 0);
   await contextmenu.checkContextMenuCount("4");
   await contextmenu.triggerContextMenuAction("edit");
   await t.expect(photoedit.dayValue.innerText).eql("<mixed>");

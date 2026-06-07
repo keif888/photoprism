@@ -7,7 +7,7 @@ import ContextMenu from "../page-model/context-menu";
 import Photo from "../page-model/photo";
 import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
-import { helperBeforeEach, helperAfterEach, helperRemoveAlbum, helperRevertAlbum, helperRevertPhoto } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test moments`
 .page`${testcafeconfig.url}`
@@ -17,7 +17,9 @@ fixture`Test moments`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const menu = new Menu();
 const album = new Album();
@@ -31,7 +33,6 @@ test.meta("testID", "moments-001").meta({ mode: "public" })("Common: Update mome
   await menu.openPage("moments");
   await toolbar.search("Nature");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRevertAlbum(t, AlbumUid);
 
   await t.expect(page.cardTitle.nth(0).innerText).contains("Nature");
 
@@ -140,23 +141,15 @@ test.meta("testID", "moments-003").meta({ mode: "public" })(
     await album.openAlbumWithUid(SecondMomentUid);
     const PhotoCountInMoment = await photo.getPhotoCount("all");
     const FirstPhotoUid = await photo.getNthPhotoUid("image", 0);
-    await helperRevertPhoto(t, FirstPhotoUid);
     const SecondPhotoUid = await photo.getNthPhotoUid("image", 1);
-    await helperRevertPhoto(t, SecondPhotoUid);
     const ThirdPhotoUid = await photo.getNthPhotoUid("image", 2);
-    await helperRevertPhoto(t, ThirdPhotoUid);
     const FourthPhotoUid = await photo.getNthPhotoUid("image", 3);
-    await helperRevertPhoto(t, FourthPhotoUid);
     const FifthPhotoUid = await photo.getNthPhotoUid("image", 4);
-    await helperRevertPhoto(t, FifthPhotoUid);
     const SixthPhotoUid = await photo.getNthPhotoUid("image", 5);
-    await helperRevertPhoto(t, SixthPhotoUid);
     const SeventhPhotoUid = await photo.getNthPhotoUid("image", 6);
-    await helperRevertPhoto(t, SeventhPhotoUid);
     await menu.openPage("moments");
     await album.selectAlbumFromUID(SecondMomentUid);
     await contextmenu.triggerContextMenuAction("clone", ["Holiday", "NotYetExistingAlbumForMoment"]); // NotYetExistingAlbumForMoment happens to be long enough to be the middle of the text box (which causes it to be removed when Holiday is added), so put it second.
-    await helperRemoveAlbum(t, "name", "NotYetExistingAlbum");
     await menu.openPage("albums");
     const AlbumCountAfterCreation = await album.getAlbumCount("all");
 

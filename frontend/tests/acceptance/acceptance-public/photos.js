@@ -8,7 +8,7 @@ import Photo from "../page-model/photo";
 import PhotoViewer from "../page-model/photoviewer";
 import Page from "../page-model/page";
 import PhotoEdit from "../page-model/photo-edit";
-import { logTime, logTimeEnd, logMessage, helperBeforeEach, helperAfterEach, helperRevertPhoto } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach, logTime, logTimeEnd, logMessage } from "../page-model/helpers";
 
 const scroll = ClientFunction((x, y) => window.scrollTo(x, y));
 const getcurrentPosition = ClientFunction(() => window.scrollY);
@@ -20,6 +20,9 @@ fixture`Test photos`
 })
 .afterEach(async t => {
   await helperAfterEach(t);
+})
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
 });
 
 const menu = new Menu();
@@ -118,6 +121,29 @@ test.meta("testID", "photos-003").meta({ type: "short", mode: "public" })(
     await photo.checkPhotoVisibility(FirstPhotoUid, true);
     await photo.checkPhotoVisibility(SecondPhotoUid, true);
     await photo.checkPhotoVisibility(ThirdPhotoUid, true);
+    // These three photos are missing a lot of data, can't be reverted, so need to be set as old, so they are not 1st on the list (which can break other tests).
+    // Please note that reversion of review photos is explicity prevented, so these changes will stick.
+    // Private isn't suitable as it may break other tests.
+    // As at 2026-06-05 there are no tests that choose the last photos.
+
+    const expectedInputValues = [
+      ["description", "Was a review photo"],
+    ];
+    const expectedSelectValues = [
+      ["day", "28"],
+      ["month", "02"],
+      ["year", "2009"],
+    ];
+
+    await page.clickCardImageLabelOfUID(FirstPhotoUid);
+    await t.expect(photoedit.coordinates.visible).ok();
+    await photoedit.editFormValues(expectedInputValues, expectedSelectValues);
+    await page.clickCardImageLabelOfUID(SecondPhotoUid);
+    await t.expect(photoedit.coordinates.visible).ok();
+    await photoedit.editFormValues(expectedInputValues, expectedSelectValues);
+    await page.clickCardImageLabelOfUID(ThirdPhotoUid);
+    await t.expect(photoedit.coordinates.visible).ok();
+    await photoedit.editFormValues(expectedInputValues, expectedSelectValues);
   }
 );
 
@@ -179,7 +205,6 @@ test.meta("testID", "photos-005").meta({ type: "short", mode: "public" })("Commo
   await t.click(toolbar.cardsViewAction);
   await toolbar.search("geo:true");
   const FirstPhotoUid = await photo.getNthPhotoUid("image", 0);
-  await helperRevertPhoto(t, FirstPhotoUid);
   await page.clickCardTitleOfUID(FirstPhotoUid);
 
   await t.expect(photoedit.coordinates.visible).ok();
@@ -283,8 +308,6 @@ test.meta("testID", "photos-006").meta({ mode: "public" })(
 test.meta("testID", "photos-007").meta({ mode: "public" })("Common: Mark photos/videos as panorama/scan", async (t) => {
   const FirstPhotoUid = await photo.getNthPhotoUid("image", 0);
   const FirstVideoUid = await photo.getNthPhotoUid("video", 1);
-  await helperRevertPhoto(t, FirstPhotoUid);
-  await helperRevertPhoto(t, FirstVideoUid);
   await menu.openPage("scans");
 
   await photo.checkPhotoVisibility(FirstPhotoUid, false);
@@ -378,7 +401,6 @@ test.meta("testID", "photos-010").meta({ mode: "public" })("Common: Set location
   await toolbar.search("geo:false");
 
   const FirstPhotoUid = await photo.getNthPhotoUid("image", 3);
-  await helperRevertPhoto(t, FirstPhotoUid);
   await page.clickCardTitleOfUID(FirstPhotoUid);
   const FirstPhotoTimezone = await photoedit.timezoneValue.innerText;
   const FirstPhotoCoordinates = await photoedit.coordinates.value;

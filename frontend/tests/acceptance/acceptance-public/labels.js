@@ -8,7 +8,7 @@ import Photo from "../page-model/photo";
 import Page from "../page-model/page";
 import Label from "../page-model/label";
 import PhotoEdit from "../page-model/photo-edit";
-import { helperBeforeEach, helperAfterEach, helperRevertPhoto, helperRemoveAlbum, helperRemoveLabelFromPhotos } from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach } from "../page-model/helpers";
 
 fixture`Test labels`
 .page`${testcafeconfig.url}`
@@ -18,7 +18,9 @@ fixture`Test labels`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const menu = new Menu();
 const album = new Album();
@@ -38,7 +40,6 @@ test.meta("testID", "labels-001").meta({ type: "short", mode: "public" })(
     await label.openLabelWithUid(LabelBeaconUid);
     await t.click(toolbar.cardsViewAction);
     const PhotoBeaconUid = await photo.getNthPhotoUid("all", 0);
-    await helperRevertPhoto(t, PhotoBeaconUid);
     await page.clickCardTitleOfUID(PhotoBeaconUid);
     const PhotoKeywords = await photoedit.keywords.value;
 
@@ -62,7 +63,6 @@ test.meta("testID", "labels-001").meta({ type: "short", mode: "public" })(
 
     await toolbar.search("test");
     const LabelTest = await label.getNthLabeltUid(0);
-    await helperRemoveLabelFromPhotos(t, LabelTest, PhotoBeaconUid);
     await label.openLabelWithUid(LabelTest);
     await t.click(toolbar.cardsViewAction);
     await page.clickCardTitleOfUID(PhotoBeaconUid);

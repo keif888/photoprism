@@ -10,7 +10,7 @@ import Page from "../page-model/page";
 import AlbumDialog from "../page-model/dialog-album";
 import PhotoEdit from "../page-model/photo-edit";
 import Notifies from "../page-model/notifications";
-import { logTime, logTimeEnd, helperBeforeEach, helperAfterEach, helperRemoveAlbum, helperRevertAlbum} from "../page-model/helpers";
+import { helperBeforeFixture, helperBeforeEach, helperAfterEach, logTime, logTimeEnd } from "../page-model/helpers";
 
 fixture`Test albums`
 .page`${testcafeconfig.url}`
@@ -20,7 +20,9 @@ fixture`Test albums`
 .afterEach(async t => {
   await helperAfterEach(t);
 })
-;
+.before(async ctx => {
+  await helperBeforeFixture(ctx);
+});
 
 const menu = new Menu();
 const album = new Album();
@@ -39,7 +41,6 @@ test.meta("testID", "albums-001").meta({ type: "short", mode: "public" })("Commo
   await toolbar.triggerToolbarAction("add");
   const AlbumCountAfterCreate = await album.getAlbumCount("all");
   const NewAlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRemoveAlbum(t, "uid", NewAlbumUid);
 
   await t.expect(AlbumCountAfterCreate).eql(AlbumCount + 1);
 
@@ -73,7 +74,6 @@ test.meta("testID", "albums-002").meta({ type: "short", mode: "public" })("Commo
   await photo.selectPhotoFromUID(SecondPhotoUid);
   await photo.selectPhotoFromUID(FirstPhotoUid);
   await contextmenu.triggerContextMenuAction("album", "NotYetExistingAlbum");
-  await helperRemoveAlbum(t, "name", "NotYetExistingAlbum");
 
   await page.clickCardTitleOfUID(FirstPhotoUid);
 
@@ -119,7 +119,6 @@ test.meta("testID", "albums-003").meta({ type: "short", mode: "public" })("Commo
   await menu.openPage("albums");
   await toolbar.search("Holiday");
   const AlbumUid = await album.getNthAlbumUid("all", 0);
-  await helperRevertAlbum(t, AlbumUid);
 
   await t.expect(page.cardTitle.nth(0).innerText).contains("Holiday");
 
@@ -193,7 +192,6 @@ test.meta("testID", "albums-004").meta({ type: "short", mode: "public" })("Commo
   await photoviewer.triggerPhotoViewerAction("select-toggle");
   await photoviewer.triggerPhotoViewerAction("close-button");
   await contextmenu.triggerContextMenuAction("album", ["Holiday", "Christmas", "Food"]);
-  await helperRemoveAlbum(t, "name", "Food");
 
   // Verify photos were added to Holiday album
   await menu.openPage("albums");
