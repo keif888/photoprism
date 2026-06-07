@@ -44,7 +44,6 @@ test.meta("testID", "photos-archive-private-001").meta({ type: "short", mode: "p
     const FirstVideoUid = await photo.getNthPhotoUid("video", 0);
     //const SecondVideoUid = await photo.getNthPhotoUid("video", 1);
     const ThirdVideoUid = await photo.getNthPhotoUid("video", 2);
-
     await menu.openPage("private");
 
     await photo.checkPhotoVisibility(FirstPhotoUid, false);

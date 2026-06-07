@@ -127,7 +127,6 @@ test.meta("testID", "states-003").meta({ mode: "public" })("Common: Create/delet
   const AlbumCount = await album.getAlbumCount("all");
   await toolbar.search("Holiday");
   const HolidayAlbumUid = await album.getNthAlbumUid("all", 0);
-
   await album.openAlbumWithUid(HolidayAlbumUid);
   const InitialPhotoCountHoliday = await photo.getPhotoCount("all");
   await menu.openPage("states");
