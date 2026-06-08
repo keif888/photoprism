@@ -344,51 +344,6 @@ export async function helperBeforeEach(t) {
     let startTimestamp = new Date();
   startTimestamp.setMilliseconds(0);
   let helperFailures = [];
-  // let snapshotAlbums = [];
-  // ToDo: take a snapshot of all the albums, photos and labels.
-  // Although it is possible to take a snapshot of all the albums, photos and labels, 
-  // it will take a lot of API calls to achieve this.  
-  // Photos: 
-  // Page through get /api/v1/photos without a query (40ms), and call get /api/v1/photos/{uid} (10ms) for each photo found, and store the result
-  // Page through get /api/v1/photos with query archive:true (40ms), and call get /api/v1/photos/{uid} for each photo found, and store the result
-  // There are 114 photos, so this will take at least 116 api calls, assuming that the page size is 150.  Execution time ~1.5s.
-  // Albums is just the base query as there are not archived albums or details that can be queried (10ms).
-  // get /api/v1/albums?count=150
-  // Labels is just the base query as there are not archived labels or details that can be queried (10ms).
-  // get /api/v1/labels?count=150
-
-  // let searchApiResponse;
-  // const Limit = 50;
-  // let xCount = 50;
-  // let xOffset = 0;
-  // // Find Albums to Revert
-  // while (xCount === Limit) {
-  //   searchApiResponse = await t.request({
-  //     url: `${testcafeconfig.api}albums`,
-  //     method: 'get',
-  //     params: {
-  //       count: Limit,
-  //       offset: xOffset
-  //     }
-  //   });
-  //   xOffset += Limit;
-  //   if (searchApiResponse.status === 200) {
-  //     xCount = Number(searchApiResponse.headers["x-count"]);
-  //     for (const album of searchApiResponse.body) {
-  //       const photos = await getAllAlbumPhotos(t, album.UID);
-  //       const rAlbum = {
-  //         "uid": album.UID,
-  //         "data": album,
-  //         "photos": photos
-  //       }
-  //       snapshotAlbums.push(rAlbum);
-  //     }
-  //   } else {
-  //     const msg = "helperBeforeEach gather albums " + JSON.stringify(apiResponse);
-  //     logMessage(msg);
-  //     helperFailures.push(msg);
-  //   }
-  // }
 
   t.ctx.testChanges = {
     "startTimestamp": startTimestamp.toISOString(),
@@ -396,34 +351,10 @@ export async function helperBeforeEach(t) {
     "revertPhotos": [],
     "removeAlbums": [],
     "removeLabels": [],
-    "removeLabelFromPhotos": []
+    "removePhotos": []
   }
   await t.expect(helperFailures).eql([]);
 }
-
-// this function stores the current information about a photo that will need to be reverted.
-// Known issues after executing helperAfterEach:
-// Automatically generated titles may be updated to match new format (over old in acceptance data), or reflect labels reverted
-// Labels will change type and uncertainty if they were not manual and need to be reverted
-// Updated timestamps will change
-// Can not restack a file that has been unstacked from a photo
-// Can not undelete a file that has been deleted from a photo
-// Can NOT revert a photo that has Quality < 3, because the quality will be 3 after reversion due to edits applied.
-// export async function helperRevertPhoto (t, uid) {
-//   logMessage(`helperRevertPhoto (t, ${uid})`);
-//   const apiResponse = await t.request(`${testcafeconfig.api}photos/${uid}`);
-//   const revertPhoto = {
-//     "uid": uid,
-//     "data": apiResponse.body
-//   }
-//   if (apiResponse.body.Quality < 3) {
-//     logMessage(`Photo was not added to list of photos to revert as it is in review status.`);
-//   } else {
-//     if (!t.ctx.testChanges.revertPhotos.some(rp => rp.uid === uid)) {
-//       t.ctx.testChanges.revertPhotos.push(revertPhoto);
-//     }
-//   }
-// }
 
 // deepEqual attempts to determine if 2 json objects are different.
 function deepEqual(x, y) {
@@ -451,8 +382,6 @@ async function determineChangedAlbums(t) {
     throw new Error(result);
   }
 
-  let found = false;
-
   for (const currentAlbum of currentAlbums) {
     if (new Date(currentAlbum.data.CreatedAt) >= beforeTimestamp) {
       if (!t.ctx.testChanges.removeAlbums.some(ra => ra.uid === currentAlbum.uid)) {
@@ -467,14 +396,6 @@ async function determineChangedAlbums(t) {
       if (rAlbum) {
         if (!deepEqual(currentAlbum, rAlbum)) {
           t.ctx.testChanges.revertAlbums.push(rAlbum);
-          if (!found) {
-            found = true;
-            // await console.log("-----------------------------------------------------");
-            // await console.log(JSON.stringify(rAlbum));
-            // await console.log("-----------------------------------------------------");
-            // await console.log(JSON.stringify(currentAlbum));
-            // await console.log("-----------------------------------------------------");
-          }
         }
       } else {
         const msg = `helperDetermineChangedItems revert albums (1) ${currentAlbum.uid} is missing from snapshot albums`;
@@ -491,10 +412,6 @@ async function determineChangedAlbums(t) {
       t.ctx.testChanges.revertAlbums.push(album);
     }
   }
-
-  logMessage(JSON.stringify(t.ctx.testChanges));
-  // await console.log("determineChangedAlbums");
-  // await console.log(t.ctx.testChanges);
   return '';
 }
 
@@ -519,10 +436,6 @@ async function determineChangedLabels(t) {
       }      
     }
   }
-
-  logMessage(JSON.stringify(t.ctx.testChanges));
-  // await console.log("determineChangedLabels");
-  // await console.log(t.ctx.testChanges);
   return '';
 }
 
@@ -547,27 +460,15 @@ async function determineChangedPhotos(t) {
     throw new Error(result);
   }
 
-  let found = false;
-
   for (const currentPhoto of currentPhotos) {
     if (new Date(currentPhoto.data.CreatedAt) >= beforeTimestamp) {
-      // This is either an indexing process, or an unstack.
-      // In either case, there is no reversion available.
-      logMessage(`Photo ${currentPhoto.uid} is not being reverted as it wasn't in the Snapshot`);
+      t.ctx.testChanges.removePhotos.push(currentPhoto);
     } else {
       const rPhoto = t.fixtureCtx.snapshots.snapshotPhotos.find((a) => a.uid === currentPhoto.uid);
       if (rPhoto) {
         if (!deepEqual(currentPhoto, rPhoto)) {
           if (rPhoto.data.Quality > 2) {  // all photos have Quality, so null check is not required
             t.ctx.testChanges.revertPhotos.push(rPhoto);
-            if (!found) {
-              found = true;
-              // await console.log("-----------------------------------------------------");
-              // await console.log(JSON.stringify(rPhoto));
-              // await console.log("-----------------------------------------------------");
-              // await console.log(JSON.stringify(currentPhoto));
-              // await console.log("-----------------------------------------------------");
-            }
           }
         }
       } else {
@@ -578,10 +479,6 @@ async function determineChangedPhotos(t) {
       }
     }
   }
-
-  logMessage(JSON.stringify(t.ctx.testChanges));
-  // await console.log("determineChangedPhotos");
-  // await console.log(t.ctx.testChanges);
   return '';
 }
 
@@ -590,31 +487,7 @@ async function determineChangedPhotos(t) {
 export async function helperAfterEach(t) {
   logMessage("helperAfterEach");
 
-  // Remove Labels 1st
-  // Revert Photos 2nd
-  // Revert Albums 3rd
-  // Remove Albums 4th
-
-  // list of known review photos to try and work out why they are being reverted.
-  const reviewPhotoUIDs = [
-    'pqmxlr31yu8s0dh6',
-    'pqmxlr3180x1cclg',
-    'pqmxlr41urria03z',
-    'pqmxlr4385q4kjug',
-    'pqnah1k2frui6p63',
-    'pqnah1l2p1vjzc3j',
-    'pqzueim1658bxjio',
-    'pqzuein2pdcg1kc7',
-    'prkgupr2iqnq49wu',
-    'prkgupskk86k9v8j',
-    'prkgur13th77sopz',
-    'prkgura25zbzqzil'
-  ];
-
-  const mostSelectedPhotoUID = "prkgymj2nxo4p5vr";
-
   let helperFailures = [];
-  // logMessage("helperAfterEach Queued Requests " + JSON.stringify(t.ctx.testChanges));
   
   let result = await determineChangedLabels(t);
   if (result !== ""){
@@ -671,26 +544,6 @@ export async function helperAfterEach(t) {
         helperFailures.push(msg);
       }
 
-      if (reviewPhotoUIDs.includes(revertPhoto.uid)) {
-        console.log('-------------------------------------------------------');
-        console.log('Request to revert a reviewed photo detected.');
-        console.log('-------------------------------------------------------');
-        console.log(JSON.stringify(revertPhoto.data));
-        console.log('-------------------------------------------------------');
-        console.log(JSON.stringify(apiResponse.body));
-        console.log('-------------------------------------------------------');
-      }
-
-      if (apiResponse.body.Title.includes("Test")) {
-        console.log('-------------------------------------------------------');
-        console.log('Test detected in title of photo.');
-        console.log('-------------------------------------------------------');
-        console.log(JSON.stringify(revertPhoto.data));
-        console.log('-------------------------------------------------------');
-        console.log(JSON.stringify(apiResponse.body));
-        console.log('-------------------------------------------------------');
-      }
-
       if (!revertPhoto.data.DeletedAt && apiResponse.body.DeletedAt) {
         // Need to restore the photo
         const restoreResponse = await t.request({
@@ -724,7 +577,6 @@ export async function helperAfterEach(t) {
       for (const label of apiResponse.body.Labels) {
         const exists = revertPhoto.data.Labels.find(slug => slug.Label.Slug === label.Label.Slug);
         if (!exists) {
-          console.log(`deleting label ${label.Label.Slug}`);
           let labelApiResponse = await t.request({
             url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
             method: 'put',
@@ -753,7 +605,6 @@ export async function helperAfterEach(t) {
       for (const label of revertPhoto.data.Labels) {
         const exists = apiResponse.body.Labels.find(slug => slug.Label.Slug === label.Label.Slug);
         if (!exists) {
-          console.log(`recreating label ${label.Label.Slug}`);
           const labelApiResponse = await t.request({
             url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label`,
             method: 'post',
@@ -775,45 +626,21 @@ export async function helperAfterEach(t) {
             helperFailures.push(msg);
           }
         } else {
-          console.log(`repairing label ${label.Label.Slug} with ${label.Uncertainty}`);
           let labelApiResponse;
-          // if (label.Uncertainty !== exists.Uncertainty) {
-          //   console.log(`attempting to reset uncertainty for ${revertPhoto.uid} and ${label.LabelID}`);
-          //   labelApiResponse = await t.request({
-          //     url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
-          //     method: 'put',
-          //     body: {
-          //         "Description": label.Label.Description,
-          //         "Favorite": label.Label.Favorite,
-          //         "Name": label.Label.Name,
-          //         "Notes": label.Label.Notes,
-          //         "Priority": label.Label.Priority,
-          //         "Thumb": label.Label.Thumb,
-          //         // "ThumbSrc": label.Label.ThumbSrc,
-          //         "Uncertainty": label.Uncertainty
-          //     }
-          //   });
-          //   if (labelApiResponse.status !== 200 || labelApiResponse.status === null) { // Ignore Ok
-          //     const msg = "helperAfterEach add label (2) " + JSON.stringify(labelApiResponse);
-          //     logMessage(msg);
-          //     helperFailures.push(msg);
-          //   }
-          // } else {
-            labelApiResponse = await t.request({
-              url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
-              method: 'put',
-              body: {
-                  "Description": label.Label.Description,
-                  "Favorite": label.Label.Favorite,
-                  "Name": label.Label.Name,
-                  "Notes": label.Label.Notes,
-                  "Priority": label.Label.Priority,
-                  "Thumb": label.Label.Thumb,
-                  // "ThumbSrc": label.Label.ThumbSrc,
-                  "Uncertainty": label.Uncertainty // Although this doesn't match the previous number, it forces a manual label back into place.  All that can be done.
-              }
-            });
-          // }
+          labelApiResponse = await t.request({
+            url: `${testcafeconfig.api}photos/${revertPhoto.uid}/label/${label.LabelID}`,
+            method: 'put',
+            body: {
+                "Description": label.Label.Description,
+                "Favorite": label.Label.Favorite,
+                "Name": label.Label.Name,
+                "Notes": label.Label.Notes,
+                "Priority": label.Label.Priority,
+                "Thumb": label.Label.Thumb,
+                // "ThumbSrc": label.Label.ThumbSrc,
+                "Uncertainty": label.Uncertainty // Although this doesn't match the previous number, it forces a manual label back into place.  All that can be done.
+            }
+          });
           if (labelApiResponse.status !== 200 || labelApiResponse.status === null) { // Ignore Ok
             const msg = "helperAfterEach reset label " + JSON.stringify(labelApiResponse);
             logMessage(msg);
@@ -924,8 +751,6 @@ export async function helperAfterEach(t) {
       // Revert any changes to Primary file.
       const originalPrimary = revertPhoto.data.Files.find((element) => element.Primary === true)
       const currentPrimary = apiResponse.body.Files.find((element) => element.Primary === true)
-      // await console.log(originalPrimary);
-      // await console.log(currentPrimary);
       if (originalPrimary && currentPrimary) {
         const originalUID = originalPrimary.UID
         const currentUID = currentPrimary.UID
@@ -972,7 +797,43 @@ export async function helperAfterEach(t) {
     }
   } catch (e) {
     const errorText = e.errmsg || e.message || "An unknown error occurred";
-    helperFailures.push(`revertAlbum threw ${errorText}`);
+    helperFailures.push(`revertPhoto threw ${errorText}`);
+  }
+
+  // Archive any new photos
+  let deletePhotos = [];
+  try {
+    for (const removePhoto of t.ctx.testChanges.removePhotos) {
+      // Get current photo status
+      let apiResponse = await t.request({
+        url: `${testcafeconfig.api}photos/${removePhoto.uid}`,
+        method: 'get'
+      });
+      if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
+        const msg = "helperAfterEach removePhoto get " + JSON.stringify(apiResponse);
+        logMessage(msg);
+        helperFailures.push(msg);
+      }
+      if (!apiResponse.body.DeletedAt) {
+        deletePhotos.push(removePhoto.uid);
+      }
+    }
+  
+    if (deletePhotos.length > 0) {
+        let apiResponse = await t.request({
+          url: `${testcafeconfig.api}batch/photos/archive`, // Can NOT use delete, as this will remove the associated file from the file system, which will break all subsequent test suite executions.
+          method: 'post',
+          body: { "photos": deletePhotos }
+        });
+        if (apiResponse.status !== 200 || apiResponse.status === null) { // Ignore Ok
+          const msg = "helperAfterEach removePhoto archive " + JSON.stringify(apiResponse);
+          logMessage(msg);
+          helperFailures.push(msg);
+        }
+    }
+  } catch (e) {
+    const errorText = e.errmsg || e.message || "An unknown error occurred";
+    helperFailures.push(`removePhoto threw ${errorText}`);
   }
 
   result = await determineChangedAlbums(t);
@@ -1030,7 +891,6 @@ export async function helperAfterEach(t) {
         if (!albumPhotoApiResponse.body.find(ap => ap.UID === photo.UID))
         {
           photos.push(photo.UID);
-          logMessage(`Reverting album add photo ${photo.UID}`);
         }
       }
       if (photos.length > 0){
@@ -1049,8 +909,6 @@ export async function helperAfterEach(t) {
         url: `${testcafeconfig.api}albums/${revertAlbum.uid}`,
         method: 'get'
       });
-      // await console.log(revertAlbum.data.Thumb !== apiResponse.body.Thumb);
-      // await console.log(`${revertAlbum.uid} ${revertAlbum.data.Thumb} ${apiResponse.body.Thumb}`)
       if (revertAlbum.data.Thumb !== apiResponse.body.Thumb) {
         // Try updating the album again in case the thumb was from a removed photo.
         if (revertAlbum.data.Thumb) {
@@ -1122,24 +980,6 @@ export async function helperAfterEach(t) {
     const errorText = e.errmsg || e.message || "An unknown error occurred";
     helperFailures.push(`removeAlbums threw ${errorText}`);
   }
-
-  // // Remove Labels from Photos
-  // try {
-  //   for (const removeLabelFromPhoto of t.ctx.testChanges.removeLabelFromPhotos) {
-  //     const apiResponse = await t.request({
-  //       url: `${testcafeconfig.api}photos/${removeLabelFromPhoto.photoUid}/label/${removeLabelFromPhoto.labelUid}`,
-  //       method: 'delete'
-  //     });
-  //     if ((apiResponse.status !== 200 && apiResponse.status !== 404) || apiResponse.status === null ) { // Ignore Ok and not found
-  //       const msg = "helperAfterEach remove label from photo " + JSON.stringify(archiveResponse);
-  //       logMessage(msg);
-  //       helperFailures.push(msg);
-  //     }
-  //   }
-  // } catch (e) {
-  //   const errorText = e.errmsg || e.message || "An unknown error occurred";
-  //   helperFailures.push(`removeLabelsFromPhotos threw ${errorText}`);
-  // }
 
   // Error if there were any API or try/catch failures.
   await t.expect(helperFailures).eql([]);
