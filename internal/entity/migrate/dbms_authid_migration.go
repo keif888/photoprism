@@ -50,22 +50,22 @@ func ConvertDBMSAuthIDDataTypes(db *gorm.DB) (err error) {
 		defer func() {
 			if err == nil {
 				if txErr := tx.Commit().Error; txErr != nil {
-					log.Warningf("migrate: commit failure for DBMS AuthID Data Types: %w", txErr)
+					log.Warningf("migrate: commit failure for DBMS AuthID Data Types: %s", txErr.Error())
 				} else {
 					log.Debug("migrate: committed DBMS AuthID Data Types")
 				}
 			} else {
 				if txErr := tx.Rollback().Error; txErr != nil {
-					log.Warningf("migrate: rollback failure for DBMS AuthID Data Types: %w", txErr)
+					log.Warningf("migrate: rollback failure for DBMS AuthID Data Types: %s", txErr.Error())
 				} else {
 					log.Warning("migrate: rolled back DBMS AuthID Data Types")
 				}
 			}
 			if err = db.Exec("PRAGMA legacy_alter_table=false").Error; err != nil {
-				log.Errorf("migrate: error disabling legacy alter table %w", err)
+				log.Errorf("migrate: error disabling legacy alter table %s", err.Error())
 			}
 			if err = db.Exec("PRAGMA foreign_keys=true").Error; err != nil {
-				log.Errorf("migrate: error enabling foreign keys %w", err)
+				log.Errorf("migrate: error enabling foreign keys %s", err.Error())
 			}
 		}()
 

@@ -358,7 +358,7 @@ func RestoreDatabase(backupPath, fileName string, fromStdIn, force bool) (err er
 	go func() {
 		defer stdin.Close()
 		if _, err = io.Copy(stdin, f); err != nil {
-			log.Errorf(err.Error())
+			log.Error(err.Error())
 		}
 	}()
 
@@ -367,7 +367,7 @@ func RestoreDatabase(backupPath, fileName string, fromStdIn, force bool) (err er
 
 	// Run restore command.
 	if cmdErr := cmd.Run(); cmdErr != nil {
-		log.Errorf("restore: failed to restore index database")
+		log.Error("restore: failed to restore index database")
 
 		if errStr := strings.TrimSpace(stderr.String()); errStr != "" {
 			return errors.New(errStr)
@@ -375,7 +375,7 @@ func RestoreDatabase(backupPath, fileName string, fromStdIn, force bool) (err er
 
 		return cmdErr
 	} else {
-		log.Infof("restore: index database successfully restored")
+		log.Info("restore: index database successfully restored")
 	}
 
 	return nil

@@ -69,7 +69,7 @@ func ConvertSQLiteDataTypes(db *gorm.DB) (err error) {
 
 			if err := tx.Exec(createTempStatement).Error; err != nil {
 				if txErr := tx.Rollback().Error; txErr != nil {
-					log.Errorf("migrate: rollback failure: %w", txErr)
+					log.Errorf("migrate: rollback failure: %s", txErr.Error())
 				} else {
 					log.Errorf("migrate: rolled back successfully")
 				}
@@ -79,7 +79,7 @@ func ConvertSQLiteDataTypes(db *gorm.DB) (err error) {
 
 			if err := tx.Exec(insertTempStatement).Error; err != nil {
 				if txErr := tx.Rollback().Error; txErr != nil {
-					log.Errorf("migrate: rollback failure: %w", txErr)
+					log.Errorf("migrate: rollback failure: %s", txErr.Error())
 				} else {
 					log.Errorf("migrate: rolled back successfully")
 				}
@@ -89,7 +89,7 @@ func ConvertSQLiteDataTypes(db *gorm.DB) (err error) {
 
 			if err := tx.Exec(dropTempStatement).Error; err != nil {
 				if txErr := tx.Rollback().Error; txErr != nil {
-					log.Errorf("migrate: rollback failure: %w", txErr)
+					log.Errorf("migrate: rollback failure: %s", txErr.Error())
 				} else {
 					log.Errorf("migrate: rolled back successfully")
 				}
@@ -99,7 +99,7 @@ func ConvertSQLiteDataTypes(db *gorm.DB) (err error) {
 
 			if err := tx.Exec(alterTempStatement).Error; err != nil {
 				if txErr := tx.Rollback().Error; txErr != nil {
-					log.Errorf("migrate: rollback failure: %w", txErr)
+					log.Errorf("migrate: rollback failure: %s", txErr.Error())
 				} else {
 					log.Errorf("migrate: rolled back successfully")
 				}
@@ -108,7 +108,7 @@ func ConvertSQLiteDataTypes(db *gorm.DB) (err error) {
 			}
 
 			if txErr := tx.Commit().Error; txErr != nil {
-				log.Errorf("migrate: commit failure for Convert SQLite Data Types: %w", txErr)
+				log.Errorf("migrate: commit failure for Convert SQLite Data Types: %s", txErr.Error())
 				return txErr
 			}
 			log.Debugf("migrate: committed changes to %s", table.TblName)

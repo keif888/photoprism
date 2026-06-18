@@ -418,7 +418,7 @@ func (c *Config) DatabaseConnsIdle() int {
 // Db returns the db connection.
 func (c *Config) Db() *gorm.DB {
 	if c.db == nil {
-		log.Debugf(fmt.Sprintf("Stack Trace: %s", debug.Stack()))
+		log.Debugf("Stack Trace: %s", debug.Stack())
 		log.Fatal("config: database not connected")
 	}
 
