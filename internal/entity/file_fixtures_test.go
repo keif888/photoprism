@@ -33,3 +33,44 @@ func TestFileMap_Pointer(t *testing.T) {
 		assert.IsType(t, &File{}, r)
 	})
 }
+
+func TestFileFixtureLoad(t *testing.T) {
+	t.Run("ZeroValuesFileDiff", func(t *testing.T) {
+		e := FileFixtures.Get("Photo06.png")
+		a := &File{}
+
+		if assert.NoError(t, Db().First(&a, e.ID).Error) {
+			assert.Equal(t, e.ID, a.ID)
+			if assert.NotNil(t, e.FileRoot) && assert.NotNil(t, a.FileRoot) {
+				assert.Equal(t, *e.FileRoot, *a.FileRoot, "FileRoot")
+			}
+			assert.Equal(t, e.FilePages, a.FilePages, "FilePages")
+			assert.Equal(t, e.FileOrientationSrc, a.FileOrientationSrc, "FileOrientationSrc")
+			if assert.NotNil(t, e.FileDiff) && assert.NotNil(t, a.FileDiff) {
+				assert.Equal(t, *e.FileDiff, *a.FileDiff, "FileDiff")
+			}
+			if assert.NotNil(t, e.FileChroma) && assert.NotNil(t, a.FileChroma) {
+				assert.Equal(t, *e.FileChroma, *a.FileChroma, "FileChroma")
+			}
+		}
+	})
+	t.Run("ZeroValuesFileChroma", func(t *testing.T) {
+		e := FileFixtures.Get("exampleXmpFile.xmp")
+		a := &File{}
+
+		if assert.NoError(t, Db().First(&a, e.ID).Error) {
+			assert.Equal(t, e.ID, a.ID)
+			if assert.NotNil(t, e.FileRoot) && assert.NotNil(t, a.FileRoot) {
+				assert.Equal(t, *e.FileRoot, *a.FileRoot, "FileRoot")
+			}
+			assert.Equal(t, e.FilePages, a.FilePages, "FilePages")
+			assert.Equal(t, e.FileOrientationSrc, a.FileOrientationSrc, "FileOrientationSrc")
+			if assert.NotNil(t, e.FileDiff) && assert.NotNil(t, a.FileDiff) {
+				assert.Equal(t, *e.FileDiff, *a.FileDiff, "FileDiff")
+			}
+			if assert.NotNil(t, e.FileChroma) && assert.NotNil(t, a.FileChroma) {
+				assert.Equal(t, *e.FileChroma, *a.FileChroma, "FileChroma")
+			}
+		}
+	})
+}

@@ -225,13 +225,98 @@ func TestFile_Create(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
 
-		file := &File{Photo: photo, FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "testname", FileRoot: "xyz"}
+		file := &File{Photo: photo, FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "testname", FileRoot: new("xyz")}
 
 		err := file.Create()
 
-		if err != nil {
-			t.Fatal(err)
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(-1), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "xyz", *fileRes.FileRoot)
+				}
+			}
+			UnscopedDb().Delete(file)
 		}
+		UnscopedDb().Delete(photo)
+	})
+	t.Run("WithChroma0", func(t *testing.T) {
+		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
+
+		file := &File{Photo: photo, FileChroma: new(int16(0)), FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "testname", FileRoot: new("xyz")}
+
+		err := file.Create()
+
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(0), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "xyz", *fileRes.FileRoot)
+				}
+			}
+			UnscopedDb().Delete(file)
+		}
+		UnscopedDb().Delete(photo)
+	})
+	t.Run("WithFileRootEmpty", func(t *testing.T) {
+		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
+
+		file := &File{Photo: photo, FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "testname", FileRoot: new("")}
+
+		err := file.Create()
+
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(-1), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "", *fileRes.FileRoot)
+				}
+			}
+			UnscopedDb().Delete(file)
+		}
+		UnscopedDb().Delete(photo)
+	})
+	t.Run("WithChroma0AndFileRootEmpty", func(t *testing.T) {
+		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
+
+		file := &File{Photo: photo, FileChroma: new(int16(0)), FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "testname", FileRoot: new("")}
+
+		err := file.Create()
+
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(0), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "", *fileRes.FileRoot)
+				}
+			}
+			UnscopedDb().Delete(file)
+		}
+		UnscopedDb().Delete(photo)
 	})
 }
 
@@ -272,25 +357,56 @@ func TestFile_Save(t *testing.T) {
 		file := &File{Photo: nil, FileType: "jpg", PhotoUID: "123", FileUID: "123"}
 		err := file.Save()
 
-		if err == nil {
-			t.Fatal("error must not be nil")
-		}
+		if assert.Error(t, err) {
+			if file.ID != 0 {
+				t.Fatalf("file id should be 0: %d", file.ID)
+			}
 
-		if file.ID != 0 {
-			t.Fatalf("file id should be 0: %d", file.ID)
+			assert.Equal(t, "file 123: cannot save file with empty photo id", err.Error())
 		}
-
-		assert.Equal(t, "file 123: cannot save file with empty photo id", err.Error())
 	})
 	t.Run("Success", func(t *testing.T) {
 		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
 
-		file := &File{Photo: photo, FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "Food", FileRoot: "", UpdatedAt: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC)}
+		file := &File{Photo: photo, FileChroma: new(int16(-1)), FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "Food", FileRoot: new(""), UpdatedAt: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC)}
 
 		err := file.Save()
 
-		if err != nil {
-			t.Fatal(err)
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(-1), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "", *fileRes.FileRoot)
+				}
+			}
+		}
+	})
+	t.Run("FileChromaZero", func(t *testing.T) {
+		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood Good"}
+
+		file := &File{Photo: photo, FileChroma: new(int16(0)), FileType: "jpg", FileSize: 500, PhotoID: 766, FileName: "Good Food", FileRoot: new("/"), UpdatedAt: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC)}
+
+		err := file.Save()
+
+		if assert.NoError(t, err) {
+			fileRes := &File{ID: file.ID}
+			err := Db().Find(&fileRes).Error
+			if assert.NoError(t, err) {
+				if assert.NotNil(t, fileRes.FileChroma) {
+					assert.Equal(t, int16(0), *fileRes.FileChroma)
+				}
+				assert.Equal(t, photo.ID, fileRes.PhotoID)
+				assert.Equal(t, "jpg", fileRes.FileType)
+				if assert.NotNil(t, fileRes.FileRoot) {
+					assert.Equal(t, "/", *fileRes.FileRoot)
+				}
+			}
 		}
 	})
 }
@@ -328,7 +444,7 @@ func TestFile_Update(t *testing.T) {
 		newPhoto := &Photo{ID: 5678} // Can't add details if there isn't a photo in the database.
 		Db().Create(newPhoto)
 
-		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBeUpdated", FileRoot: "", PhotoID: 5678}
+		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBeUpdated", FileRoot: new("/ToBeUpdated"), PhotoID: 5678}
 
 		err := file.Save()
 
@@ -338,12 +454,29 @@ func TestFile_Update(t *testing.T) {
 
 		assert.Equal(t, "ToBeUpdated", file.FileName)
 
-		err2 := file.Update("FileName", "Happy")
-
-		if err2 != nil {
-			t.Fatal(err2)
+		if assert.NoError(t, file.Update("FileName", "Happy")) {
+			assert.Equal(t, "Happy", file.FileName)
 		}
-		assert.Equal(t, "Happy", file.FileName)
+
+		if assert.NotNil(t, file.FileChroma) {
+			assert.Equal(t, int16(-1), *file.FileChroma)
+		}
+
+		if assert.NoError(t, file.Update("FileChroma", 0)) {
+			if assert.NotNil(t, file.FileChroma) {
+				assert.Equal(t, int16(0), *file.FileChroma)
+			}
+		}
+
+		if assert.NotNil(t, file.FileRoot) {
+			assert.Equal(t, "/ToBeUpdated", *file.FileRoot)
+		}
+
+		if assert.NoError(t, file.Update("FileRoot", "")) {
+			if assert.NotNil(t, file.FileRoot) {
+				assert.Equal(t, "", *file.FileRoot)
+			}
+		}
 
 		UnscopedDb().Delete(file)
 		UnscopedDb().Delete(newPhoto)
@@ -471,7 +604,7 @@ func TestFile_Delete(t *testing.T) {
 		newPhoto := &Photo{ID: 5678} // Can't add details if there isn't a photo in the database.
 		Db().Create(newPhoto)
 
-		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBePermanentlyDeleted", FileRoot: "", PhotoID: 5678}
+		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBePermanentlyDeleted", FileRoot: new(""), PhotoID: 5678}
 
 		err := file.Save()
 
@@ -489,7 +622,7 @@ func TestFile_Delete(t *testing.T) {
 		newPhoto := &Photo{ID: 5678} // Can't add details if there isn't a photo in the database.
 		Db().Create(newPhoto)
 
-		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBeDeleted", FileRoot: "", PhotoID: 5678}
+		file := &File{FileType: "jpg", FileSize: 500, FileName: "ToBeDeleted", FileRoot: new(""), PhotoID: 5678}
 
 		err := file.Save()
 
@@ -677,7 +810,9 @@ func TestFile_Rename(t *testing.T) {
 		m := FileFixtures.Get("exampleFileName.jpg")
 
 		assert.Equal(t, "2790/07/27900704_070228_D6D51B6C.jpg", m.FileName)
-		assert.Equal(t, RootOriginals, m.FileRoot)
+		if assert.NotNil(t, m.FileRoot) {
+			assert.Equal(t, RootOriginals, *m.FileRoot)
+		}
 		assert.Equal(t, false, m.FileMissing)
 		assert.False(t, m.DeletedAt.Valid)
 
@@ -691,7 +826,9 @@ func TestFile_Rename(t *testing.T) {
 		}
 
 		assert.Equal(t, "x/y/newName.jpg", m.FileName)
-		assert.Equal(t, "newRoot", m.FileRoot)
+		if assert.NotNil(t, m.FileRoot) {
+			assert.Equal(t, "newRoot", *m.FileRoot)
+		}
 		assert.Equal(t, false, m.FileMissing)
 		assert.False(t, m.DeletedAt.Valid)
 		assert.Equal(t, "x/y", p.PhotoPath)
@@ -702,7 +839,9 @@ func TestFile_Rename(t *testing.T) {
 		}
 
 		assert.Equal(t, "2790/07/27900704_070228_D6D51B6C.jpg", m.FileName)
-		assert.Equal(t, RootOriginals, m.FileRoot)
+		if assert.NotNil(t, m.FileRoot) {
+			assert.Equal(t, RootOriginals, *m.FileRoot)
+		}
 		assert.Equal(t, false, m.FileMissing)
 		assert.False(t, m.DeletedAt.Valid)
 		assert.Equal(t, "2790/07", p.PhotoPath)

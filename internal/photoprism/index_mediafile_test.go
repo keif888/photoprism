@@ -77,11 +77,48 @@ func TestIndex_MediaFile(t *testing.T) {
 		assert.Equal(t, "Blue Gopher", mediaFile.metaData.Title)
 		assert.Equal(t, IndexStatus("added"), result.Status)
 	})
+	t.Run("TreeWhiteJpg", func(t *testing.T) {
+		cfg := config.TestConfig()
+
+		initErr := cfg.InitializeTestData()
+		assert.NoError(t, initErr)
+
+		// Cleanup before we run as maybe the files have already been loaded.
+		var err error
+		for ok := true; ok; ok = (err == nil) {
+			prephoto := entity.Photo{}
+			err = entity.UnscopedSearchFirstPhoto(&prephoto, "original_name = ?", "tree_white").Error
+			if err == nil {
+				_, err2 := DeletePhoto(&prephoto, true, true)
+				assert.NoError(t, err2)
+			}
+		}
+
+		convert := NewConvert(cfg)
+
+		ind := NewIndex(cfg, convert, NewFiles(), NewPhotos())
+		indexOpt := IndexOptionsAll(cfg)
+		mediaFile, err := NewMediaFile(cfg.SamplesPath() + "/tree_white.jpg")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, "", mediaFile.metaData.Title)
+
+		result := ind.UserMediaFile(mediaFile, indexOpt, "tree_white.jpg", "", entity.Admin.GetUID())
+
+		assert.Equal(t, "Adobe Photoshop CC 2019 (Macintosh)", mediaFile.metaData.Software)
+		assert.Equal(t, IndexStatus("added"), result.Status)
+
+		file := entity.File{}
+		if assert.NoError(t, entity.Db().Model(&entity.File{}).Where("original_name = 'tree_white.jpg'").First(&file).Error) {
+			assert.Equal(t, int16(0), *file.FileChroma)
+		}
+	})
 
 	t.Run("twoFiles", func(t *testing.T) {
 		cfg := config.TestConfig()
 
-		cfg.InitializeTestData()
+		assert.NoError(t, cfg.InitializeTestData())
 
 		// Cleanup before we run as maybe the files have already been loaded.
 		var err error
