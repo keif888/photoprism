@@ -88,7 +88,7 @@ func AlbumCover(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("%s: found no original for %s", albumCover, clean.Log(fileName))
@@ -205,7 +205,7 @@ func LabelCover(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("%s: file %s is missing", labelCover, clean.Log(f.FileName))

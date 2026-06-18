@@ -274,14 +274,14 @@ func TestRenameFile(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		assert.Equal(t, "2790/02/Photo01.xmp", entity.FileFixturesExampleXMP.FileName)
-		assert.Equal(t, "/", entity.FileFixturesExampleXMP.FileRoot)
+		if assert.NotNil(t, entity.FileFixturesExampleXMP.FileRoot) {
+			assert.Equal(t, "/", *entity.FileFixturesExampleXMP.FileRoot)
+		}
 		err := RenameFile("/", "exampleXmpFile.xmp", "test-root", "yyy.jpg")
 
-		if err != nil {
-			t.Fatal(err)
-		}
-		//TODO how to assert?
-		//assert.Equal(t, "", entity.FileFixturesExampleXMP.FileName)
+		assert.NoError(t, err)
+		// TODO how to assert?
+		// assert.Equal(t, "", entity.FileFixturesExampleXMP.FileName)
 	})
 
 }

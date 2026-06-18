@@ -332,7 +332,7 @@ func (imp *Import) DestinationFilename(mainFile *MediaFile, mediaFile *MediaFile
 
 	if !mediaFile.IsSidecar() {
 		if f, err := entity.FirstFileByHash(mediaFile.Hash()); err == nil {
-			existingFilename := FileName(f.FileRoot, f.FileName)
+			existingFilename := FileName(f.GetFileRoot(), f.FileName)
 			if fs.FileExists(existingFilename) {
 				return existingFilename, fmt.Errorf("%s is identical to %s (sha1 %s)", clean.Log(filepath.Base(mediaFile.FileName())), clean.Log(f.FileName), mediaFile.Hash())
 			} else {

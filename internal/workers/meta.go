@@ -108,7 +108,7 @@ func (w *Meta) Start(delay, interval time.Duration, force bool) (err error) {
 				if fileErr != nil {
 					log.Debugf("index: photo %s has invalid primary file (%s)", logName, clean.Error(fileErr))
 				} else {
-					fileName := photoprism.FileName(primaryFile.FileRoot, primaryFile.FileName)
+					fileName := photoprism.FileName(primaryFile.GetFileRoot(), primaryFile.FileName)
 
 					// Load original media file.
 					mediaFile, mediaErr := photoprism.NewMediaFile(fileName)

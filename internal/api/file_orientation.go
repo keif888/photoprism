@@ -90,7 +90,7 @@ func ChangeFileOrientation(router *gin.RouterGroup) {
 
 		// Update orientation if it was changed.
 		if m.Orientation() != frm.Orientation() {
-			fileName := photoprism.FileName(m.FileRoot, m.FileName)
+			fileName := photoprism.FileName(m.GetFileRoot(), m.FileName)
 			mf, fileErr := photoprism.NewMediaFile(fileName)
 
 			// Check if file exists.

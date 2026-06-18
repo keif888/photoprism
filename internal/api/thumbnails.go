@@ -161,7 +161,7 @@ func GetThumb(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 
 		if fileName, err = fs.Resolve(fileName); err != nil {
 			log.Errorf("%s: file %s is missing", logPrefix, clean.Log(f.FileName))

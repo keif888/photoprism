@@ -72,7 +72,7 @@ func DeleteFile(router *gin.RouterGroup) {
 		}
 
 		// Compose storage filename.
-		fileName := photoprism.FileName(file.FileRoot, file.FileName)
+		fileName := photoprism.FileName(file.GetFileRoot(), file.FileName)
 		baseName := filepath.Base(fileName)
 
 		mediaFile, err := photoprism.NewMediaFile(fileName)

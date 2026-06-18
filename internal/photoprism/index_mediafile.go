@@ -112,7 +112,7 @@ func (ind *Index) UserMediaFile(m *MediaFile, o IndexOptions, originalName, phot
 
 		if fileQuery.Error == nil {
 			fileExists = true
-			indFileName = FileName(file.FileRoot, file.FileName)
+			indFileName = FileName(file.GetFileRoot(), file.FileName)
 		}
 
 		if !fileExists {
@@ -339,7 +339,7 @@ func (ind *Index) UserMediaFile(m *MediaFile, o IndexOptions, originalName, phot
 	}
 
 	// Set basic file information.
-	file.FileRoot = fileRoot
+	file.FileRoot = &fileRoot
 	file.FileName = fileName
 	file.FileHash = fileHash
 	file.FileSize = fileSize
@@ -405,8 +405,8 @@ func (ind *Index) UserMediaFile(m *MediaFile, o IndexOptions, originalName, phot
 	}
 
 	// Reset file perceptive diff and chroma percent.
-	file.FileDiff = -1
-	file.FileChroma = -1
+	file.FileDiff = new(int(-1))
+	file.FileChroma = new(int16(-1))
 	file.FileVideo = m.IsVideo()
 	file.MediaType = m.MediaType().String()
 
@@ -778,11 +778,11 @@ func (ind *Index) UserMediaFile(m *MediaFile, o IndexOptions, originalName, phot
 		// Set the video appearance from the primary image. In a future version, a still image extracted from the
 		// video could be used for this purpose if the primary image is not directly derived from the video file,
 		// e.g. in live photo stacks, see https://github.com/photoprism/photoprism/pull/3588#issuecomment-1683429455
-		if primaryFile.FileDiff > 0 {
+		if primaryFile.FileDiff != nil && *primaryFile.FileDiff > 0 {
 			file.FileMainColor = primaryFile.FileMainColor
 			file.FileColors = primaryFile.FileColors
 			file.FileLuminance = primaryFile.FileLuminance
-			file.FileDiff = primaryFile.FileDiff
+			file.FileDiff = new(primaryFile.GetFileDiff())
 			file.FileChroma = primaryFile.FileChroma
 		}
 	}

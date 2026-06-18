@@ -131,7 +131,7 @@ func ZipCreate(router *gin.RouterGroup) {
 				continue
 			}
 
-			fileName := photoprism.FileName(file.FileRoot, file.FileName)
+			fileName := photoprism.FileName(file.GetFileRoot(), file.FileName)
 			alias := file.DownloadName(dlName, 0)
 			key := strings.ToLower(alias)
 

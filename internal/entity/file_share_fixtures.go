@@ -54,9 +54,9 @@ func CreateFileShareFixtures() {
 	for _, entity := range FileShareFixtures {
 		firstEntity := &FileShare{}
 		if err := Db().Model(&FileShare{}).Where("file_id = ? and service_id = ? and remote_name = ?", entity.FileID, entity.ServiceID, entity.RemoteName).First(&firstEntity).Error; err != nil {
-			Db().Create(&entity)
+			Log("filesharefixtures", "create entity", Db().Create(&entity).Error)
 		} else {
-			Db().Save(&entity)
+			Log("filesharefixtures", "save entity", Db().Save(&entity).Error)
 		}
 	}
 }

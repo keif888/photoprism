@@ -96,7 +96,7 @@ func (w *Purge) Start(opt PurgeOptions) (purgedFiles map[string]bool, purgedPhot
 				return purgedFiles, purgedPhotos, updates(), errors.New("purge canceled")
 			}
 
-			fileName := FileName(file.FileRoot, file.FileName)
+			fileName := FileName(file.GetFileRoot(), file.FileName)
 
 			if ignore[fileName].Exists() || purgedFiles[fileName] {
 				continue
@@ -133,7 +133,7 @@ func (w *Purge) Start(opt PurgeOptions) (purgedFiles map[string]bool, purgedPhot
 					continue
 				}
 
-				w.files.Remove(file.FileName, file.FileRoot)
+				w.files.Remove(file.FileName, file.GetFileRoot())
 				purgedFiles[fileName] = true
 				log.Infof("purge: flagged file %s as missing", clean.Log(file.FileName))
 
@@ -255,7 +255,7 @@ func (w *Purge) Start(opt PurgeOptions) (purgedFiles map[string]bool, purgedPhot
 
 				// Remove files from lookup table.
 				for _, file := range files {
-					w.files.Remove(file.FileName, file.FileRoot)
+					w.files.Remove(file.FileName, file.GetFileRoot())
 				}
 			}
 		}

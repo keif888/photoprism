@@ -41,7 +41,7 @@ func (w *Sync) upload(a entity.Service) (complete bool, err error) {
 			return false, nil
 		}
 
-		fileName := photoprism.FileName(file.FileRoot, file.FileName)
+		fileName := photoprism.FileName(file.GetFileRoot(), file.FileName)
 		remoteName := path.Join(a.SyncPath, file.FileName)
 		remoteDir := path.Dir(remoteName)
 

@@ -167,7 +167,7 @@ func videoBuildTrimPlans(conf *config.Config, results []search.Photo, trimDurati
 			continue
 		}
 
-		srcPath := photoprism.FileName(videoFile.FileRoot, videoFile.FileName)
+		srcPath := photoprism.FileName(videoFile.GetFileRoot(), videoFile.FileName)
 		if !fs.FileExistsNotEmpty(srcPath) {
 			log.Warnf("trim: missing file %s", clean.Log(srcPath))
 			continue

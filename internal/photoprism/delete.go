@@ -49,7 +49,7 @@ func DeletePhoto(p *entity.Photo, mediaFiles bool, originals bool) (numFiles int
 // DeleteFiles permanently deletes media and related sidecar files.
 func DeleteFiles(files entity.Files, originals bool) (numFiles int) {
 	for _, file := range files {
-		fileName := FileName(file.FileRoot, file.FileName)
+		fileName := FileName(file.GetFileRoot(), file.FileName)
 
 		// Skip empty file names, just to be sure.
 		if fileName == "" {

@@ -97,7 +97,7 @@ func FolderCover(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("%s: could not find original for %s", folderCover, fileName)

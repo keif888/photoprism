@@ -57,7 +57,7 @@ func TestVideoListJSONRow(t *testing.T) {
 			Files: []entity.File{
 				{
 					FileName:     "clip.avc",
-					FileRoot:     "/",
+					FileRoot:     new(string("/")),
 					FileDuration: time.Second,
 					FileCodec:    "avc1",
 					FileMime:     "video/mp4",
@@ -72,7 +72,7 @@ func TestVideoListJSONRow(t *testing.T) {
 				},
 				{
 					FileName:     "clip.mp4",
-					FileRoot:     "/",
+					FileRoot:     new(string("/")),
 					FileDuration: 2 * time.Second,
 					FileCodec:    "avc1",
 					FileMime:     "video/mp4",

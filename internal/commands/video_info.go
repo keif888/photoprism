@@ -85,7 +85,7 @@ func videoInfoEntryFor(conf *config.Config, found search.Photo, verbose bool) (v
 		Index: videoIndexSummary(found, videoFile),
 	}
 
-	filePath := photoprism.FileName(videoFile.FileRoot, videoFile.FileName)
+	filePath := photoprism.FileName(videoFile.GetFileRoot(), videoFile.FileName)
 	mediaFile, err := photoprism.NewMediaFile(filePath)
 	if err != nil {
 		return entry, err
@@ -126,7 +126,7 @@ func videoInfoEntryFor(conf *config.Config, found search.Photo, verbose bool) (v
 func videoIndexSummary(found search.Photo, file entity.File) map[string]any {
 	return map[string]any{
 		"file_name":       file.FileName,
-		"file_root":       file.FileRoot,
+		"file_root":       file.GetFileRoot(),
 		"file_uid":        file.FileUID,
 		"photo_uid":       found.PhotoUID,
 		"media_type":      file.MediaType,

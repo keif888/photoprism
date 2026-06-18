@@ -145,7 +145,7 @@ func videoBuildRemuxPlans(conf *config.Config, results []search.Photo, force boo
 			continue
 		}
 
-		srcPath := photoprism.FileName(videoFile.FileRoot, videoFile.FileName)
+		srcPath := photoprism.FileName(videoFile.GetFileRoot(), videoFile.FileName)
 		if !fs.FileExistsNotEmpty(srcPath) {
 			log.Warnf("remux: missing file %s", clean.Log(srcPath))
 			skipped++

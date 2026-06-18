@@ -98,7 +98,7 @@ func GetVideo(router *gin.RouterGroup) {
 		// Get video bitrate, codec, and file type.
 		videoFileType := f.Type()
 		videoBitrate := f.Bitrate()
-		videoFileName := photoprism.FileName(f.FileRoot, f.FileName)
+		videoFileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 		videoContentType := f.ContentType()
 		var videoCodec string
 

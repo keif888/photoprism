@@ -742,7 +742,7 @@ func main() {
 			InstanceID:   "",
 			FileUID:      rnd.GenerateUID(entity.FileUID),
 			FileName:     fmt.Sprintf("%04d/%02d/PIC%08d.jpg", year, month, i),
-			FileRoot:     entity.RootSidecar,
+			FileRoot:     new(entity.RootSidecar),
 			OriginalName: "",
 			FileHash:     rnd.GenerateUID(entity.FileUID),
 			FileSize:     rand.Int64N(1000000),
@@ -770,8 +770,8 @@ func main() {
 			FileMainColor: "magenta",
 			FileColors:    "226611CC1",
 			FileLuminance: "ABCDEF123",
-			FileDiff:      456,
-			FileChroma:    15,
+			FileDiff:      new(int(456)),
+			FileChroma:    new(int16(15)),
 			// FileSoftware
 			// FileError
 			ModTime:   time.Now().Unix(),

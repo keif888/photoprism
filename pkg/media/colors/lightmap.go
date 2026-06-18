@@ -62,15 +62,15 @@ var diffValues = []diffValue{
 */
 
 // Diff returns an integer that can be used to find similar images.
-func (m LightMap) Diff() (result int) {
+func (m LightMap) Diff() (result *int) {
 	if len(m) != 9 {
-		return 0
+		return new(int(0))
 	}
 
-	result = 1
+	r := 1
 
 	for _, val := range diffValues {
-		result <<= 1
+		r <<= 1
 
 		a := 0
 		b := 0
@@ -84,9 +84,9 @@ func (m LightMap) Diff() (result int) {
 		}
 
 		if a+4 > b {
-			result++
+			r++
 		}
 	}
 
-	return result
+	return &r
 }

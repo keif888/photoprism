@@ -193,7 +193,7 @@ func GetPhotoDownload(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fileName := photoprism.FileName(f.GetFileRoot(), f.FileName)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("photo: file %s is missing", clean.Log(f.FileName))

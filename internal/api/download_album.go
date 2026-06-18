@@ -122,7 +122,7 @@ func DownloadAlbum(router *gin.RouterGroup) {
 
 			file.ID = result.FileID
 
-			fileName := photoprism.FileName(file.FileRoot, file.FileName)
+			fileName := photoprism.FileName(file.GetFileRoot(), file.FileName)
 			alias := file.DownloadName(dlName, 0)
 			key := strings.ToLower(alias)
 

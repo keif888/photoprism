@@ -6,27 +6,27 @@ import "fmt"
 type Chroma int16
 
 // Percent returns the colorfulness in percent.
-func (c Chroma) Percent() int16 {
+func (c Chroma) Percent() *int16 {
 	if c > 100 {
-		return 100
+		return new(int16(100))
 	} else if c < 0 {
-		return 0
+		return new(int16(0))
 	}
 
-	return int16(c)
+	return new(int16(c))
 }
 
 // Hex returns the colorfulness in percent has hex string.
 func (c Chroma) Hex() string {
-	return fmt.Sprintf("%X", c.Percent())
+	return fmt.Sprintf("%X", *c.Percent())
 }
 
 // Uint returns the colorfulness in percent as unsigned integer.
 func (c Chroma) Uint() uint {
-	return uint(c.Percent()) //nolint:gosec // Percent is bounded 0..100
+	return uint(*c.Percent()) //nolint:gosec // Percent is bounded 0..100
 }
 
 // Int returns the colorfulness in percent as integer.
 func (c Chroma) Int() int {
-	return int(c.Percent())
+	return int(*c.Percent())
 }

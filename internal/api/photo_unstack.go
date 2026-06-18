@@ -66,13 +66,13 @@ func PhotoUnstack(router *gin.RouterGroup) {
 			log.Errorf("photo: cannot unstack sidecar files")
 			AbortBadRequest(c)
 			return
-		case file.FileRoot != entity.RootOriginals:
+		case file.GetFileRoot() != entity.RootOriginals:
 			log.Errorf("photo: only originals can be unstacked")
 			AbortBadRequest(c)
 			return
 		}
 
-		fileName := photoprism.FileName(file.FileRoot, file.FileName)
+		fileName := photoprism.FileName(file.GetFileRoot(), file.FileName)
 		baseName := filepath.Base(fileName)
 
 		unstackFile, err := photoprism.NewMediaFile(fileName)
@@ -161,7 +161,7 @@ func PhotoUnstack(router *gin.RouterGroup) {
 
 			if unstackSingle {
 				relName = file.FileName
-				relRoot = file.FileRoot
+				relRoot = file.GetFileRoot()
 			}
 
 			if updateErr := entity.UnscopedDb().Exec(`UPDATE files 
@@ -209,7 +209,7 @@ func PhotoUnstack(router *gin.RouterGroup) {
 		}
 
 		// Re-index existing photo stack.
-		if res := ind.FileName(photoprism.FileName(stackPrimary.FileRoot, stackPrimary.FileName), photoprism.IndexOptionsSingle(conf)); res.Failed() {
+		if res := ind.FileName(photoprism.FileName(stackPrimary.GetFileRoot(), stackPrimary.FileName), photoprism.IndexOptionsSingle(conf)); res.Failed() {
 			log.Errorf("photo: %s (unstack %s)", res.Err, clean.Log(baseName))
 			AbortSaveFailed(c)
 			return

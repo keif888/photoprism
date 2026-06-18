@@ -118,7 +118,7 @@ func (w *Share) Start() (err error) {
 				log.Debugf("share: %s", err)
 			}
 
-			srcFileName := photoprism.FileName(file.File.FileRoot, file.File.FileName)
+			srcFileName := photoprism.FileName(file.File.GetFileRoot(), file.File.FileName)
 
 			if fs.ImageJpeg.Equal(file.File.FileType) && size.Width > 0 && size.Height > 0 {
 				srcFileName, err = thumb.FromFile(srcFileName, file.File.FileHash, w.conf.ThumbCachePath(), size.Width, size.Height, file.File.FileOrientation, size.Options...)

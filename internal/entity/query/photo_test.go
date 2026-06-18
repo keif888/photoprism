@@ -182,7 +182,7 @@ func TestFixPrimaries(t *testing.T) {
 			PhotoUID:    p.PhotoUID,
 			FileUID:     rnd.GenerateUID(entity.FileUID),
 			FileName:    "fixprim/" + p.PhotoUID + "-old.jpg",
-			FileRoot:    entity.RootOriginals,
+			FileRoot:    new(entity.RootOriginals),
 			FileHash:    rnd.GenerateUID(entity.FileUID),
 			FilePrimary: true,
 			FileType:    "jpg",
@@ -197,7 +197,7 @@ func TestFixPrimaries(t *testing.T) {
 			PhotoUID: p.PhotoUID,
 			FileUID:  rnd.GenerateUID(entity.FileUID),
 			FileName: "fixprim/" + p.PhotoUID + ".jpg",
-			FileRoot: entity.RootOriginals,
+			FileRoot: new(entity.RootOriginals),
 			FileHash: rnd.GenerateUID(entity.FileUID),
 			FileType: "jpg",
 		}

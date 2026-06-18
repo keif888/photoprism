@@ -52,7 +52,7 @@ type File struct {
 	InstanceID         string         `gorm:"type:bytes;size:64;index;" json:"InstanceID,omitempty" yaml:"InstanceID,omitempty"`
 	FileUID            string         `gorm:"type:bytes;size:42;uniqueIndex;" json:"UID" yaml:"UID"`
 	FileName           string         `gorm:"type:bytes;size:1024;uniqueIndex:idx_files_name_root;" json:"Name" yaml:"Name"`
-	FileRoot           string         `gorm:"type:bytes;size:16;default:'/';uniqueIndex:idx_files_name_root;index:idx_files_missing_root,priority:2;" json:"Root" yaml:"Root,omitempty"`
+	FileRoot           *string        `gorm:"type:bytes;size:16;default:'/';uniqueIndex:idx_files_name_root;index:idx_files_missing_root,priority:2;" json:"Root" yaml:"Root,omitempty"`
 	OriginalName       string         `gorm:"type:bytes;size:755;" json:"OriginalName" yaml:"OriginalName,omitempty"`
 	FileHash           string         `gorm:"type:bytes;size:128;index" json:"Hash" yaml:"Hash,omitempty"`
 	FileSize           int64          `json:"Size" yaml:"Size,omitempty"`
@@ -81,8 +81,8 @@ type File struct {
 	FileMainColor      string         `gorm:"type:bytes;size:16;" json:"MainColor" yaml:"MainColor,omitempty"`
 	FileColors         string         `gorm:"type:bytes;size:18;" json:"Colors" yaml:"Colors,omitempty"`
 	FileLuminance      string         `gorm:"type:bytes;size:18;" json:"Luminance" yaml:"Luminance,omitempty"`
-	FileDiff           int            `gorm:"default:-1;" json:"Diff" yaml:"Diff,omitempty"`
-	FileChroma         int16          `gorm:"default:0;" json:"Chroma" yaml:"Chroma,omitempty"`
+	FileDiff           *int           `gorm:"default:-1;" json:"Diff" yaml:"Diff,omitempty"`
+	FileChroma         *int16         `gorm:"default:-1;" json:"Chroma" yaml:"Chroma,omitempty"`
 	FileSoftware       string         `gorm:"size:64" json:"Software" yaml:"Software,omitempty"`
 	FileError          string         `gorm:"type:bytes;size:512;index;" json:"Error" yaml:"Error,omitempty"`
 	ModTime            int64          `json:"ModTime" yaml:"-"`
@@ -582,7 +582,7 @@ func (m *File) Rename(fileName, rootName, filePath, fileBase string) error {
 	}
 
 	m.FileName = fileName
-	m.FileRoot = rootName
+	m.FileRoot = &rootName
 	m.FileMissing = false
 	m.DeletedAt = gorm.DeletedAt{Valid: false}
 
@@ -948,4 +948,31 @@ func (m *File) ContentType() (contentType string) {
 	}
 
 	return contentType
+}
+
+// GetFileChroma returns the value in FileChroma or it's default value if nil.
+func (m *File) GetFileChroma() int16 {
+	if m.FileChroma == nil {
+		return -1
+	} else {
+		return *m.FileChroma
+	}
+}
+
+// GetFileDiff returns the value in FileDiff or it's default value if nil.
+func (m *File) GetFileDiff() int {
+	if m.FileDiff == nil {
+		return -1
+	} else {
+		return *m.FileDiff
+	}
+}
+
+// GetFileRoot returns the value in FileRoot or it's default value if nil.
+func (m *File) GetFileRoot() string {
+	if m.FileRoot == nil {
+		return "/"
+	} else {
+		return *m.FileRoot
+	}
 }

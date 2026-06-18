@@ -122,7 +122,7 @@ func ImportWorker(jobs <-chan ImportJob) {
 				// OriginalName even when the file was not copied due to an existing identical file.
 				if fileHash := f.Hash(); fileHash != "" {
 					if existing, findErr := entity.FirstFileByHash(fileHash); findErr == nil {
-						existingPath := FileName(existing.FileRoot, existing.FileName)
+						existingPath := FileName(existing.GetFileRoot(), existing.FileName)
 						if existingPath != "" {
 							relatedOriginalNames[existingPath] = relFileName
 						}

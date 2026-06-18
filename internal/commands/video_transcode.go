@@ -149,7 +149,7 @@ func videoBuildTranscodePlans(conf *config.Config, results []search.Photo, force
 			continue
 		}
 
-		srcPath := photoprism.FileName(videoFile.FileRoot, videoFile.FileName)
+		srcPath := photoprism.FileName(videoFile.GetFileRoot(), videoFile.FileName)
 		if !fs.FileExistsNotEmpty(srcPath) {
 			log.Warnf("transcode: missing file %s", clean.Log(srcPath))
 			continue

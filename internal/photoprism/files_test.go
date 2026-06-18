@@ -52,5 +52,5 @@ func TestFiles_InitReloadsAfterPartialCache(t *testing.T) {
 	assert.True(t, files.loaded)
 
 	fixture := entity.FileFixturesExampleJPG
-	assert.True(t, files.Exists(fixture.FileName, fixture.FileRoot))
+	assert.True(t, files.Exists(fixture.FileName, fixture.GetFileRoot()))
 }

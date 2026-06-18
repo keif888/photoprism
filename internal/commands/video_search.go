@@ -141,5 +141,5 @@ func videoFileKey(file entity.File) string {
 		return "hash:" + file.FileHash
 	}
 
-	return fmt.Sprintf("name:%s/%s:%d", file.FileRoot, file.FileName, file.FileSize)
+	return fmt.Sprintf("name:%s/%s:%d", file.GetFileRoot(), file.FileName, file.FileSize)
 }

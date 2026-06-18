@@ -34,7 +34,7 @@ func TestVideoBuildRemuxPlans(t *testing.T) {
 		results := []search.Photo{{
 			PhotoUID: "ptest-remux-excluded",
 			Files: []entity.File{{
-				FileRoot:  entity.RootOriginals,
+				FileRoot:  new(entity.RootOriginals),
 				FileName:  relPath,
 				FileVideo: true,
 				FileCodec: video.CodecAvc1,
