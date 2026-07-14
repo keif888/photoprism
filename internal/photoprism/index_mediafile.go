@@ -54,7 +54,7 @@ func (ind *Index) UserMediaFile(m *MediaFile, o IndexOptions, originalName, phot
 	var photoQuery, fileQuery *gorm.DB
 	var locKeywords []string
 
-	file, primaryFile := entity.File{}, entity.File{}
+	file, primaryFile := entity.File{}.Defaults(), entity.File{}.Defaults()
 
 	photo := entity.NewUserPhoto(o.Stack, userUID)
 	metaData := meta.NewData()

@@ -335,7 +335,7 @@ func (m PhotoResults) Merge() (merged PhotoResults, count int, err error) {
 	var photoId uint
 
 	for _, photo := range m {
-		file := entity.File{OmitMarkers: true}
+		file := entity.File{OmitMarkers: true}.Defaults()
 
 		if err = deepcopier.Copy(&file).From(photo); err != nil {
 			return merged, count, err
