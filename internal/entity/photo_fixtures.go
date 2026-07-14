@@ -3584,11 +3584,11 @@ var PhotoFixtures = PhotoMap{
 		PhotoQuality:     3,
 		PhotoResolution:  0,
 		Camera:           &UnknownCamera,
-		CameraID:         UnknownCamera.ID,
+		CameraID:         1, // Fixtures store the value on declaration, which is 0.  No default, so it stays 0.
 		CameraSerial:     "",
 		CameraSrc:        "",
 		Lens:             &UnknownLens,
-		LensID:           UnknownLens.ID,
+		LensID:           1, // Fixtures store the value on declaration, which is 0.  No default, so it stays 0.
 		Keywords:         []Keyword{},
 		Albums:           []Album{},
 		Files:            []File{},
@@ -3853,11 +3853,11 @@ var PhotoFixtures = PhotoMap{
 		PhotoQuality:     3,
 		PhotoResolution:  20,
 		Camera:           &UnknownCamera,
-		CameraID:         UnknownCamera.ID,
+		CameraID:         1, // Fixtures store the value on declaration, which is 0.  No default, so it stays 0.
 		CameraSerial:     "",
 		CameraSrc:        SrcAuto,
 		Lens:             &UnknownLens,
-		LensID:           UnknownLens.ID,
+		LensID:           1, // Fixtures store the value on declaration, which is 0.  No default, so it stays 0.
 		Keywords:         []Keyword{},
 		Albums:           []Album{},
 		Files:            []File{},
