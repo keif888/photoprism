@@ -40,31 +40,31 @@ type Sessions []Session
 type Session struct {
 	ID            string          `gorm:"type:VARBINARY(2048);primary_key;auto_increment:false;" json:"-" yaml:"ID"`
 	authToken     string          `gorm:"-" yaml:"-"`
-	UserUID       string          `gorm:"type:VARBINARY(42);index;default:'';" json:"UserUID" yaml:"UserUID,omitempty"`
+	UserUID       string          `gorm:"type:VARBINARY(42);index;" json:"UserUID" yaml:"UserUID,omitempty"`
 	UserName      string          `gorm:"size:200;index;" json:"UserName" yaml:"UserName,omitempty"`
 	user          *User           `gorm:"-" yaml:"-"`
-	ClientUID     string          `gorm:"type:VARBINARY(42);index;default:'';" json:"ClientUID" yaml:"ClientUID,omitempty"`
-	ClientName    string          `gorm:"size:200;default:'';" json:"ClientName" yaml:"ClientName,omitempty"`
+	ClientUID     string          `gorm:"type:VARBINARY(42);index;" json:"ClientUID" yaml:"ClientUID,omitempty"`
+	ClientName    string          `gorm:"size:200;" json:"ClientName" yaml:"ClientName,omitempty"`
 	ClientIP      string          `gorm:"size:64;column:client_ip;index" json:"ClientIP" yaml:"ClientIP,omitempty"`
 	client        *Client         `gorm:"-" yaml:"-"`
-	AuthProvider  string          `gorm:"type:VARBINARY(128);default:'';" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
-	AuthMethod    string          `gorm:"type:VARBINARY(128);default:'';" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
-	AuthIssuer    string          `gorm:"type:VARBINARY(255);default:'';" json:"AuthIssuer,omitempty" yaml:"AuthIssuer,omitempty"`
-	AuthID        string          `gorm:"type:VARBINARY(255);index;default:'';" json:"AuthID" yaml:"AuthID,omitempty"`
-	AuthScope     string          `gorm:"size:1024;default:'';" json:"AuthScope" yaml:"AuthScope,omitempty"`
-	GrantType     string          `gorm:"type:VARBINARY(64);default:'';" json:"GrantType" yaml:"GrantType,omitempty"`
+	AuthProvider  string          `gorm:"type:VARBINARY(128);" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
+	AuthMethod    string          `gorm:"type:VARBINARY(128);" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
+	AuthIssuer    string          `gorm:"type:VARBINARY(255);" json:"AuthIssuer,omitempty" yaml:"AuthIssuer,omitempty"`
+	AuthID        string          `gorm:"type:VARBINARY(255);index;" json:"AuthID" yaml:"AuthID,omitempty"`
+	AuthScope     string          `gorm:"size:1024;" json:"AuthScope" yaml:"AuthScope,omitempty"`
+	GrantType     string          `gorm:"type:VARBINARY(64);" json:"GrantType" yaml:"GrantType,omitempty"`
 	LastActive    int64           `json:"LastActive" yaml:"LastActive,omitempty"`
 	SessExpires   int64           `gorm:"index" json:"Expires" yaml:"Expires,omitempty"`
 	SessTimeout   int64           `json:"Timeout" yaml:"Timeout,omitempty"`
-	PreviewToken  string          `gorm:"type:VARBINARY(64);column:preview_token;default:'';" json:"-" yaml:"-"`
-	DownloadToken string          `gorm:"type:VARBINARY(64);column:download_token;default:'';" json:"-" yaml:"-"`
-	AccessToken   string          `gorm:"type:VARBINARY(4096);column:access_token;default:'';" json:"-" yaml:"-"`
-	RefreshToken  string          `gorm:"type:VARBINARY(2048);column:refresh_token;default:'';" json:"-" yaml:"-"`
-	IdToken       string          `gorm:"type:VARBINARY(2048);column:id_token;default:'';" json:"IdToken,omitempty" yaml:"IdToken,omitempty"`
+	PreviewToken  string          `gorm:"type:VARBINARY(64);column:preview_token;" json:"-" yaml:"-"`
+	DownloadToken string          `gorm:"type:VARBINARY(64);column:download_token;" json:"-" yaml:"-"`
+	AccessToken   string          `gorm:"type:VARBINARY(4096);column:access_token;" json:"-" yaml:"-"`
+	RefreshToken  string          `gorm:"type:VARBINARY(2048);column:refresh_token;" json:"-" yaml:"-"`
+	IdToken       string          `gorm:"type:VARBINARY(2048);column:id_token;" json:"IdToken,omitempty" yaml:"IdToken,omitempty"`
 	UserAgent     string          `gorm:"size:512;" json:"UserAgent" yaml:"UserAgent,omitempty"`
 	DataJSON      json.RawMessage `gorm:"type:VARBINARY(16384);" json:"-" yaml:"Data,omitempty"`
 	data          *SessionData    `gorm:"-" yaml:"-"`
-	RefID         string          `gorm:"type:VARBINARY(16);default:'';" json:"ID" yaml:"-"`
+	RefID         string          `gorm:"type:VARBINARY(16);" json:"ID" yaml:"-"`
 	LoginIP       string          `gorm:"size:64;column:login_ip" json:"LoginIP" yaml:"-"`
 	LoginAt       *time.Time      `json:"LoginAt" yaml:"-"`
 	CreatedAt     time.Time       `json:"CreatedAt" yaml:"CreatedAt"`

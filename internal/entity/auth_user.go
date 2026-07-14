@@ -49,17 +49,17 @@ type User struct {
 	ID            int           `gorm:"primary_key" json:"ID" yaml:"-"`
 	UUID          string        `gorm:"type:VARBINARY(64);column:user_uuid;index;" json:"UUID,omitempty" yaml:"UUID,omitempty"`
 	UserUID       string        `gorm:"type:VARBINARY(42);column:user_uid;unique_index;" json:"UID" yaml:"UID"`
-	AuthProvider  string        `gorm:"type:VARBINARY(128);default:'';" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
-	AuthMethod    string        `gorm:"type:VARBINARY(128);default:'';" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
-	AuthIssuer    string        `gorm:"type:VARBINARY(255);default:'';" json:"AuthIssuer,omitempty" yaml:"AuthIssuer,omitempty"`
-	AuthID        string        `gorm:"type:VARBINARY(255);index;default:'';" json:"AuthID" yaml:"AuthID,omitempty"`
+	AuthProvider  string        `gorm:"type:VARBINARY(128);" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
+	AuthMethod    string        `gorm:"type:VARBINARY(128);" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
+	AuthIssuer    string        `gorm:"type:VARBINARY(255);" json:"AuthIssuer,omitempty" yaml:"AuthIssuer,omitempty"`
+	AuthID        string        `gorm:"type:VARBINARY(255);index;" json:"AuthID" yaml:"AuthID,omitempty"`
 	UserName      string        `gorm:"size:200;index;" json:"Name" yaml:"Name,omitempty"`
 	DisplayName   string        `gorm:"size:200;" json:"DisplayName" yaml:"DisplayName,omitempty"`
 	UserEmail     string        `gorm:"size:255;index;" json:"Email" yaml:"Email,omitempty"`
 	BackupEmail   string        `gorm:"size:255;" json:"BackupEmail,omitempty" yaml:"BackupEmail,omitempty"`
-	UserRole      string        `gorm:"size:64;default:'';" json:"Role" yaml:"Role,omitempty"`
-	UserScope     string        `gorm:"size:1024;default:'*';" json:"Scope" yaml:"Scope,omitempty"`
-	UserAttr      string        `gorm:"size:1024;default:'';" json:"Attr" yaml:"Attr,omitempty"`
+	UserRole      string        `gorm:"size:64;" json:"Role" yaml:"Role,omitempty"`
+	UserScope     string        `gorm:"size:1024;" json:"Scope" yaml:"Scope,omitempty"`
+	UserAttr      string        `gorm:"size:1024;" json:"Attr" yaml:"Attr,omitempty"`
 	SuperAdmin    bool          `json:"SuperAdmin" yaml:"SuperAdmin,omitempty"`
 	CanLogin      bool          `json:"CanLogin" yaml:"CanLogin,omitempty"`
 	LoginAt       *time.Time    `json:"LoginAt" yaml:"LoginAt,omitempty"`
@@ -80,8 +80,8 @@ type User struct {
 	ResetToken    string        `gorm:"type:VARBINARY(64);" json:"-" yaml:"-"`
 	PreviewToken  string        `gorm:"type:VARBINARY(64);column:preview_token;" json:"-" yaml:"-"`
 	DownloadToken string        `gorm:"type:VARBINARY(64);column:download_token;" json:"-" yaml:"-"`
-	Thumb         string        `gorm:"type:VARBINARY(128);index;default:'';" json:"Thumb" yaml:"Thumb,omitempty"`
-	ThumbSrc      string        `gorm:"type:VARBINARY(8);default:'';" json:"ThumbSrc" yaml:"ThumbSrc,omitempty"`
+	Thumb         string        `gorm:"type:VARBINARY(128);index;" json:"Thumb" yaml:"Thumb,omitempty"`
+	ThumbSrc      string        `gorm:"type:VARBINARY(8);" json:"ThumbSrc" yaml:"ThumbSrc,omitempty"`
 	RefID         string        `gorm:"type:VARBINARY(16);" json:"-" yaml:"-"`
 	CreatedAt     time.Time     `json:"CreatedAt" yaml:"-"`
 	UpdatedAt     time.Time     `json:"UpdatedAt" yaml:"-"`
@@ -99,6 +99,7 @@ func NewUser() (m *User) {
 
 	return &User{
 		UserUID:       uid,
+		UserScope:     "*",
 		UserDetails:   NewUserDetails(uid),
 		UserSettings:  NewUserSettings(uid),
 		PreviewToken:  GenerateToken(),

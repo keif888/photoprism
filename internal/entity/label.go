@@ -34,15 +34,15 @@ type Label struct {
 	LabelSlug        string     `gorm:"type:VARBINARY(160);unique_index;" json:"Slug" yaml:"-"`
 	CustomSlug       string     `gorm:"type:VARBINARY(160);index;" json:"CustomSlug" yaml:"-"`
 	LabelName        string     `gorm:"type:VARCHAR(160);" json:"Name" yaml:"Name"`
-	LabelFavorite    bool       `gorm:"default:0;" json:"Favorite" yaml:"Favorite,omitempty"`
-	LabelPriority    int        `gorm:"default:0;" json:"Priority" yaml:"Priority,omitempty"`
-	LabelNSFW        bool       `gorm:"column:label_nsfw;default:0;" json:"NSFW,omitempty" yaml:"NSFW,omitempty"`
+	LabelFavorite    bool       `json:"Favorite" yaml:"Favorite,omitempty"`
+	LabelPriority    int        `json:"Priority" yaml:"Priority,omitempty"`
+	LabelNSFW        bool       `gorm:"column:label_nsfw;" json:"NSFW,omitempty" yaml:"NSFW,omitempty"`
 	LabelDescription string     `gorm:"type:VARCHAR(2048);" json:"Description" yaml:"Description,omitempty"`
 	LabelNotes       string     `gorm:"type:VARCHAR(1024);" json:"Notes" yaml:"Notes,omitempty"`
 	LabelCategories  []*Label   `gorm:"many2many:categories;association_jointable_foreignkey:category_id" json:"-" yaml:"-"`
-	PhotoCount       int        `gorm:"default:1" json:"PhotoCount" yaml:"-"`
-	Thumb            string     `gorm:"type:VARBINARY(128);index;default:''" json:"Thumb" yaml:"Thumb,omitempty"`
-	ThumbSrc         string     `gorm:"type:VARBINARY(8);default:''" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
+	PhotoCount       int        `json:"PhotoCount" yaml:"-"`
+	Thumb            string     `gorm:"type:VARBINARY(128);index;" json:"Thumb" yaml:"Thumb,omitempty"`
+	ThumbSrc         string     `gorm:"type:VARBINARY(8);" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
 	CreatedAt        time.Time  `json:"CreatedAt" yaml:"-"`
 	UpdatedAt        time.Time  `json:"UpdatedAt" yaml:"-"`
 	PublishedAt      *time.Time `sql:"index" json:"PublishedAt,omitempty" yaml:"PublishedAt,omitempty"`

@@ -21,11 +21,11 @@ var subjectMutex = sync.Mutex{}
 // Subject represents a named photo subject, typically a person.
 type Subject struct {
 	SubjUID      string     `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"UID" yaml:"UID"`
-	SubjType     string     `gorm:"type:VARBINARY(8);default:'';" json:"Type,omitempty" yaml:"Type,omitempty"`
-	SubjSrc      string     `gorm:"type:VARBINARY(8);default:'';" json:"Src,omitempty" yaml:"Src,omitempty"`
-	SubjSlug     string     `gorm:"type:VARBINARY(160);index;default:'';" json:"Slug" yaml:"-"`
-	SubjName     string     `gorm:"size:160;unique_index;default:'';" json:"Name" yaml:"Name"`
-	SubjAlias    string     `gorm:"size:160;default:'';" json:"Alias" yaml:"Alias"`
+	SubjType     string     `gorm:"type:VARBINARY(8);" json:"Type,omitempty" yaml:"Type,omitempty"`
+	SubjSrc      string     `gorm:"type:VARBINARY(8);" json:"Src,omitempty" yaml:"Src,omitempty"`
+	SubjSlug     string     `gorm:"type:VARBINARY(160);index;" json:"Slug" yaml:"-"`
+	SubjName     string     `gorm:"size:160;unique_index;" json:"Name" yaml:"Name"`
+	SubjAlias    string     `gorm:"size:160;" json:"Alias" yaml:"Alias"`
 	SubjAbout    string     `gorm:"size:512;" json:"About" yaml:"About,omitempty"`
 	SubjBio      string     `gorm:"size:2048;" json:"Bio" yaml:"Bio,omitempty"`
 	SubjNotes    string     `gorm:"size:1024;" json:"Notes,omitempty" yaml:"Notes,omitempty"`
@@ -35,8 +35,8 @@ type Subject struct {
 	SubjExcluded bool       `gorm:"default:false;" json:"Excluded" yaml:"Excluded,omitempty"`
 	FileCount    int        `gorm:"default:0;" json:"FileCount" yaml:"-"`
 	PhotoCount   int        `gorm:"default:0;" json:"PhotoCount" yaml:"-"`
-	Thumb        string     `gorm:"type:VARBINARY(128);index;default:'';" json:"Thumb" yaml:"Thumb,omitempty"`
-	ThumbSrc     string     `gorm:"type:VARBINARY(8);default:'';" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
+	Thumb        string     `gorm:"type:VARBINARY(128);index;" json:"Thumb" yaml:"Thumb,omitempty"`
+	ThumbSrc     string     `gorm:"type:VARBINARY(8);" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
 	CreatedAt    time.Time  `json:"CreatedAt" yaml:"-"`
 	UpdatedAt    time.Time  `json:"UpdatedAt" yaml:"-"`
 	DeletedAt    *time.Time `sql:"index" json:"DeletedAt,omitempty" yaml:"-"`

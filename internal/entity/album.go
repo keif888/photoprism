@@ -50,10 +50,10 @@ type Albums []Album
 type Album struct {
 	ID               uint        `gorm:"primary_key" json:"ID" yaml:"-"`
 	AlbumUID         string      `gorm:"type:VARBINARY(42);unique_index;" json:"UID" yaml:"UID"`
-	ParentUID        string      `gorm:"type:VARBINARY(42);default:'';" json:"ParentUID,omitempty" yaml:"ParentUID,omitempty"`
+	ParentUID        string      `gorm:"type:VARBINARY(42);" json:"ParentUID,omitempty" yaml:"ParentUID,omitempty"`
 	AlbumSlug        string      `gorm:"type:VARBINARY(160);index;" json:"Slug" yaml:"Slug"`
 	AlbumPath        string      `gorm:"type:VARBINARY(1024);index;" json:"Path,omitempty" yaml:"Path,omitempty"`
-	AlbumType        string      `gorm:"type:VARBINARY(8);default:'album';" json:"Type" yaml:"Type,omitempty"`
+	AlbumType        string      `gorm:"type:VARBINARY(8);" json:"Type" yaml:"Type,omitempty"`
 	AlbumTitle       string      `gorm:"type:VARCHAR(160);index;" json:"Title" yaml:"Title"`
 	AlbumLocation    string      `gorm:"type:VARCHAR(160);" json:"Location" yaml:"Location,omitempty"`
 	AlbumCategory    string      `gorm:"type:VARCHAR(100);index;" json:"Category" yaml:"Category,omitempty"`
@@ -64,14 +64,14 @@ type Album struct {
 	AlbumOrder       string      `gorm:"type:VARBINARY(32);" json:"Order" yaml:"Order,omitempty"`
 	AlbumTemplate    string      `gorm:"type:VARBINARY(255);" json:"Template" yaml:"Template,omitempty"`
 	AlbumState       string      `gorm:"type:VARCHAR(100);index;" json:"State" yaml:"State,omitempty"`
-	AlbumCountry     string      `gorm:"type:VARBINARY(2);index:idx_albums_country_year_month;default:'zz';" json:"Country" yaml:"Country,omitempty"`
+	AlbumCountry     string      `gorm:"type:VARBINARY(2);index:idx_albums_country_year_month;" json:"Country" yaml:"Country,omitempty"`
 	AlbumYear        int         `gorm:"index:idx_albums_ymd;index:idx_albums_country_year_month;" json:"Year" yaml:"Year,omitempty"`
 	AlbumMonth       int         `gorm:"index:idx_albums_ymd;index:idx_albums_country_year_month;" json:"Month" yaml:"Month,omitempty"`
 	AlbumDay         int         `gorm:"index:idx_albums_ymd;" json:"Day" yaml:"Day,omitempty"`
 	AlbumFavorite    bool        `json:"Favorite" yaml:"Favorite,omitempty"`
 	AlbumPrivate     bool        `json:"Private" yaml:"Private,omitempty"`
-	Thumb            string      `gorm:"type:VARBINARY(128);index;default:'';" json:"Thumb" yaml:"Thumb,omitempty"`
-	ThumbSrc         string      `gorm:"type:VARBINARY(8);default:'';" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
+	Thumb            string      `gorm:"type:VARBINARY(128);index;" json:"Thumb" yaml:"Thumb,omitempty"`
+	ThumbSrc         string      `gorm:"type:VARBINARY(8);" json:"ThumbSrc,omitempty" yaml:"ThumbSrc,omitempty"`
 	CreatedBy        string      `gorm:"type:VARBINARY(42);index" json:"CreatedBy,omitempty" yaml:"CreatedBy,omitempty"`
 	CreatedAt        time.Time   `json:"CreatedAt" yaml:"CreatedAt,omitempty"`
 	UpdatedAt        time.Time   `json:"UpdatedAt" yaml:"UpdatedAt,omitempty"`
@@ -223,11 +223,12 @@ func NewUserAlbum(albumTitle, albumType, sortOrder, userUid string) *Album {
 
 	// Set default values.
 	result := &Album{
-		AlbumOrder: sortOrder,
-		AlbumType:  albumType,
-		CreatedAt:  now,
-		UpdatedAt:  now,
-		CreatedBy:  userUid,
+		AlbumOrder:   sortOrder,
+		AlbumType:    albumType,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		CreatedBy:    userUid,
+		AlbumCountry: UnknownID,
 	}
 
 	// Set album title.

@@ -18,8 +18,8 @@ type PhotoLabel struct {
 	LabelID     uint   `gorm:"primary_key;auto_increment:false;index" json:"LabelID,omitempty" yaml:"LabelID"`
 	LabelSrc    string `gorm:"type:VARBINARY(8);" json:"LabelSrc,omitempty" yaml:"LabelSrc,omitempty"`
 	Uncertainty int    `gorm:"type:SMALLINT" json:"Uncertainty" yaml:"Uncertainty"`
-	Topicality  int    `gorm:"type:SMALLINT;default:0;" json:"Topicality" yaml:"Topicality,omitempty"`
-	NSFW        int    `gorm:"type:SMALLINT;column:nsfw;default:0;" json:"NSFW,omitempty" yaml:"NSFW,omitempty"`
+	Topicality  int    `gorm:"type:SMALLINT;" json:"Topicality" yaml:"Topicality,omitempty"`
+	NSFW        int    `gorm:"type:SMALLINT;column:nsfw;" json:"NSFW,omitempty" yaml:"NSFW,omitempty"`
 	Photo       *Photo `gorm:"PRELOAD:false" json:"-" yaml:"-"`
 	Label       *Label `gorm:"PRELOAD:true" json:"Label,omitempty" yaml:"-"`
 }

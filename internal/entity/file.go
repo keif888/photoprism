@@ -51,7 +51,7 @@ type File struct {
 	InstanceID         string        `gorm:"type:VARBINARY(64);index;" json:"InstanceID,omitempty" yaml:"InstanceID,omitempty"`
 	FileUID            string        `gorm:"type:VARBINARY(42);unique_index;" json:"UID" yaml:"UID"`
 	FileName           string        `gorm:"type:VARBINARY(1024);unique_index:idx_files_name_root;" json:"Name" yaml:"Name"`
-	FileRoot           string        `gorm:"type:VARBINARY(16);default:'/';unique_index:idx_files_name_root;" json:"Root" yaml:"Root,omitempty"`
+	FileRoot           string        `gorm:"type:VARBINARY(16);unique_index:idx_files_name_root;" json:"Root" yaml:"Root,omitempty"`
 	OriginalName       string        `gorm:"type:VARBINARY(755);" json:"OriginalName" yaml:"OriginalName,omitempty"`
 	FileHash           string        `gorm:"type:VARBINARY(128);index" json:"Hash" yaml:"Hash,omitempty"`
 	FileSize           int64         `json:"Size" yaml:"Size,omitempty"`
@@ -67,11 +67,11 @@ type File struct {
 	FileDuration       time.Duration `json:"Duration" yaml:"Duration,omitempty"`
 	FileFPS            float64       `gorm:"column:file_fps;" json:"FPS" yaml:"FPS,omitempty"`
 	FileFrames         int           `gorm:"column:file_frames;" json:"Frames" yaml:"Frames,omitempty"`
-	FilePages          int           `gorm:"column:file_pages;default:0;" json:"Pages" yaml:"Pages,omitempty"`
+	FilePages          int           `gorm:"column:file_pages;" json:"Pages" yaml:"Pages,omitempty"`
 	FileWidth          int           `gorm:"column:file_width;" json:"Width" yaml:"Width,omitempty"`
 	FileHeight         int           `gorm:"column:file_height;" json:"Height" yaml:"Height,omitempty"`
 	FileOrientation    int           `gorm:"column:file_orientation;" json:"Orientation" yaml:"Orientation,omitempty"`
-	FileOrientationSrc string        `gorm:"column:file_orientation_src;type:VARBINARY(8);default:'';" json:"OrientationSrc" yaml:"OrientationSrc,omitempty"`
+	FileOrientationSrc string        `gorm:"column:file_orientation_src;type:VARBINARY(8);" json:"OrientationSrc" yaml:"OrientationSrc,omitempty"`
 	FileProjection     string        `gorm:"column:file_projection;type:VARBINARY(64);" json:"Projection,omitempty" yaml:"Projection,omitempty"`
 	FileAspectRatio    float32       `gorm:"column:file_aspect_ratio;type:FLOAT;" json:"AspectRatio" yaml:"AspectRatio,omitempty"`
 	FileHDR            bool          `gorm:"column:file_hdr;"  json:"HDR" yaml:"HDR,omitempty"`
@@ -100,6 +100,21 @@ type File struct {
 // TableName returns the entity table name.
 func (File) TableName() string {
 	return "files"
+}
+
+// Defaults sets the default values for the File structure if the have not been set from the Go defaults
+// specifically FileRoot will be set to "/" if it is empty string, FileDiff and FileChroma will be set to -1 if 0.
+func (m File) Defaults() File {
+	if m.FileRoot == "" {
+		m.FileRoot = "/"
+	}
+	if m.FileDiff == 0 {
+		m.FileDiff = -1
+	}
+	if m.FileChroma == 0 {
+		m.FileChroma = -1
+	}
+	return m
 }
 
 // RegenerateIndex recalculates the denormalized search index columns for the matching files.

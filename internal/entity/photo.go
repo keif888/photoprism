@@ -51,7 +51,7 @@ type Photo struct {
 	TakenAtLocal     time.Time     `gorm:"type:DATETIME;" json:"TakenAtLocal" yaml:"TakenAtLocal"`
 	TakenSrc         string        `gorm:"type:VARBINARY(8);" json:"TakenSrc" yaml:"TakenSrc,omitempty"`
 	PhotoUID         string        `gorm:"type:VARBINARY(42);unique_index;index:idx_photos_taken_uid;" json:"UID" yaml:"UID"`
-	PhotoType        string        `gorm:"type:VARBINARY(8);default:'image';" json:"Type" yaml:"Type"`
+	PhotoType        string        `gorm:"type:VARBINARY(8);" json:"Type" yaml:"Type"`
 	TypeSrc          string        `gorm:"type:VARBINARY(8);" json:"TypeSrc" yaml:"TypeSrc,omitempty"`
 	PhotoTitle       string        `gorm:"type:VARCHAR(200);" json:"Title" yaml:"Title"`
 	TitleSrc         string        `gorm:"type:VARBINARY(8);" json:"TitleSrc" yaml:"TitleSrc,omitempty"`
@@ -67,15 +67,15 @@ type Photo struct {
 	PhotoPrivate     bool          `json:"Private" yaml:"Private,omitempty"`
 	PhotoScan        bool          `json:"Scan" yaml:"Scan,omitempty"`
 	PhotoPanorama    bool          `json:"Panorama" yaml:"Panorama,omitempty"`
-	TimeZone         string        `gorm:"type:VARBINARY(64);default:'Local'" json:"TimeZone" yaml:"TimeZone,omitempty"`
-	PlaceID          string        `gorm:"type:VARBINARY(42);index;default:'zz'" json:"PlaceID" yaml:"-"`
+	TimeZone         string        `gorm:"type:VARBINARY(64);" json:"TimeZone" yaml:"TimeZone,omitempty"`
+	PlaceID          string        `gorm:"type:VARBINARY(42);index;" json:"PlaceID" yaml:"-"`
 	PlaceSrc         string        `gorm:"type:VARBINARY(8);" json:"PlaceSrc" yaml:"PlaceSrc,omitempty"`
-	CellID           string        `gorm:"type:VARBINARY(42);index;default:'zz'" json:"CellID" yaml:"-"`
+	CellID           string        `gorm:"type:VARBINARY(42);index;" json:"CellID" yaml:"-"`
 	CellAccuracy     int           `json:"CellAccuracy" yaml:"CellAccuracy,omitempty"`
 	PhotoAltitude    int           `json:"Altitude" yaml:"Altitude,omitempty"`
 	PhotoLat         float64       `gorm:"type:DOUBLE;index;" json:"Lat" yaml:"Lat,omitempty"`
 	PhotoLng         float64       `gorm:"type:DOUBLE;index;" json:"Lng" yaml:"Lng,omitempty"`
-	PhotoCountry     string        `gorm:"type:VARBINARY(2);index:idx_photos_country_year_month;default:'zz'" json:"Country" yaml:"-"`
+	PhotoCountry     string        `gorm:"type:VARBINARY(2);index:idx_photos_country_year_month;" json:"Country" yaml:"-"`
 	PhotoYear        int           `gorm:"index:idx_photos_ymd;index:idx_photos_country_year_month;" json:"Year" yaml:"Year"`
 	PhotoMonth       int           `gorm:"index:idx_photos_ymd;index:idx_photos_country_year_month;" json:"Month" yaml:"Month"`
 	PhotoDay         int           `gorm:"index:idx_photos_ymd" json:"Day" yaml:"Day"`
@@ -88,10 +88,10 @@ type Photo struct {
 	PhotoResolution  int           `gorm:"type:SMALLINT" json:"Resolution" yaml:"-"`
 	PhotoDuration    time.Duration `json:"Duration,omitempty" yaml:"Duration,omitempty"`
 	PhotoColor       int16         `json:"Color" yaml:"-"`
-	CameraID         uint          `gorm:"index:idx_photos_camera_lens;default:1" json:"CameraID" yaml:"-"`
+	CameraID         uint          `gorm:"index:idx_photos_camera_lens;" json:"CameraID" yaml:"-"`
 	CameraSerial     string        `gorm:"type:VARBINARY(160);" json:"CameraSerial" yaml:"CameraSerial,omitempty"`
 	CameraSrc        string        `gorm:"type:VARBINARY(8);" json:"CameraSrc" yaml:"-"`
-	LensID           uint          `gorm:"index:idx_photos_camera_lens;default:1" json:"LensID" yaml:"-"`
+	LensID           uint          `gorm:"index:idx_photos_camera_lens;" json:"LensID" yaml:"-"`
 	Details          *Details      `gorm:"association_autoupdate:false;association_autocreate:false;association_save_reference:false" json:"Details" yaml:"Details"`
 	Camera           *Camera       `gorm:"association_autoupdate:false;association_autocreate:false;association_save_reference:false" json:"Camera" yaml:"-"`
 	Lens             *Lens         `gorm:"association_autoupdate:false;association_autocreate:false;association_save_reference:false" json:"Lens" yaml:"-"`
@@ -138,6 +138,7 @@ func NewUserPhoto(stackable bool, userUid string) Photo {
 		Cell:         &UnknownLocation,
 		Place:        &UnknownPlace,
 		CreatedBy:    userUid,
+		PhotoColor:   UnknownColor,
 	}
 
 	if stackable {

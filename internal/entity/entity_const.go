@@ -13,6 +13,7 @@ const (
 	UnknownDay   = -1
 	UnknownID    = "zz"
 	UnknownSlug  = "-"
+	UnknownColor = -1
 )
 
 // Media types map PhotoPrism media identifiers to constants for ease of comparison.

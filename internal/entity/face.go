@@ -24,13 +24,13 @@ type Face struct {
 	FaceSrc         string          `gorm:"type:VARBINARY(8);" json:"Src" yaml:"Src,omitempty"`
 	FaceKind        int             `json:"Kind" yaml:"Kind,omitempty"`
 	FaceHidden      bool            `json:"Hidden" yaml:"Hidden,omitempty"`
-	SubjUID         string          `gorm:"type:VARBINARY(42);index;default:'';" json:"SubjUID" yaml:"SubjUID,omitempty"`
+	SubjUID         string          `gorm:"type:VARBINARY(42);index;" json:"SubjUID" yaml:"SubjUID,omitempty"`
 	Samples         int             `json:"Samples" yaml:"Samples,omitempty"`
 	SampleRadius    float64         `json:"SampleRadius" yaml:"SampleRadius,omitempty"`
 	Collisions      int             `json:"Collisions" yaml:"Collisions,omitempty"`
 	CollisionRadius float64         `json:"CollisionRadius" yaml:"CollisionRadius,omitempty"`
-	MergeRetry      uint8           `gorm:"type:TINYINT(3);default:0" json:"-" yaml:"-"`
-	MergeNotes      string          `gorm:"type:VARCHAR(255);default:'';" json:"-" yaml:"-"`
+	MergeRetry      uint8           `gorm:"type:TINYINT(3);" json:"-" yaml:"-"`
+	MergeNotes      string          `gorm:"type:VARCHAR(255);" json:"-" yaml:"-"`
 	EmbeddingJSON   json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingJSON,omitempty"`
 	embedding       face.Embedding  `gorm:"-" yaml:"-"`
 	MatchedAt       *time.Time      `json:"MatchedAt" yaml:"MatchedAt,omitempty"`

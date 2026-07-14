@@ -20,7 +20,7 @@ type Cell struct {
 	CellStreet   string    `gorm:"type:VARCHAR(100);" json:"Street" yaml:"Street,omitempty"`
 	CellPostcode string    `gorm:"type:VARCHAR(50);" json:"Postcode" yaml:"Postcode,omitempty"`
 	CellCategory string    `gorm:"type:VARCHAR(50);" json:"Category" yaml:"Category,omitempty"`
-	PlaceID      string    `gorm:"type:VARBINARY(42);default:'zz'" json:"-" yaml:"PlaceID"`
+	PlaceID      string    `gorm:"type:VARBINARY(42);" json:"-" yaml:"PlaceID"`
 	Place        *Place    `gorm:"PRELOAD:true" json:"Place" yaml:"-"`
 	CreatedAt    time.Time `json:"CreatedAt" yaml:"-"`
 	UpdatedAt    time.Time `json:"UpdatedAt" yaml:"-"`
@@ -72,7 +72,7 @@ func CreateUnknownLocation() {
 
 // NewCell creates a location using a token extracted from coordinate
 func NewCell(lat, lng float64) *Cell {
-	result := &Cell{}
+	result := &Cell{} // Not adding PlaceID: UnknownID as FirstOrCreate explicitly checks for empty string.
 
 	result.ID = s2.PrefixedToken(lat, lng)
 

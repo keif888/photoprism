@@ -32,27 +32,27 @@ type Clients []Client
 // Client represents an OAuth/OpenID client registered with PhotoPrism.
 type Client struct {
 	ClientUID    string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"-" yaml:"ClientUID"`
-	NodeUUID     string          `gorm:"type:VARBINARY(64);index;default:'';" json:"NodeUUID,omitempty" yaml:"NodeUUID,omitempty"`
-	UserUID      string          `gorm:"type:VARBINARY(42);index;default:'';" json:"UserUID" yaml:"UserUID,omitempty"`
+	NodeUUID     string          `gorm:"type:VARBINARY(64);index;" json:"NodeUUID,omitempty" yaml:"NodeUUID,omitempty"`
+	UserUID      string          `gorm:"type:VARBINARY(42);index;" json:"UserUID" yaml:"UserUID,omitempty"`
 	UserName     string          `gorm:"size:200;index;" json:"UserName" yaml:"UserName,omitempty"`
 	user         *User           `gorm:"-" yaml:"-"`
 	AppName      string          `gorm:"size:64;" json:"AppName" yaml:"AppName,omitempty"`
 	AppVersion   string          `gorm:"size:64;" json:"AppVersion" yaml:"AppVersion,omitempty"`
 	ClientName   string          `gorm:"size:200;" json:"ClientName" yaml:"ClientName,omitempty"`
 	DisplayName  string          `gorm:"size:200;" json:"DisplayName" yaml:"DisplayName,omitempty"`
-	NameSrc      string          `gorm:"type:VARBINARY(8);default:'';" json:"NameSrc,omitempty" yaml:"NameSrc,omitempty"`
-	ClientRole   string          `gorm:"size:64;default:'';" json:"ClientRole" yaml:"ClientRole,omitempty"`
+	NameSrc      string          `gorm:"type:VARBINARY(8);" json:"NameSrc,omitempty" yaml:"NameSrc,omitempty"`
+	ClientRole   string          `gorm:"size:64;" json:"ClientRole" yaml:"ClientRole,omitempty"`
 	ClientType   string          `gorm:"type:VARBINARY(16)" json:"ClientType" yaml:"ClientType,omitempty"`
-	ClientURL    string          `gorm:"type:VARBINARY(255);default:'';column:client_url;" json:"ClientURL" yaml:"ClientURL,omitempty"`
-	CallbackURL  string          `gorm:"type:VARBINARY(255);default:'';column:callback_url;" json:"CallbackURL" yaml:"CallbackURL,omitempty"`
-	AuthProvider string          `gorm:"type:VARBINARY(128);default:'';" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
-	AuthMethod   string          `gorm:"type:VARBINARY(128);default:'';" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
-	AuthScope    string          `gorm:"size:1024;default:'';" json:"AuthScope" yaml:"AuthScope,omitempty"`
+	ClientURL    string          `gorm:"type:VARBINARY(255);column:client_url;" json:"ClientURL" yaml:"ClientURL,omitempty"`
+	CallbackURL  string          `gorm:"type:VARBINARY(255);column:callback_url;" json:"CallbackURL" yaml:"CallbackURL,omitempty"`
+	AuthProvider string          `gorm:"type:VARBINARY(128);" json:"AuthProvider" yaml:"AuthProvider,omitempty"`
+	AuthMethod   string          `gorm:"type:VARBINARY(128);" json:"AuthMethod" yaml:"AuthMethod,omitempty"`
+	AuthScope    string          `gorm:"size:1024;" json:"AuthScope" yaml:"AuthScope,omitempty"`
 	AuthExpires  int64           `json:"AuthExpires" yaml:"AuthExpires,omitempty"`
 	AuthTokens   int64           `json:"AuthTokens" yaml:"AuthTokens,omitempty"`
 	AuthEnabled  bool            `json:"AuthEnabled" yaml:"AuthEnabled,omitempty"`
-	RefreshToken string          `gorm:"type:VARBINARY(2048);column:refresh_token;default:'';" json:"-" yaml:"-"`
-	IdToken      string          `gorm:"type:VARBINARY(2048);column:id_token;default:'';" json:"IdToken,omitempty" yaml:"IdToken,omitempty"`
+	RefreshToken string          `gorm:"type:VARBINARY(2048);column:refresh_token;" json:"-" yaml:"-"`
+	IdToken      string          `gorm:"type:VARBINARY(2048);column:id_token;" json:"IdToken,omitempty" yaml:"IdToken,omitempty"`
 	DataJSON     json.RawMessage `gorm:"type:VARBINARY(4096);" json:"-" yaml:"Data,omitempty"`
 	data         *ClientData     `gorm:"-" yaml:"-"`
 	LastActive   int64           `json:"LastActive" yaml:"LastActive,omitempty"`
