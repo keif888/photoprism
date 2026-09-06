@@ -14,21 +14,28 @@ import (
 // and its arguments. The marker is picked by the bars automatic clustering applies rather than by
 // literals of this query's own, so a cluster the library formed cannot be one this page hides.
 //
+// Which now includes the crop-detail condition ClusterSizeCond carries: the face shown for a
+// cluster is one clustering would have used, so a cluster holding only markers embedded from crops
+// their sources could not fill has no representative and does not appear. Deliberate, and the same
+// rule on both sides is what keeps the page from hiding a cluster the library did form.
+//
 // Ranked like a person's cover and not by `MIN(marker_uid)`: marker ids order only to the second,
 // so a cluster indexed in one pass would otherwise be represented by an arbitrary one of its faces.
 func representativeMarkerJoin(facesTable, unknown string) (string, []any) {
 	scoreCond, scoreArgs := entity.ClusterScoreCond("m2", face.ClusterScoreAuto)
+	sizeCond, sizeArgs := entity.ClusterSizeCond("m2", face.ClusterSizeThreshold)
 
 	conds := []string{
 		fmt.Sprintf("m2.face_id = %s.id", facesTable),
 		"m2.marker_type = ?",
 		"m2.marker_invalid = 0",
 		"m2.thumb <> ''",
-		"m2.size >= ?",
+		sizeCond,
 		scoreCond,
 	}
 
-	args := []any{entity.MarkerFace, face.ClusterSizeThreshold}
+	args := []any{entity.MarkerFace}
+	args = append(args, sizeArgs...)
 	args = append(args, scoreArgs...)
 
 	// The cluster's own subject decides which markers may represent it, so an unnamed cluster is
@@ -39,6 +46,10 @@ func representativeMarkerJoin(facesTable, unknown string) (string, []any) {
 		conds = append(conds, "m2.subj_uid <> ''")
 	}
 
+	// Filtered on the sampled extent but ranked on the detection size, which is deliberate: the two
+	// answer different questions. thumb_size is available detail, which decides whether a vector can
+	// be trusted; size is the face's extent in a fixed-size thumbnail, so it tracks how much of the
+	// frame the face fills, which is what picks a picture to represent a person.
 	return fmt.Sprintf(`JOIN markers m ON m.marker_uid = (
 		SELECT m2.marker_uid FROM markers m2
 		WHERE %s
@@ -76,6 +87,11 @@ func Faces(frm form.SearchFaces) (results FaceResults, err error) {
 	}
 
 	// Set sort order.
+	//
+	// Ordering by samples is what People > New asks for and means the size a cluster had when it was
+	// formed, since that column counts the embeddings its centroid was averaged from and nothing
+	// writes it afterwards. Markers matched later are deliberately not part of it. The id breaks ties
+	// so the order is identical across drivers.
 	switch frm.Order {
 	case "subject":
 		s = s.Order(OrderExpr(fmt.Sprintf("%s.subj_uid ASC", facesTable), frm.Reverse))
