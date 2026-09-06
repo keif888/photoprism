@@ -148,6 +148,7 @@ func TestMatchFaceMarkers(t *testing.T) {
 // not offered for matching. It is the whole point of the count: a labeled example or a pair would
 // otherwise cast a cluster-sized accept distance over the library on that evidence.
 func TestMatchableFacesClusterCore(t *testing.T) {
+	entity.ValidateFixtures(t)
 	subj := rnd.GenerateUID('j')
 
 	newFace := func(t *testing.T, id string, samples int) {

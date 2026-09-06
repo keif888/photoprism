@@ -627,7 +627,7 @@ func narrowTestFace(t *testing.T, subjUID string, seed uint64) *Face {
 
 	require.Less(t, m.SampleRadius, 0.05)
 	require.NoError(t, m.Create())
-
+	t.Cleanup(func() { require.NoError(t, UnscopedDb().Delete(m).Error) })
 	return m
 }
 

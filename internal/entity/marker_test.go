@@ -1063,6 +1063,7 @@ func TestMarker_Unmatched(t *testing.T) {
 // Narrower than "a person set this subject": an XMP name labels its own marker only, so it cannot
 // mint an identity and must not be withheld as though it could.
 func TestMarker_NamesFace(t *testing.T) {
+	ValidateFixtures(t)
 	t.Run("Manual", func(t *testing.T) {
 		assert.True(t, (&Marker{SubjUID: "js6sg6b1qekk9jx8", SubjSrc: SrcManual}).NamesFace())
 	})

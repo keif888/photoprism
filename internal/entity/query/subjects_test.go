@@ -83,6 +83,7 @@ func TestCreateMarkerSubjects(t *testing.T) {
 
 // TestRemoveOrphanSubjects_Verified covers the flag that survives a face reset.
 func TestRemoveOrphanSubjects_Verified(t *testing.T) {
+	entity.ValidateFixtures(t)
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}
@@ -118,6 +119,7 @@ func TestRemoveOrphanSubjects_Verified(t *testing.T) {
 // survivor and soft-deletes the source. Guarding the verified flag without excepting deleted rows
 // stopped collecting any of them, and the earlier test exercised live rows only.
 func TestRemoveOrphanSubjects_Tombstones(t *testing.T) {
+	entity.ValidateFixtures(t)
 	if testing.Short() {
 		t.Skip("skipping test in short mode.")
 	}

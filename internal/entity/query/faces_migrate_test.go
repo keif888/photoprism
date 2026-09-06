@@ -391,6 +391,7 @@ func TestFaceMigrationRecropMarkers(t *testing.T) {
 // TestCountMarkersUnsettledThumbSize covers the count an audit reports as actionable, which excludes
 // the markers a sampling already gave up on - the total beside it does not, and both are needed.
 func TestCountMarkersUnsettledThumbSize(t *testing.T) {
+	entity.ValidateFixtures(t)
 	beforeAll, err := CountMarkersWithoutThumbSize()
 	require.NoError(t, err)
 	beforeOpen, err := CountMarkersUnsettledThumbSize()
@@ -423,6 +424,7 @@ func TestCountMarkersUnsettledThumbSize(t *testing.T) {
 
 // TestSettleMigrationThumbSize covers the write that lets a migration filling the column terminate.
 func TestSettleMigrationThumbSize(t *testing.T) {
+	entity.ValidateFixtures(t)
 	vector := face.Embeddings{face.RandomEmbedding()}.JSON()
 
 	newMarker := func(t *testing.T, size int) string {
@@ -700,6 +702,7 @@ func TestSameFaceMigrationIdentities(t *testing.T) {
 // TestCountMarkersWithoutThumbSize covers the audit count, which reports how many embedded markers
 // are still judged by their detection size rather than by what their embedding was sampled from.
 func TestCountMarkersWithoutThumbSize(t *testing.T) {
+	entity.ValidateFixtures(t)
 	before, err := CountMarkersWithoutThumbSize()
 	require.NoError(t, err)
 
@@ -735,6 +738,7 @@ func TestCountMarkersWithoutThumbSize(t *testing.T) {
 // TestFaceMigrationCropCoverage pins the three buckets a migration plan warns from, measured as
 // deltas against a baseline so the shared fixtures cannot decide the outcome.
 func TestFaceMigrationCropCoverage(t *testing.T) {
+	entity.ValidateFixtures(t)
 	before, err := FaceMigrationCropCoverage(160, 1920, 1200)
 	require.NoError(t, err)
 
@@ -855,6 +859,7 @@ func TestFaceMigrationCropCoverage(t *testing.T) {
 }
 
 func TestFaceMigrationSampleFiles(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Success", func(t *testing.T) {
 		result, err := FaceMigrationSampleFiles(3)
 
@@ -891,6 +896,7 @@ func TestFaceMigrationSampleFiles(t *testing.T) {
 // vector too small to be clustered, and how many of those an original could still supply. Measured
 // as deltas, so the shared fixtures cannot decide the outcome.
 func TestFaceMarkerSampleShortfall(t *testing.T) {
+	entity.ValidateFixtures(t)
 	const clusterSize = 112
 
 	before, err := FaceMarkerSampleShortfall(clusterSize)

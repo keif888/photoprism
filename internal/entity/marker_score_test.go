@@ -87,6 +87,7 @@ func TestEmbeddingModelCond(t *testing.T) {
 }
 
 func TestFaceMemberCond(t *testing.T) {
+	ValidateFixtures(t)
 	cond, args := FaceMemberCond()
 
 	assert.Contains(t, cond, "marker_invalid = 0")

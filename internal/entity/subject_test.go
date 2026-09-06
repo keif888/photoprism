@@ -802,6 +802,7 @@ func TestSubject_MergeWith_ClearsCollisions(t *testing.T) {
 // The rule the column depends on is that nothing automatic writes it: a flag the matcher, the
 // clusterer or an import could raise stops meaning "a person vouched for this name".
 func TestSubject_SaveForm_Verified(t *testing.T) {
+	ValidateFixtures(t)
 	m := NewSubject("Verified Form Subject", SubjPerson, SrcManual)
 	require.NotNil(t, m)
 	require.NoError(t, m.Create())
@@ -841,6 +842,7 @@ func TestSubject_SaveForm_Verified(t *testing.T) {
 // would silently strip the protection and the next reset would delete the name. The absorbed row
 // loses it, or the tombstone becomes uncollectable: the orphan sweep skips a verified row.
 func TestSubject_MergeWith_Verified(t *testing.T) {
+	ValidateFixtures(t)
 	merge := func(t *testing.T, vouchedIsAbsorbed bool) (survivor, absorbed *Subject) {
 		t.Helper()
 
@@ -887,6 +889,7 @@ func TestSubject_MergeWith_Verified(t *testing.T) {
 // TestSubject_SetBirthday pins the normalization, because the column carries a time and a zone that
 // the value it stores does not have: the day is what the check reading it compares.
 func TestSubject_SetBirthday(t *testing.T) {
+	ValidateFixtures(t)
 	berlin, err := time.LoadLocation("Europe/Berlin")
 	require.NoError(t, err)
 
@@ -1005,6 +1008,7 @@ func TestSubject_SetBirthday(t *testing.T) {
 // TestSubject_SaveForm_RejectsBeforeWriting pins that a value the form refuses is refused before
 // anything reaches the database, since a rename writes as it goes rather than at the end.
 func TestSubject_SaveForm_RejectsBeforeWriting(t *testing.T) {
+	ValidateFixtures(t)
 	m := NewSubject("Reject Before Writing", SubjPerson, SrcManual)
 	require.NotNil(t, m)
 	require.NoError(t, m.Create())
@@ -1033,6 +1037,7 @@ func TestSubject_SaveForm_RejectsBeforeWriting(t *testing.T) {
 // TestNormalizeBirthday covers the validation on its own, since SaveForm calls it before the rename
 // and applies the result after - the two halves have to be usable apart.
 func TestNormalizeBirthday(t *testing.T) {
+	ValidateFixtures(t)
 	t.Run("Success", func(t *testing.T) {
 		in := time.Date(1990, 8, 1, 23, 30, 0, 0, time.FixedZone("east", 14*60*60))
 
@@ -1071,6 +1076,7 @@ func TestNormalizeBirthday(t *testing.T) {
 // handler serializes the entity it was given, so a value assigned and not saved would be reported
 // back to the client as if it had been.
 func TestSubject_SaveForm_Merge(t *testing.T) {
+	ValidateFixtures(t)
 	a := NewSubject("ZZ Merge Form Source", SubjPerson, SrcManual)
 	b := NewSubject("ZZ Merge Form Target", SubjPerson, SrcManual)
 	require.NotNil(t, a)
@@ -1108,6 +1114,7 @@ func TestSubject_SaveForm_Merge(t *testing.T) {
 // TestSubject_SaveForm_Birthday covers the field through the database rather than the setter, since
 // the column is created by auto-migration and a map update is what writes the NULL back.
 func TestSubject_SaveForm_Birthday(t *testing.T) {
+	ValidateFixtures(t)
 	m := NewSubject("Birthday Form Subject", SubjPerson, SrcManual)
 	require.NotNil(t, m)
 	require.NoError(t, m.Create())

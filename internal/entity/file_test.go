@@ -746,6 +746,7 @@ func TestFile_AddFaces(t *testing.T) {
 // detector's own numbers with the vector. Left behind, the size bar falls back to an XMP box extent
 // and the score bar is looked up by the newly written detect_model.
 func TestFile_AddFaceUpgradesProvenance(t *testing.T) {
+	ValidateFixtures(t)
 	file := &File{
 		FileUID:    "fs6sg6bw45bnlqdw",
 		FileHash:   "0e3d3e2e5b2f4b1a9a3d7c1e5f6a8b9c0d1e2f30",

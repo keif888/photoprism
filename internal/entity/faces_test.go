@@ -63,6 +63,7 @@ func TestFaces_EmbedModel(t *testing.T) {
 }
 
 func TestFaces_CollisionBound(t *testing.T) {
+	ValidateFixtures(t)
 	// Comfortably above CollisionDist, so the floor is not what any of these cases turn on.
 	const near, far = 0.30, 0.50
 
