@@ -15,6 +15,7 @@ import (
 )
 
 func TestFaces(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Unknown", func(t *testing.T) {
 		results, err := Faces(form.SearchFaces{Unknown: "yes", Order: "added", Markers: true})
 		require.NoError(t, err)
@@ -116,6 +117,7 @@ func faceResult(t *testing.T, faceID string) *Face {
 // TestFacesRepresentativeMarker covers which marker People shows for a cluster, and which clusters
 // the page shows at all. Both were decided by literals that no configuration reached.
 func TestFacesRepresentativeMarker(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("PicksTheLargestFace", func(t *testing.T) {
 		f := newSearchFace(t)
 		// The worst candidate carries the lowest uid, so picking by uid returns the wrong marker.
@@ -205,6 +207,7 @@ func TestFacesRepresentativeMarker(t *testing.T) {
 // TestRepresentativeMarkerJoin covers the predicate the three unknown variants used to duplicate,
 // which had already drifted between the copies.
 func TestRepresentativeMarkerJoin(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Unknown", func(t *testing.T) {
 		join, args := representativeMarkerJoin("faces", "yes")
 		assert.Contains(t, join, "m2.subj_uid = ''")
@@ -236,6 +239,7 @@ func TestRepresentativeMarkerJoin(t *testing.T) {
 // TestFacesSampleOrder pins the ranking People > New reads: clusters largest first by the number of
 // embeddings their centroid was built from, which is the size each had when it was formed.
 func TestFacesSampleOrder(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("DescendingBySamples", func(t *testing.T) {
 		results, err := Faces(form.SearchFaces{Order: "samples"})
 		require.NoError(t, err)

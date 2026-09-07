@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterColor(t *testing.T) {
+	entity.ValidateFixtures(t)
 	var f0 form.SearchPhotos
 
 	f0.Color = "red|green"
@@ -263,6 +265,7 @@ func TestPhotosFilterColor(t *testing.T) {
 }
 
 func TestPhotosQueryColor(t *testing.T) {
+	entity.ValidateFixtures(t)
 	var f0 form.SearchPhotos
 
 	f0.Color = "red|green"

@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterHash(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("TwoCad9168fa6acc5c5c2965ddf6ec465ca42fd818", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -340,6 +342,7 @@ func TestPhotosFilterHash(t *testing.T) {
 }
 
 func TestPhotosQueryHash(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("TwoCad9168fa6acc5c5c2965ddf6ec465ca42fd818", func(t *testing.T) {
 		var f form.SearchPhotos
 

@@ -14,6 +14,7 @@ import (
 )
 
 func TestPhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SortByTile", func(t *testing.T) {
 		var f form.SearchPhotos
 		f.Order = sortby.Title

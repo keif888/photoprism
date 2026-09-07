@@ -15,6 +15,7 @@ import (
 )
 
 func TestPhoto_ViewerResult(t *testing.T) {
+	entity.ValidateFixtures(t)
 	uid := rnd.GenerateUID(entity.PhotoUID)
 	imgHash := "img-hash"
 	videoHash := "video-hash"
@@ -74,6 +75,7 @@ func TestPhoto_ViewerResult(t *testing.T) {
 }
 
 func TestPhotoResults_ViewerFormatting(t *testing.T) {
+	entity.ValidateFixtures(t)
 	uid1 := rnd.GenerateUID(entity.PhotoUID)
 	uid2 := rnd.GenerateUID(entity.PhotoUID)
 
@@ -103,6 +105,7 @@ func TestPhotoResults_ViewerFormatting(t *testing.T) {
 }
 
 func TestGeoResult_ViewerResult(t *testing.T) {
+	entity.ValidateFixtures(t)
 	uid := rnd.GenerateUID(entity.PhotoUID)
 	taken := time.Date(2023, 3, 14, 9, 26, 53, 0, time.UTC)
 
@@ -148,6 +151,7 @@ func TestGeoResult_ViewerResult(t *testing.T) {
 }
 
 func TestGeoResults_ViewerJSON(t *testing.T) {
+	entity.ValidateFixtures(t)
 	uid1 := rnd.GenerateUID(entity.PhotoUID)
 	uid2 := rnd.GenerateUID(entity.PhotoUID)
 
@@ -172,6 +176,7 @@ func TestGeoResults_ViewerJSON(t *testing.T) {
 }
 
 func TestPhotosViewerResults(t *testing.T) {
+	entity.ValidateFixtures(t)
 	fixture := entity.PhotoFixtures.Get("19800101_000002_D640C559")
 	form := form.SearchPhotos{
 		UID:     fixture.PhotoUID,

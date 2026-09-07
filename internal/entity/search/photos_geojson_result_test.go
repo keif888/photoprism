@@ -12,6 +12,7 @@ import (
 )
 
 func TestGeoResult_Lat(t *testing.T) {
+	entity.ValidateFixtures(t)
 	geo := GeoResult{
 		ID:            "123",
 		PhotoLat:      7.775,
@@ -29,6 +30,7 @@ func TestGeoResult_Lat(t *testing.T) {
 }
 
 func TestGeoResult_Lng(t *testing.T) {
+	entity.ValidateFixtures(t)
 	geo := GeoResult{
 		ID:            "123",
 		PhotoLat:      7.775,
@@ -46,6 +48,7 @@ func TestGeoResult_Lng(t *testing.T) {
 }
 
 func TestGeoResults_GeoJSON(t *testing.T) {
+	entity.ValidateFixtures(t)
 	taken := time.Date(2000, 1, 1, 1, 1, 1, 1, time.UTC).UTC().Truncate(time.Second)
 	uid1 := rnd.GenerateUID(entity.PhotoUID)
 	uid2 := rnd.GenerateUID(entity.PhotoUID)
@@ -109,6 +112,7 @@ func TestGeoResults_GeoJSON(t *testing.T) {
 }
 
 func TestGeoResults_GeoJSON_InvalidCoordinates(t *testing.T) {
+	entity.ValidateFixtures(t)
 	items := GeoResults{
 		GeoResult{
 			ID:       "1",

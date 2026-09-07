@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosQueryVideo(t *testing.T) {
+	entity.ValidateFixtures(t)
 	var f0 form.SearchPhotos
 
 	f0.Query = "video:true"

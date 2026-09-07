@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
@@ -38,6 +39,7 @@ func geoCountForLabel(t *testing.T, label string) int {
 }
 
 func TestPhotosGeoFilterLabel(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SingleInclude", func(t *testing.T) {
 		assert.Greater(t, geoCountForLabel(t, "cake"), 0)
 	})
@@ -99,6 +101,7 @@ func TestPhotosGeoFilterLabel(t *testing.T) {
 }
 
 func TestPhotosGeoQueryLabel(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SingleExclude", func(t *testing.T) {
 		base := geoBaselineCount(t)
 		withFlower := geoCountForLabel(t, "flower")

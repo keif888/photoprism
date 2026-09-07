@@ -13,6 +13,7 @@ import (
 )
 
 func TestSessionGrantsPhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NilUnrestricted", func(t *testing.T) {
 		assert.True(t, sessionGrantsPhotos(nil, acl.AccessPrivate))
 		assert.True(t, sessionGrantsPhotos(nil, acl.ActionDelete))
@@ -46,6 +47,7 @@ func TestSessionGrantsPhotos(t *testing.T) {
 }
 
 func TestSessionGrantsAnyPhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NilTrue", func(t *testing.T) {
 		assert.True(t, sessionGrantsAnyPhotos(nil, acl.Permissions{acl.AccessAll, acl.AccessLibrary}))
 	})
@@ -101,6 +103,7 @@ func scopeVisitorWithShares(tokens ...string) *entity.Session {
 }
 
 func TestPhotoSessionSeesEverything(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NilSession", func(t *testing.T) {
 		assert.True(t, PhotoSessionSeesEverything(nil))
 	})
@@ -113,6 +116,7 @@ func TestPhotoSessionSeesEverything(t *testing.T) {
 }
 
 func TestScopePhotosForSession(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NilUnchanged", func(t *testing.T) {
 		base := UnscopedDb().Table("photos")
 		assert.Same(t, base, ScopePhotosForSession(base, nil))
@@ -131,6 +135,7 @@ func TestScopePhotosForSession(t *testing.T) {
 }
 
 func TestScopeVisiblePhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("AdminSeesPrivate", func(t *testing.T) {
 		var count int
 		err := ScopeVisiblePhotos(UnscopedDb().Table("photos").Where("photos.photo_uid = ?", scopePrivatePhotoUID), scopeSession("alice")).Count(&count).Error
@@ -146,6 +151,7 @@ func TestScopeVisiblePhotos(t *testing.T) {
 }
 
 func TestPhotoVisibleToSession(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptyUID", func(t *testing.T) {
 		ok, err := PhotoVisibleToSession("", scopeSession("guest"))
 		assert.NoError(t, err)
@@ -195,6 +201,7 @@ func TestPhotoVisibleToSession(t *testing.T) {
 // the album ownership/share gate in searchPhotos: a restricted session may scope only to an album
 // it owns or has shared, never to an arbitrary album.
 func TestUserPhotos_ScopeAuthorization(t *testing.T) {
+	entity.ValidateFixtures(t)
 	const album = "as6sg6bxpogaaba8" // manual album owned by admin, not shared with guests
 
 	t.Run("GuestNonSharedScopeForbidden", func(t *testing.T) {
@@ -215,6 +222,7 @@ func TestUserPhotos_ScopeAuthorization(t *testing.T) {
 }
 
 func TestFileVisibleToSession(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptyHash", func(t *testing.T) {
 		ok, err := FileVisibleToSession("", scopeSession("guest"))
 		assert.NoError(t, err)
@@ -249,6 +257,7 @@ func TestFileVisibleToSession(t *testing.T) {
 }
 
 func TestScopePhotosForSessionAllowUIDs(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("VisitorFolderPhotoDroppedWithoutAllow", func(t *testing.T) {
 		// Without the allow-list a folder (smart) album picture has no photos_albums row, so the
 		// shared-scope predicate drops it even though the folder link is shared.
@@ -271,6 +280,7 @@ func TestScopePhotosForSessionAllowUIDs(t *testing.T) {
 }
 
 func TestExcludeRestrictedPhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("AdminKeepsPrivate", func(t *testing.T) {
 		var count int
 		err := excludeRestrictedPhotos(UnscopedDb().Table("photos").Where("photos.photo_uid = ?", scopePrivatePhotoUID), scopeSession("alice")).Count(&count).Error
@@ -286,6 +296,7 @@ func TestExcludeRestrictedPhotos(t *testing.T) {
 }
 
 func TestScopeVisibleSelection(t *testing.T) {
+	entity.ValidateFixtures(t)
 	folderFileStmt := func() *gorm.DB {
 		return UnscopedDb().Table("files").
 			Joins("JOIN photos ON photos.id = files.photo_id").
@@ -318,6 +329,7 @@ func TestScopeVisibleSelection(t *testing.T) {
 }
 
 func TestSharedSmartAlbumPhotoUIDs(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptySelection", func(t *testing.T) {
 		assert.Nil(t, sharedSmartAlbumPhotoUIDs(nil, scopeVisitorWithShares(scopeFolderShareToken)))
 	})
@@ -376,6 +388,7 @@ func TestSharedSmartAlbumPhotoUIDs(t *testing.T) {
 }
 
 func TestSharedSmartAlbumContains(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptyID", func(t *testing.T) {
 		ok, err := sharedSmartAlbumContains("", scopeVisitorWithShares(scopeFolderShareToken))
 		assert.NoError(t, err)
@@ -443,6 +456,7 @@ func BenchmarkPhotoVisibleToSession(b *testing.B) {
 }
 
 func TestFileVisibleToPublic(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		v, err := FileVisibleToPublic("")
 		assert.NoError(t, err)
@@ -451,6 +465,7 @@ func TestFileVisibleToPublic(t *testing.T) {
 }
 
 func TestPhotoVisibleToPublic(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		v, err := PhotoVisibleToPublic("")
 		assert.NoError(t, err)
@@ -459,6 +474,7 @@ func TestPhotoVisibleToPublic(t *testing.T) {
 }
 
 func TestFileDownloadable(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		v, err := FileDownloadable("", nil)
 		assert.NoError(t, err)
@@ -482,6 +498,7 @@ func TestFileDownloadable(t *testing.T) {
 }
 
 func TestPhotoDownloadable(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		v, err := PhotoDownloadable("", nil)
 		assert.NoError(t, err)
@@ -503,6 +520,7 @@ func TestPhotoDownloadable(t *testing.T) {
 }
 
 func TestPhotoSessionSeesPrivate(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NilDenied", func(t *testing.T) {
 		assert.False(t, PhotoSessionSeesPrivate(nil))
 	})

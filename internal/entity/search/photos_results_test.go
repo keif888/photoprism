@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/pkg/http/header"
@@ -17,6 +18,7 @@ import (
 )
 
 func TestPhoto_Ids(t *testing.T) {
+	entity.ValidateFixtures(t)
 	r := Photo{
 		ID:           1111198,
 		CreatedAt:    time.Time{},
@@ -33,6 +35,7 @@ func TestPhoto_Ids(t *testing.T) {
 }
 
 func TestPhoto_String(t *testing.T) {
+	entity.ValidateFixtures(t)
 	testcases := []struct {
 		name  string
 		photo *Photo
@@ -95,6 +98,7 @@ func TestPhoto_String(t *testing.T) {
 // nor serialized, so re-adding either field fails here instead of silently reopening the gap between
 // this path and Photo.RedactForSession.
 func TestPhoto_IdentifyingScalars(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NotSelected", func(t *testing.T) {
 		for _, cols := range []struct{ name, sel string }{
 			{"PhotosColsAll", PhotosColsAll},
@@ -114,6 +118,7 @@ func TestPhoto_IdentifyingScalars(t *testing.T) {
 }
 
 func TestPhoto_Approve(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptyPhoto", func(t *testing.T) {
 		r := Photo{}
 		err := r.Approve()
@@ -159,6 +164,18 @@ func TestPhoto_Approve(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		t.Cleanup(func() {
+			entity.WaitForAsyncJobsTimeout(15 * time.Second)
+			for _, fl := range entity.LabelFixtures {
+				require.NoError(t, entity.UnscopedDb().Model(&entity.Label{}).Where("id = ?", fl.ID).UpdateColumns(entity.Values{"photo_count": fl.PhotoCount}).Error)
+			}
+			for _, fp := range entity.PlaceFixtures {
+				require.NoError(t, UnscopedDb().Model(&entity.Place{}).Where("id = ?", fp.ID).Updates(entity.Values{"photo_count": fp.PhotoCount}).Error)
+			}
+			for _, fs := range entity.SubjectFixtures {
+				require.NoError(t, UnscopedDb().Model(&entity.Subject{}).Where("subj_uid = ?", fs.SubjUID).Updates(entity.Values{"photo_count": fs.PhotoCount, "file_count": fs.FileCount}).Error)
+			}
+		})
 
 		assert.Equal(t, 3, r.PhotoQuality)
 		assert.Nil(t, r.DeletedAt)
@@ -167,6 +184,7 @@ func TestPhoto_Approve(t *testing.T) {
 }
 
 func TestPhoto_Restore(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EmptyPhoto", func(t *testing.T) {
 		r := Photo{}
 
@@ -220,6 +238,7 @@ func TestPhoto_Restore(t *testing.T) {
 }
 
 func TestPhoto_IsPlayable(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("True", func(t *testing.T) {
 		r := Photo{
 			ID:           1111154,
@@ -251,6 +270,7 @@ func TestPhoto_IsPlayable(t *testing.T) {
 }
 
 func TestPhoto_MediaProjection(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("VideoUsesVideoFileProjection", func(t *testing.T) {
 		r := Photo{
 			PhotoType:      "video",
@@ -319,6 +339,7 @@ func TestPhoto_MediaProjection(t *testing.T) {
 }
 
 func TestSphereProjection(t *testing.T) {
+	entity.ValidateFixtures(t)
 	assert.Equal(t, "", sphereProjection("fisheye"))
 	assert.Equal(t, "", sphereProjection("dual-fisheye"))
 	assert.Equal(t, "equirectangular", sphereProjection("equirectangular"))
@@ -327,6 +348,7 @@ func TestSphereProjection(t *testing.T) {
 }
 
 func TestPhoto_MediaInfo(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("EquirectangularDerivativePreferred", func(t *testing.T) {
 		r := Photo{
 			PhotoType: media.Video.String(),
@@ -560,6 +582,7 @@ func TestPhoto_MediaInfo(t *testing.T) {
 }
 
 func TestPhotoResults_Photos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	photo1 := Photo{
 		ID:           1111154,
 		CreatedAt:    time.Time{},
@@ -588,6 +611,7 @@ func TestPhotoResults_Photos(t *testing.T) {
 }
 
 func TestPhotosResults_Merged(t *testing.T) {
+	entity.ValidateFixtures(t)
 	fileUIDA := rnd.GenerateUID(entity.FileUID)
 	fileUIDB := rnd.GenerateUID(entity.FileUID)
 	fileUIDC := rnd.GenerateUID(entity.FileUID)
@@ -619,6 +643,7 @@ func TestPhotosResults_Merged(t *testing.T) {
 	assert.Equal(t, uint(20), second.Files[0].ID)
 }
 func TestPhotosResults_UIDs(t *testing.T) {
+	entity.ValidateFixtures(t)
 	uid1 := rnd.GenerateUID(entity.PhotoUID)
 	uid2 := rnd.GenerateUID(entity.PhotoUID)
 
@@ -749,6 +774,7 @@ func TestPhotosResults_UIDs(t *testing.T) {
 }
 
 func TestPhotosResult_ShareFileName(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("WithTitle", func(t *testing.T) {
 		uid := rnd.GenerateUID(entity.PhotoUID)
 		result1 := Photo{
@@ -947,6 +973,7 @@ func TestPhotosResult_ShareFileName(t *testing.T) {
 }
 
 func TestPhoto_HasFisheyeOriginal(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("PrimaryFisheye", func(t *testing.T) {
 		r := Photo{FileProjection: "dual-fisheye"}
 		assert.True(t, r.HasFisheyeOriginal())
@@ -968,6 +995,7 @@ func TestPhoto_HasFisheyeOriginal(t *testing.T) {
 // TestPhoto_MediaProjection_StackedEquirectangular verifies that an unrelated 360° file stacked on
 // a flat picture does not promote that picture to a sphere.
 func TestPhoto_MediaProjection_StackedEquirectangular(t *testing.T) {
+	entity.ValidateFixtures(t)
 	r := Photo{
 		PhotoType:      "image",
 		FileProjection: "",

@@ -10,6 +10,7 @@ import (
 )
 
 func TestAccounts(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("FindAccounts", func(t *testing.T) {
 		f := form.SearchServices{
 			Query:  "",

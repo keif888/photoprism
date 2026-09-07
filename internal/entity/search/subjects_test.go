@@ -15,6 +15,7 @@ import (
 )
 
 func TestSubjects(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("FindAll", func(t *testing.T) {
 		results, err := Subjects(form.SearchSubjects{Type: entity.SubjPerson})
 		assert.NoError(t, err)
@@ -97,6 +98,7 @@ func TestSubjects(t *testing.T) {
 }
 
 func TestSubjectUIDs(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchForAlias", func(t *testing.T) {
 		results, _, _ := SubjectUIDs("Powell")
 		//t.Logf("Subjects: %#v", results)
@@ -121,6 +123,7 @@ func TestSubjectUIDs(t *testing.T) {
 // and the edit dialog is seeded from: a column the result struct does not map scans as nil in
 // silence, and the dialog would then offer to clear a date it never showed.
 func TestSubjects_Birthday(t *testing.T) {
+	entity.ValidateFixtures(t)
 	m := entity.NewSubject("Birthday Search Subject", entity.SubjPerson, entity.SrcManual)
 	require.NotNil(t, m)
 
@@ -144,6 +147,7 @@ func TestSubjects_Birthday(t *testing.T) {
 // The client tracks only the keys a response carried, so an omitted one is never sent back and
 // clearing a date stops working. Nothing else fails if a sweep tidies the tag.
 func TestSubjects_BirthdayKeyAlwaysPresent(t *testing.T) {
+	entity.ValidateFixtures(t)
 	b, err := json.Marshal(Subject{SubjUID: "js6sg6b1qekk9jx8"})
 
 	require.NoError(t, err)
@@ -154,6 +158,7 @@ func TestSubjects_BirthdayKeyAlwaysPresent(t *testing.T) {
 // allowed to reach. Exercised here rather than through the API because CE grants people to admin and
 // client only, both of which hold private access - the roles this guard exists for are edition ones.
 func TestUserSubjects(t *testing.T) {
+	entity.ValidateFixtures(t)
 	m := entity.NewSubject("Private Search Subject", entity.SubjPerson, entity.SrcManual)
 	require.NotNil(t, m)
 	m.SubjPrivate = true
@@ -217,6 +222,7 @@ func TestUserSubjects(t *testing.T) {
 // user, so reading the user role resolves to RoleNone and refuses what the client was authorized
 // with - the handler admits the request on the client role and the scoping has to agree with it.
 func TestSubjectSessionSeesPrivate(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("NoSession", func(t *testing.T) {
 		assert.True(t, SubjectSessionSeesPrivate(nil), "internal and CLI use is not scoped")
 	})
@@ -239,6 +245,7 @@ func TestSubjectSessionSeesPrivate(t *testing.T) {
 // TestSubjects_OmitsDeleted pins that the uid lookup drops a soft-deleted person like the list does.
 // The uid is the one branch that answers before the other filters, so it had to be told separately.
 func TestSubjects_OmitsDeleted(t *testing.T) {
+	entity.ValidateFixtures(t)
 	m := entity.NewSubject("Deleted Search Subject", entity.SubjPerson, entity.SrcManual)
 	require.NotNil(t, m)
 	require.NoError(t, m.Create())

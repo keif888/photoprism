@@ -13,6 +13,7 @@ import (
 )
 
 func TestGeo(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Near", func(t *testing.T) {
 		query := form.NewSearchPhotosGeo("near:ps6sg6be2lvl0y43")
 

@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterDay(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("One", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -306,6 +308,7 @@ func TestPhotosFilterDay(t *testing.T) {
 }
 
 func TestPhotosQueryDay(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("One", func(t *testing.T) {
 		var f form.SearchPhotos
 

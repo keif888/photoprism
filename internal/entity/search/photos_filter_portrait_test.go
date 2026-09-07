@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosQueryPortrait(t *testing.T) {
+	entity.ValidateFixtures(t)
 	portraitSearchForm := &form.SearchPhotos{
 		Query:  "portrait:true",
 		Merged: true,

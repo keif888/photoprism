@@ -11,6 +11,7 @@ import (
 )
 
 func TestPhotosFilterLens(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Apple", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -292,6 +293,7 @@ func TestPhotosFilterLens(t *testing.T) {
 }
 
 func TestPhotosQueryLens(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Apple", func(t *testing.T) {
 		var f form.SearchPhotos
 

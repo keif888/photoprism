@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterYear(t *testing.T) {
+	entity.ValidateFixtures(t)
 	var f0 form.SearchPhotos
 
 	f0.Merged = true
@@ -319,6 +321,7 @@ func TestPhotosFilterYear(t *testing.T) {
 }
 
 func TestPhotosQueryYear(t *testing.T) {
+	entity.ValidateFixtures(t)
 	var f0 form.SearchPhotos
 
 	f0.Merged = true

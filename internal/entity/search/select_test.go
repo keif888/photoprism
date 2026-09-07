@@ -3,10 +3,12 @@ package search
 import (
 	"testing"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSelectString(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("PhotoWildcard", func(t *testing.T) {
 		// SelectCols returns a string containing the
 		// comma separated column names.
@@ -24,6 +26,7 @@ func TestSelectString(t *testing.T) {
 }
 
 func TestSelectCols(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("PhotoWildcard", func(t *testing.T) {
 		// SelectCols returns a string containing
 		// the selected column names.

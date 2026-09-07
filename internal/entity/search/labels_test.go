@@ -12,6 +12,7 @@ import (
 )
 
 func TestLabels(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchWithQuery", func(t *testing.T) {
 		query := form.NewLabelSearch("q:C")
 		query.Count = 1005

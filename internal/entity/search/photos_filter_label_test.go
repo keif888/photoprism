@@ -11,6 +11,7 @@ import (
 )
 
 func TestPhotosFilterLabel(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Flower", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -323,6 +324,7 @@ func TestPhotosFilterLabel(t *testing.T) {
 }
 
 func TestPhotosQueryLabel(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Flower", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -664,6 +666,7 @@ func photosWithLabel(t *testing.T, label string) PhotoResults {
 }
 
 func TestPhotosFilterLabelNotAnd(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SingleExclude", func(t *testing.T) {
 		base := baselinePhotoCount(t)
 		withFlower := len(photosWithLabel(t, "flower"))

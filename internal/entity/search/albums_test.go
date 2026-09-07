@@ -12,6 +12,7 @@ import (
 )
 
 func TestAlbumPhotos(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchWithString", func(t *testing.T) {
 		results, err := AlbumPhotos(entity.AlbumFixtures.Get("april-1990"), 2, true)
 
@@ -26,6 +27,7 @@ func TestAlbumPhotos(t *testing.T) {
 }
 
 func TestUserAlbums(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Alice", func(t *testing.T) {
 		query := form.NewAlbumSearch("christmas")
 		query.Type = entity.AlbumManual
@@ -90,6 +92,7 @@ func TestUserAlbums(t *testing.T) {
 }
 
 func TestAlbums(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchWithString", func(t *testing.T) {
 		query := form.NewAlbumSearch("chr")
 		result, err := Albums(query)
@@ -793,6 +796,7 @@ func TestAlbums(t *testing.T) {
 }
 
 func TestUserAlbums_FolderCaseInsensitivePath(t *testing.T) {
+	entity.ValidateFixtures(t)
 	// Regression #5724: form.Unserialize lowercases the search term, but album_path is VARBINARY and
 	// compared byte-exact (case-sensitive) on MySQL, so an uppercase folder path stopped matching a
 	// lowercased query. The child folder below can be found ONLY via album_path (its title does not

@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterIso(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Num200", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -109,6 +111,7 @@ func TestPhotosFilterIso(t *testing.T) {
 }
 
 func TestPhotosQueryIso(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Num200", func(t *testing.T) {
 		var f form.SearchPhotos
 

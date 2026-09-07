@@ -12,6 +12,7 @@ import (
 )
 
 func TestLenses(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchWithQuery", func(t *testing.T) {
 		query := form.NewLensSearch("q:A")
 		query.Count = 1005

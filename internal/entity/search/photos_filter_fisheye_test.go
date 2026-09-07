@@ -85,6 +85,7 @@ func containsPhotoUID(results PhotoResults, photoUID string) bool {
 }
 
 func TestPhotosQueryFisheye(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("MatchesDualFisheyeOriginal", func(t *testing.T) {
 		photo := createFisheyeTestPhoto(t, projection.DualFisheye)
 

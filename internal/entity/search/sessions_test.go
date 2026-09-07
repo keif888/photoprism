@@ -5,12 +5,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/entity/sortby"
 	"github.com/photoprism/photoprism/internal/form"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
 
 func TestSessions(t *testing.T) {
+	entity.ValidateFixtures(t)
 	expectedUserUid := "uqxetse3cy5eo9z2"
 	expectedUserName := "alice"
 	// First of alice's sessions ordered by ClientName: the "alice_app_password"

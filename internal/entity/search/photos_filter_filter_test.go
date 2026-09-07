@@ -5,10 +5,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosFilterFilter(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("PathNum1990Num04PublicTrue", func(t *testing.T) {
 		var f form.SearchPhotos
 
@@ -262,6 +264,7 @@ func TestPhotosFilterFilter(t *testing.T) {
 }
 
 func TestPhotosQueryFilter(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("StartsWithPercent", func(t *testing.T) {
 		var f form.SearchPhotos
 

@@ -6,10 +6,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
 )
 
 func TestPhotosGeoFilterTime(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Added", func(t *testing.T) {
 		var f form.SearchPhotosGeo
 

@@ -12,6 +12,7 @@ import (
 )
 
 func TestCameras(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchWithQuery", func(t *testing.T) {
 		query := form.NewCameraSearch("q:Canon")
 		query.Count = 1005

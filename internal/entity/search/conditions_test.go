@@ -13,6 +13,7 @@ import (
 )
 
 func TestPathLike(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("MySQLCaseInsensitiveCollation", func(t *testing.T) {
 		// MySQL compares VARBINARY byte-exact, so the path is converted to a case-insensitive collation.
 		assert.Equal(t, "CONVERT(albums.album_path USING utf8mb4) COLLATE utf8mb4_general_ci LIKE ?", PathLike(dsn.DriverMySQL, "albums.album_path"))
@@ -28,6 +29,7 @@ func TestPathLike(t *testing.T) {
 }
 
 func TestSqlParam(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		assert.Equal(t, "", SqlParam("", "", ""))
 	})
@@ -51,6 +53,7 @@ func TestSqlParam(t *testing.T) {
 }
 
 func TestLikeAny(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("AndOrSearch", func(t *testing.T) {
 		w, v := LikeAny("k.keyword", "table spoon & usa | img json", true, false)
 		assert.Equal(t, []string{"k.keyword LIKE ? OR k.keyword LIKE ?", "k.keyword LIKE ? OR k.keyword LIKE ?"}, w)
@@ -104,6 +107,7 @@ func TestLikeAny(t *testing.T) {
 }
 
 func TestLikeAnyKeyword(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("AndOrSearch", func(t *testing.T) {
 		w, v := LikeAnyKeyword("k.keyword", "table spoon & usa | img json")
 		assert.Equal(t, []string{"k.keyword LIKE ? OR k.keyword LIKE ?", "k.keyword LIKE ? OR k.keyword LIKE ?"}, w)
@@ -117,6 +121,7 @@ func TestLikeAnyKeyword(t *testing.T) {
 }
 
 func TestLikeAnyWord(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("SearchAndOr", func(t *testing.T) {
 		w, v := LikeAnyWord("k.keyword", "table spoon & usa | img json")
 		assert.Equal(t, []string{"k.keyword LIKE ? OR k.keyword LIKE ?", "k.keyword LIKE ? OR k.keyword LIKE ? OR k.keyword LIKE ?"}, w)
@@ -137,6 +142,7 @@ func TestLikeAnyWord(t *testing.T) {
 }
 
 func TestLikeAll(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Keywords", func(t *testing.T) {
 		w, v := LikeAll("k.keyword", "Jo Mander 李", true, false)
 		assert.Equal(t, []string{"k.keyword LIKE ?", "k.keyword LIKE ?"}, w)
@@ -164,6 +170,7 @@ func TestLikeAll(t *testing.T) {
 }
 
 func TestLikeAllKeywords(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Keywords", func(t *testing.T) {
 		w, v := LikeAllKeywords("k.keyword", "Jo Mander 李")
 		assert.Equal(t, []string{"k.keyword LIKE ?", "k.keyword LIKE ?"}, w)
@@ -172,6 +179,7 @@ func TestLikeAllKeywords(t *testing.T) {
 }
 
 func TestLikeAllWords(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Keywords", func(t *testing.T) {
 		w, v := LikeAllWords("k.name", "Jo Mander 王")
 		assert.Equal(t, []string{"k.name LIKE ?", "k.name LIKE ?", "k.name LIKE ?"}, w)
@@ -180,6 +188,7 @@ func TestLikeAllWords(t *testing.T) {
 }
 
 func TestLikeAllNames(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("MultipleNames", func(t *testing.T) {
 		w, v := LikeAllNames(Cols{"k.name"}, "j Mander 王")
 		assert.Equal(t, []string{"k.name LIKE ?"}, w)
@@ -232,6 +241,7 @@ func TestLikeAllNames(t *testing.T) {
 }
 
 func TestAnySlug(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Multiple", func(t *testing.T) {
 		w, v := AnySlug("custom_slug", "table spoon usa img json", " ")
 		assert.Equal(t, "custom_slug = ? OR custom_slug = ? OR custom_slug = ? OR custom_slug = ? OR custom_slug = ?", w)
@@ -297,6 +307,7 @@ func TestAnySlug(t *testing.T) {
 }
 
 func TestAnyInt(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		w, v := AnyInt("photos.photo_month", "", txt.Or, entity.UnknownMonth, txt.MonthMax)
 		assert.Equal(t, "", w)
@@ -332,6 +343,7 @@ func TestAnyInt(t *testing.T) {
 }
 
 func TestOrLike(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		where, values := OrLike("k.keyword", "")
 
@@ -365,6 +377,7 @@ func TestOrLike(t *testing.T) {
 }
 
 func TestOrLikeCols(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		where, values := OrLikeCols([]string{"k.keyword", "p.photo_caption"}, "")
 
@@ -422,6 +435,7 @@ func TestOrLikeCols(t *testing.T) {
 }
 
 func TestSplitOr(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		values := SplitOr("")
 
@@ -450,6 +464,7 @@ func TestSplitOr(t *testing.T) {
 }
 
 func TestSplitAnd(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Empty", func(t *testing.T) {
 		values := SplitAnd("")
 

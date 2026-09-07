@@ -11,6 +11,7 @@ import (
 )
 
 func TestUsers(t *testing.T) {
+	entity.ValidateFixtures(t)
 	t.Run("Default", func(t *testing.T) {
 		if results, err := Users(form.SearchUsers{}); err != nil {
 			t.Fatal(err)
