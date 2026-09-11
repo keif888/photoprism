@@ -229,7 +229,7 @@ func SavePhotoForm(m *Photo, form form.Photo) error {
 	if cameraChanged {
 		newCamera := Camera{}
 		if tx := ScopedSearchFirstCamera(&newCamera, "id = ?", m.CameraID); tx.RowsAffected == 0 {
-			log.Errorf("savephotoform: %s CameraID invalid %s", m.String(), m.CameraID)
+			log.Errorf("savephotoform: %s CameraID invalid %d", m.String(), m.CameraID)
 			m.Camera = &UnknownCamera
 			m.CameraID = UnknownCamera.ID
 		} else {
@@ -241,7 +241,7 @@ func SavePhotoForm(m *Photo, form form.Photo) error {
 	if lensChanged {
 		newLens := Lens{}
 		if tx := ScopedSearchFirstLens(&newLens, "id = ?", m.LensID); tx.RowsAffected == 0 {
-			log.Errorf("savephotoform: %s LensID invalid %s", m.String(), m.CameraID)
+			log.Errorf("savephotoform: %s LensID invalid %d", m.String(), m.CameraID)
 			m.Lens = &UnknownLens
 			m.LensID = UnknownLens.ID
 		} else {

@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/photoprism/photoprism/pkg/clean"
 	"github.com/photoprism/photoprism/pkg/dsn"
 )
 
@@ -62,10 +63,10 @@ func ConvertDBMSAuthIDDataTypes(db *gorm.DB) (err error) {
 				}
 			}
 			if err = db.Exec("PRAGMA legacy_alter_table=false").Error; err != nil {
-				log.Errorf("migrate: error disabling legacy alter table %w", err)
+				log.Errorf("migrate: error disabling legacy alter table %s", clean.Error(err))
 			}
 			if err = db.Exec("PRAGMA foreign_keys=true").Error; err != nil {
-				log.Errorf("migrate: error enabling foreign keys %w", err)
+				log.Errorf("migrate: error enabling foreign keys %s", clean.Error(err))
 			}
 		}()
 

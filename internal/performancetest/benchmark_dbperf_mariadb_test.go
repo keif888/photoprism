@@ -45,7 +45,7 @@ func runMySQLPerfTest(rows int, numberk string, b *testing.B) {
 
 	// Prepare temporary mariadb db.
 	if !fs.FileExists(testDbOriginal) {
-		log.Info("Generating Mariadb database with %d records", rows)
+		log.Infof("Generating Mariadb database with %d records", rows)
 		require.NoError(b, generateDatabase(rows, "mysql", mDSN.ToString(), true, true))
 		resultFile := "--result-file=" + testDbOriginal
 		if err := exec.Command("mariadb-dump", "--user=migrate", "--password=migrate", "--lock-tables", "--no-create-db", mDSN.Name, resultFile).Run(); err != nil { //nolint:gosec // test generated input, test only credentials

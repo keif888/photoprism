@@ -47,7 +47,7 @@ func runPostgresPerfTest(rows int, numberk string, b *testing.B) {
 
 	// Prepare temporary PostgreSQL db.
 	if !fs.FileExists(testDbOriginal) {
-		log.Info("Generating PostgreSQL database with %d records", rows)
+		log.Infof("Generating PostgreSQL database with %d records", rows)
 		require.NoError(b, generateDatabase(rows, dsn.DriverPostgres, mDSN.ToString(), true, true))
 		if err := exec.Command("pg_dump", "-d", mDSN.ForPSQL(), "-F", "c", "-f", testDbOriginal).Run(); err != nil { //nolint:gosec // test generated input
 			b.Fatal(err)
