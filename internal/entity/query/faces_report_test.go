@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/photoprism/photoprism/internal/ai/face"
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
@@ -116,6 +117,87 @@ func TestFaceReports(t *testing.T) {
 		faces, err := FaceReports("", 10, 100000)
 		require.NoError(t, err)
 		assert.Empty(t, faces)
+	})
+}
+
+// TestFaceReportsEmbedDetail covers the per-cluster mean, which answers whether a cluster was
+// built from real pixels - the question an operator asks of a small cluster that looks wrong.
+//
+// ⚠ The sentinels are the whole test. AVG over a mix of them produces a plausible number that
+// means nothing, and a cluster of good crops with two unsampled members would read in the eighties
+// for arithmetic reasons alone.
+func TestFaceReportsEmbedDetail(t *testing.T) {
+	model := face.EmbeddingModelName()
+
+	newCluster := func(t *testing.T, details ...int) string {
+		t.Helper()
+
+		f := entity.NewFace("", entity.SrcAuto, face.RandomEmbeddings(3, face.RegularFace), model)
+		require.NotNil(t, f)
+		require.NoError(t, f.Create())
+		t.Cleanup(func() { entity.UnscopedDb().Delete(f) })
+
+		for _, detail := range details {
+			m := &entity.Marker{
+				MarkerUID:      rnd.GenerateUID('m'),
+				FileUID:        "fs6sg6bw45bnlqdw",
+				MarkerType:     entity.MarkerFace,
+				MarkerSrc:      entity.SrcImage,
+				FaceID:         f.ID,
+				EmbedDetail:    detail,
+				EmbedModel:     model,
+				EmbeddingsJSON: face.Embeddings{face.RandomEmbedding()}.JSON(),
+				W:              0.1,
+				H:              0.1,
+			}
+
+			require.NoError(t, entity.Db().Create(m).Error)
+			t.Cleanup(func() { entity.UnscopedDb().Delete(m) })
+		}
+
+		return f.ID
+	}
+
+	reported := func(t *testing.T, id string) FaceReport {
+		t.Helper()
+
+		faces, err := FaceReports("", 10000, 0)
+		require.NoError(t, err)
+
+		for _, f := range faces {
+			if f.ID == id {
+				return f
+			}
+		}
+
+		t.Fatalf("cluster %s is missing from the report", id)
+
+		return FaceReport{}
+	}
+
+	t.Run("MeanOverMeasuredMembers", func(t *testing.T) {
+		id := newCluster(t, 100, 60)
+
+		assert.InDelta(t, 80, reported(t, id).EmbedDetail, 0.001)
+	})
+	t.Run("SentinelsAreExcluded", func(t *testing.T) {
+		// The same two measured members, with an unsampled and an unmeasurable one beside them.
+		// Averaging all four would report 39 and read as a cluster built from poor crops.
+		id := newCluster(t, 100, 60, -1, entity.EmbedDetailUnknown)
+
+		assert.InDelta(t, 80, reported(t, id).EmbedDetail, 0.001)
+	})
+	t.Run("NoMeasuredMembers", func(t *testing.T) {
+		// Every cluster in a library that has not re-embedded, so it is the common case: it has to
+		// read as "nothing measured" rather than as a low share.
+		id := newCluster(t, -1, entity.EmbedDetailUnknown)
+
+		assert.Equal(t, float64(-1), reported(t, id).EmbedDetail)
+	})
+	t.Run("NoMembers", func(t *testing.T) {
+		id := newCluster(t)
+
+		assert.Equal(t, float64(-1), reported(t, id).EmbedDetail)
 	})
 }
 

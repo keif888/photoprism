@@ -21,6 +21,8 @@ const (
 	MaxVisionRequestBytes int64 = 32 * 1024 * 1024
 	// MaxSessionRequestBytes bounds login request payloads.
 	MaxSessionRequestBytes int64 = MaxAuthRequestBytes
+	// MaxOAuthRequestBytes bounds OAuth2 token, revoke, and OIDC endpoint payloads.
+	MaxOAuthRequestBytes int64 = MaxAuthRequestBytes
 	// MaxAlbumRequestBytes bounds album create and update payloads.
 	MaxAlbumRequestBytes int64 = MaxMutationRequestBytes
 	// MaxSettingsRequestBytes bounds settings and config option payloads.

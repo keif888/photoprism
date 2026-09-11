@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# STARTS THE CONTAINER AND RUNS THE GIVEN COMMAND
+# Shares its startup sequence with cmd.sh, which differs only in process and signal
+# handling, so changes to the environment or the init invocation must be made in both.
+
 # regular expressions
 re='^[0-9]+$'
 
@@ -50,7 +54,8 @@ if [[ ${INIT_SCRIPT} ]] && [[ -f "${INIT_SCRIPT}" ]]; then
     /bin/bash -c "${INIT_SCRIPT}"
   else
     echo "started $DOCKER_TAG as uid $(/usr/bin/id -u) ($PHOTOPRISM_ARCH-$DOCKER_ENV)"
-    /usr/bin/sudo -E "${INIT_SCRIPT}"
+    # The sudoers drop-in passes the init variables through, so the whole environment is not preserved.
+    /usr/bin/sudo "${INIT_SCRIPT}"
   fi
 else
   echo "started $DOCKER_TAG as uid $(/usr/bin/id -u) without init script ($PHOTOPRISM_ARCH-$DOCKER_ENV)"

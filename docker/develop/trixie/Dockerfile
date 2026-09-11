@@ -91,7 +91,7 @@ RUN echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80retries && \
     /scripts/install-tensorflow.sh && \
     /scripts/install-onnx.sh && \
     /scripts/install-darktable.sh && \
-    echo "ALL ALL=(ALL) NOPASSWD:SETENV: ALL" >> /etc/sudoers.d/all && \
+    /scripts/install-sudoers.sh --develop && \
     mkdir -p /etc/skel/.config/go/telemetry && \
     echo 'off 2025-01-03' > '/etc/skel/.config/go/telemetry/mode' && \
     cp -r /etc/skel/.config /root/.config && \

@@ -126,7 +126,7 @@ RUN echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80retries && \
     /scripts/install-onnx.sh && \
     /scripts/install-darktable.sh && \
     /scripts/install-go-tools.sh && \
-    echo "ALL ALL=(ALL) NOPASSWD:SETENV: ALL" >> /etc/sudoers.d/all && \
+    /scripts/install-sudoers.sh --develop && \
     cp /scripts/convert/policy.xml /etc/ImageMagick-6/policy.xml && \
     /scripts/install-bashrc.sh && \
     echo 'export PATH="$PATH:$HOME/.local/bin"' >> /etc/bash.bashrc && \

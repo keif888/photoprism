@@ -3,6 +3,8 @@ package entity
 import (
 	"slices"
 	"strings"
+
+	"github.com/photoprism/photoprism/pkg/clean"
 )
 
 // UIDs represents a slice of unique ID strings.
@@ -42,7 +44,7 @@ func (data *SessionData) RefreshShares() *SessionData {
 	var shares []string
 
 	for _, token := range data.Tokens {
-		links := FindValidLinks(token, "")
+		links := FindValidLinksByToken(token, "")
 
 		if len(links) == 0 {
 			continue
@@ -59,11 +61,23 @@ func (data *SessionData) RefreshShares() *SessionData {
 }
 
 // RedeemToken appends a new token and updates the list of shared UIDs in the session data.
+// The token is stored in its sanitized form so it still resolves on the next lookup, and a value
+// that cannot be sanitized is refused before the query runs.
 func (data *SessionData) RedeemToken(token string) (n int) {
-	links := FindValidLinks(token, "")
+	if token = clean.ShareToken(token); token == "" {
+		return 0
+	}
+
+	links := FindValidLinksByToken(token, "")
 
 	// No valid links found?
 	if n = len(links); n == 0 {
+		return n
+	}
+
+	// Redeeming a token the session already holds must not count another view or grow the data,
+	// as the sharing page redeems on every load.
+	if slices.Contains(data.Tokens, token) {
 		return n
 	}
 

@@ -743,7 +743,7 @@ func TestSession_SetProvider(t *testing.T) {
 
 func TestSession_ChangePassword(t *testing.T) {
 	m := FindSessionByRefID("sessxkkcabce")
-	assert.Empty(t, m.PreviewToken)
+	before := m.PreviewToken
 
 	err := m.ChangePassword("photoprism123")
 
@@ -751,7 +751,10 @@ func TestSession_ChangePassword(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Changing the password regenerates the user's tokens and mirrors them onto the session.
 	assert.NotEmpty(t, m.PreviewToken)
+	assert.NotEqual(t, before, m.PreviewToken)
+	assert.Equal(t, m.GetUser().PreviewToken, m.PreviewToken)
 
 	err2 := m.ChangePassword("Bobbob123!")
 

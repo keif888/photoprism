@@ -277,6 +277,7 @@ type Options struct {
 	FaceClusterSize           int           `yaml:"-" json:"-" flag:"face-cluster-size"`
 	FaceClusterScore          int           `yaml:"-" json:"-" flag:"face-cluster-score"`
 	FaceClusterCore           int           `yaml:"-" json:"-" flag:"face-cluster-core"`
+	FaceClusterCoreRetry      int           `yaml:"-" json:"-" flag:"face-cluster-core-retry"`
 	FaceClusterSplitRounds    int           `yaml:"-" json:"-" flag:"face-cluster-split-rounds"`
 	FaceClusterSplitShrink    float64       `yaml:"-" json:"-" flag:"face-cluster-split-shrink"`
 	FaceClusterDist           float64       `yaml:"-" json:"-" flag:"face-cluster-dist"`

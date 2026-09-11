@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -198,6 +199,29 @@ func TestFindValidLinksLinks(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		r := FindValidLinks("1jxf3jfn2k", "")
 		assert.Equal(t, "as6sg6bxpogaaba8", r[0].ShareUID)
+	})
+}
+
+func TestFindValidLinksByToken(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		r := FindValidLinksByToken("1jxf3jfn2k", "holiday-2030")
+		assert.Equal(t, "as6sg6bxpogaaba8", r[0].ShareUID)
+	})
+	t.Run("WrongToken", func(t *testing.T) {
+		r := FindValidLinksByToken("wrongtoken", "holiday-2030")
+		assert.Empty(t, r)
+	})
+	t.Run("EmptyToken", func(t *testing.T) {
+		r := FindValidLinksByToken("", "holiday-2030")
+		assert.Empty(t, r)
+	})
+	t.Run("RejectsOversizedToken", func(t *testing.T) {
+		r := FindValidLinksByToken(strings.Repeat("a", 161), "holiday-2030")
+		assert.Empty(t, r)
+	})
+	t.Run("RejectsUnusableToken", func(t *testing.T) {
+		r := FindValidLinksByToken("....", "as6sg6bxpogaaba8")
+		assert.Empty(t, r)
 	})
 }
 

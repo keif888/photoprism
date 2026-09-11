@@ -37,9 +37,9 @@ func SharePreview(router *gin.RouterGroup) {
 	router.GET("/:token/:shared/preview", func(c *gin.Context) {
 		conf := get.Config()
 
-		token := clean.Token(c.Param("token"))
+		token := clean.ShareToken(c.Param("token"))
 		shared := clean.UID(c.Param("shared"))
-		links := entity.FindLinks(token, shared)
+		links := entity.FindValidLinksByToken(token, shared)
 
 		if len(links) != 1 {
 			log.Warn("share: invalid token (preview)")

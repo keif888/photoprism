@@ -33,6 +33,31 @@ func TestSessionData_RedeemToken(t *testing.T) {
 	data.RedeemToken("1jxf3jfn2k")
 	assert.True(t, data.HasShare("def444"))
 	assert.True(t, data.HasShare("as6sg6bxpogaaba8"))
+	t.Run("StoresSanitizedToken", func(t *testing.T) {
+		d := SessionData{}
+		assert.Equal(t, 1, d.RedeemToken("  1jxf3jfn2k  "))
+		assert.Equal(t, []string{"1jxf3jfn2k"}, d.Tokens)
+		assert.True(t, d.HasShare("as6sg6bxpogaaba8"))
+	})
+	t.Run("RejectsUnusableToken", func(t *testing.T) {
+		// The unusable value must be refused before the query runs, so the link is left untouched.
+		before := FindLink("ss62xpryd1ob7gtf").LinkViews
+		d := SessionData{}
+		assert.Equal(t, 0, d.RedeemToken("...."))
+		assert.Equal(t, 0, d.RedeemToken(strings.Repeat("a", 161)))
+		assert.Empty(t, d.Tokens)
+		assert.Equal(t, before, FindLink("ss62xpryd1ob7gtf").LinkViews)
+	})
+	t.Run("RedeemsOnlyOncePerToken", func(t *testing.T) {
+		d := SessionData{}
+		assert.Equal(t, 1, d.RedeemToken("1jxf3jfn2k"))
+		views := FindLink("ss62xpryd1ob7gtf").LinkViews
+
+		// A repeat redeem still reports the links it resolves, but counts no further view.
+		assert.Equal(t, 1, d.RedeemToken("1jxf3jfn2k"))
+		assert.Equal(t, []string{"1jxf3jfn2k"}, d.Tokens)
+		assert.Equal(t, views, FindLink("ss62xpryd1ob7gtf").LinkViews)
+	})
 }
 
 func TestSessionData_SetGroups(t *testing.T) {

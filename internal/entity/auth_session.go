@@ -289,7 +289,7 @@ func (m *Session) Save() error {
 		return nil
 	} else if client := m.GetClient(); client.NoName() || client.Tokens() < 1 {
 		return nil
-	} else if deleted := DeleteClientSessions(client, authn.MethodSession, client.Tokens()); deleted > 0 {
+	} else if deleted := DeleteClientSessions(client, authn.MethodSession, client.Tokens(), m.ID); deleted > 0 {
 		event.AuditInfo([]string{m.IP(), "session %s", "deleted %s"}, m.RefID, english.Plural(deleted, "previously created client session", "previously created client sessions"))
 	}
 

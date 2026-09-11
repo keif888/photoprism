@@ -1440,6 +1440,15 @@ var Flags = CliFlags{
 			EnvVars: EnvVars("FACE_CLUSTER_CORE"),
 		}}, {
 		Flag: &cli.IntFlag{
+			Name:    "face-cluster-core-retry",
+			Usage:   "`NUMBER` of faces forming a cluster core in a second pass over what matching left unclustered, -1 to disable",
+			EnvVars: EnvVars("FACE_CLUSTER_CORE_RETRY"),
+		},
+		// No Value, or the option would be non-zero on every start and FaceClusterCoreRetry would
+		// never reach its derivation. Flat rather than one less than the first pass, see there.
+		DocDefault: fmt.Sprintf("%d (off where face-cluster-core is below %d)",
+			face.ClusterCoreRetryDefault, face.ClusterCoreDefault)}, {
+		Flag: &cli.IntFlag{
 			Name:    "face-cluster-split-rounds",
 			Usage:   "`NUMBER` of times a group wider than its own accept distance may be re-clustered, 0 discards such a group and -1 keeps it whole",
 			Value:   face.ClusterSplitRoundsDefault,

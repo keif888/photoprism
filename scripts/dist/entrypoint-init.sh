@@ -9,8 +9,24 @@ if [[ $(id -u) != "0" ]]; then
   exit 1
 fi
 
+# Remove the variables through which GNU make accepts options and additional makefiles,
+# so that only the Makefile in INIT_SCRIPTS can provide the init targets.
+unset MAKEFLAGS GNUMAKEFLAGS MAKEFILES MFLAGS
+
 # regular expressions
 re='^[0-9]+$'
+
+# init_target runs a single init target from the Makefile in INIT_SCRIPTS.
+# Names are limited to plain target names, as make would otherwise read them
+# as an option or as a variable assignment instead.
+init_target() {
+  if [[ ! $1 =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]]; then
+    echo "init: invalid target $1" 1>&2
+    return 1
+  fi
+
+  make --no-print-directory -C "$INIT_SCRIPTS" -- "$1"
+}
 
 # detect environment
 case $DOCKER_ENV in
@@ -64,7 +80,7 @@ fi
 # do nothing if PHOTOPRISM_INIT was not set
 if [[ -z ${PHOTOPRISM_INIT} ]]; then
   if [[ ${PHOTOPRISM_DEFAULT_TLS} = "true" ]]; then
-    make --no-print-directory -C "$INIT_SCRIPTS" "https"
+    init_target "https"
   fi
   exit
 fi
@@ -75,7 +91,7 @@ INIT_LOCK="/scripts/.init-lock"
 if [[ ! -e ${INIT_LOCK} ]]; then
   for INIT_TARGET in $PHOTOPRISM_INIT; do
     echo "init: $INIT_TARGET"
-    make --no-print-directory -C "$INIT_SCRIPTS" "$INIT_TARGET"
+    init_target "$INIT_TARGET"
   done
 
   echo 1 >${INIT_LOCK}

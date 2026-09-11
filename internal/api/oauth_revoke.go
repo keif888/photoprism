@@ -26,9 +26,9 @@ import (
 //	@Tags		Authentication
 //	@Accept		json
 //	@Produce	json
-//	@Param		request				body		form.OAuthRevokeToken	true	"revoke request"
-//	@Success	200					{object}	gin.H
-//	@Failure	400,401,403,404,429	{object}	i18n.Response
+//	@Param		request					body		form.OAuthRevokeToken	true	"revoke request"
+//	@Success	200						{object}	gin.H
+//	@Failure	400,401,403,404,413,429	{object}	i18n.Response
 //	@Router		/api/v1/oauth/revoke [post]
 func OAuthRevoke(router *gin.RouterGroup) {
 	router.POST("/oauth/revoke", func(c *gin.Context) {
@@ -80,8 +80,14 @@ func OAuthRevoke(router *gin.RouterGroup) {
 			}
 		}
 
+		LimitRequestBodyBytes(c, MaxOAuthRequestBytes)
+
 		// Get the auth token to be revoked from the submitted form values or the request header.
-		if err = c.ShouldBind(&frm); err != nil && authToken == "" {
+		if err = c.ShouldBind(&frm); IsRequestBodyTooLarge(err) {
+			event.AuditWarn([]string{clientIp, "oauth2", actor, action, "request too large", status.Error(err)})
+			AbortRequestTooLarge(c, i18n.ErrBadRequest)
+			return
+		} else if err != nil && authToken == "" {
 			event.AuditWarn([]string{clientIp, "oauth2", actor, action, status.Error(err)})
 			AbortBadRequest(c, err)
 			return

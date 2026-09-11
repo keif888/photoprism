@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dustin/go-humanize/english"
+	"github.com/jinzhu/gorm"
 
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/photoprism/photoprism/pkg/authn"
@@ -63,8 +64,10 @@ func DeleteChildSessions(s *Session) (deleted int) {
 	return deleted
 }
 
-// DeleteClientSessions deletes sessions for the client beyond the configured retention limit.
-func DeleteClientSessions(client *Client, authMethod authn.MethodType, limit int64) (deleted int) {
+// DeleteClientSessions deletes sessions for the client beyond the configured retention limit,
+// keeping the most recently created ones. Ordering is fully specified: within one creation
+// second the session identified by keepID ranks first, then the session ID decides.
+func DeleteClientSessions(client *Client, authMethod authn.MethodType, limit int64, keepID string) (deleted int) {
 	if limit < 0 {
 		return 0
 	} else if client == nil {
@@ -91,7 +94,8 @@ func DeleteClientSessions(client *Client, authMethod authn.MethodType, limit int
 	}
 
 	// NOTE: this loses precision of the token limit. But I think int64 does not make sense for that limit type anyway.
-	q = q.Order("created_at DESC").Limit(1000000000).Offset(convert.SafeInt64toint(limit))
+	q = q.Order(gorm.Expr("created_at DESC, CASE WHEN id = ? THEN 1 ELSE 0 END DESC, id DESC", keepID))
+	q = q.Limit(1000000000).Offset(convert.SafeInt64toint(limit))
 
 	found := Sessions{}
 

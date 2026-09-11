@@ -212,6 +212,17 @@ func FindLink(linkUid string) *Link {
 	return &result
 }
 
+// FindValidLinksByToken returns the non-expired links matching a request-supplied share token and
+// share UID. The token is required: it is sanitized first and must still be non-empty, so a caller
+// cannot reach the lookup without one. Internal callers listing a record's links use FindLinks.
+func FindValidLinksByToken(token, shared string) Links {
+	if token = clean.ShareToken(token); token == "" {
+		return Links{}
+	}
+
+	return FindValidLinks(token, shared)
+}
+
 // FindLinks returns a slice of links for a token and a share UID (at least one must be specified).
 func FindLinks(token, shared string) (found Links) {
 	found = Links{}

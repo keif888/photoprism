@@ -78,7 +78,7 @@ RUN echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80retries && \
     cp /scripts/convert/policy.xml /etc/ImageMagick-7/policy.xml && \
     install -m 0755 /usr/bin/gs /usr/local/bin/gs && \
     /scripts/install-bashrc.sh && \
-    echo "ALL ALL=(ALL) NOPASSWD:SETENV: /scripts/entrypoint-init.sh" >> /etc/sudoers.d/init && \
+    /scripts/install-sudoers.sh && \
     /scripts/install-dircolors.sh && \
     /scripts/create-users.sh && \
     install -d -m 0777 -o 1000 -g 1000 \

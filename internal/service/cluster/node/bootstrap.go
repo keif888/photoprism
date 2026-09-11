@@ -29,7 +29,8 @@ import (
 
 var log = event.Log
 
-const bootstrapOAuthScope = "cluster"
+// OAuthScope is the scope a node requests when exchanging its client credentials.
+const OAuthScope = "cluster"
 
 // init registers the cluster node bootstrap extension so it runs before the
 // database connection is established.
@@ -279,7 +280,7 @@ func registerAuthToken(c *config.Config, portal *url.URL, joinToken string) (str
 	}
 
 	if id, secret := strings.TrimSpace(c.NodeClientID()), strings.TrimSpace(c.NodeClientSecret()); id != "" && secret != "" {
-		token, err := oauthAccessToken(portal, id, secret, bootstrapOAuthScope)
+		token, err := OAuthAccessToken(portal, id, secret, OAuthScope)
 		if err != nil {
 			return "", fmt.Errorf("portal access token request failed: %w", err)
 		}
@@ -561,7 +562,7 @@ func syncNodeTheme(c *config.Config, portal *url.URL, registerResp *cluster.Regi
 	bearer := ""
 	var tokenErr error
 	if id, secret := strings.TrimSpace(c.NodeClientID()), strings.TrimSpace(c.NodeClientSecret()); id != "" && secret != "" {
-		if t, err := oauthAccessToken(portal, id, secret, bootstrapOAuthScope); err != nil {
+		if t, err := OAuthAccessToken(portal, id, secret, OAuthScope); err != nil {
 			tokenErr = err
 			log.Infof("config: portal access token request failed (%s)", clean.Error(err))
 		} else {
@@ -669,8 +670,8 @@ func activateNodeThemeIfPresent(c *config.Config) {
 	log.Debugf("config: activated portal theme from %s", clean.Log(nodeDir))
 }
 
-// oauthAccessToken requests an OAuth access token via client_credentials using Basic auth.
-func oauthAccessToken(portal *url.URL, clientID, clientSecret, scope string) (string, error) {
+// OAuthAccessToken requests an OAuth access token via client_credentials using Basic auth.
+func OAuthAccessToken(portal *url.URL, clientID, clientSecret, scope string) (string, error) {
 	if portal == nil {
 		return "", fmt.Errorf("invalid portal url")
 	}
@@ -682,7 +683,12 @@ func oauthAccessToken(portal *url.URL, clientID, clientSecret, scope string) (st
 	form.Set("grant_type", "client_credentials")
 	form.Set("scope", clean.Scope(scope))
 
-	req, _ := http.NewRequest(http.MethodPost, tokenURL.String(), strings.NewReader(form.Encode()))
+	req, err := http.NewRequest(http.MethodPost, tokenURL.String(), strings.NewReader(form.Encode()))
+
+	if err != nil {
+		return "", err
+	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 
