@@ -130,7 +130,7 @@ func TestEmbedDetailGate(t *testing.T) {
 			var stored int64
 			require.NoError(t, entity.UnscopedDb().Model(&entity.Marker{}).
 				Where("marker_uid = ? AND embed_detail IS NULL", m.MarkerUID).Count(&stored).Error)
-			require.Equal(t, 1, stored, "the row has to hold a real NULL, or this case tests nothing")
+			require.EqualValues(t, 1, stored, "the row has to hold a real NULL, or this case tests nothing")
 		}
 	}
 

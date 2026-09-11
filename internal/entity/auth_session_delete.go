@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dustin/go-humanize/english"
-	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/photoprism/photoprism/pkg/authn"
@@ -93,8 +93,8 @@ func DeleteClientSessions(client *Client, authMethod authn.MethodType, limit int
 		q = q.Where("auth_method = ?", authMethod.String())
 	}
 
+	q = q.Order(clause.OrderBy{Expression: clause.Expr{SQL: "created_at DESC, CASE WHEN id = ? THEN 1 ELSE 0 END DESC, id DESC", Vars: []any{[]string{keepID}}}})
 	// NOTE: this loses precision of the token limit. But I think int64 does not make sense for that limit type anyway.
-	q = q.Order(gorm.Expr("created_at DESC, CASE WHEN id = ? THEN 1 ELSE 0 END DESC, id DESC", keepID))
 	q = q.Limit(1000000000).Offset(convert.SafeInt64toint(limit))
 
 	found := Sessions{}

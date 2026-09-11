@@ -258,7 +258,7 @@ func TestInit(t *testing.T) {
 
 		stmt.Model(m).Count(&count)
 
-		assert.Equal(t, int64(8), count)
+		assert.Equal(t, int64(9), count)
 	})
 
 	t.Run("ReactionCounts", func(t *testing.T) {
@@ -288,7 +288,7 @@ func TestInit(t *testing.T) {
 
 		stmt.Model(m).Count(&count)
 
-		assert.Equal(t, int64(11), count)
+		assert.Equal(t, int64(12), count) // Fixtures + 1 for admin
 	})
 
 	t.Run("UserShareCounts", func(t *testing.T) {
