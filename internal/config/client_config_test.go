@@ -111,7 +111,7 @@ func TestConfig_ClientShareConfig(t *testing.T) {
 	assert.Equal(t, true, result.Experimental)
 	assert.Equal(t, false, result.ReadOnly)
 	t.Run("NoBaseTokens", func(t *testing.T) {
-		c := NewMinimalTestConfigWithDb("client-share-tokens", t.TempDir())
+		c := NewMinimalTestConfigWithDbTTest("client-share-tokens", t.TempDir(), t)
 		c.SetAuthMode(AuthModePasswd)
 		assert.Empty(t, c.ClientShare().PreviewToken)
 		assert.Empty(t, c.ClientShare().DownloadToken)

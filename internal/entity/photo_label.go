@@ -20,7 +20,7 @@ type PhotoLabel struct {
 	Uncertainty int    `gorm:"type:int;size:16;" json:"Uncertainty" yaml:"Uncertainty"`
 	Topicality  int    `gorm:"type:int;size:16;default:0;" json:"Topicality" yaml:"Topicality,omitempty"`
 	NSFW        int    `gorm:"type:int;size:16;column:nsfw;default:0;" json:"NSFW,omitempty" yaml:"NSFW,omitempty"`
-	Photo       *Photo `gorm:"foreignKey:PhotoID;references:ID;" yaml:"-" json:"-" yaml:"-"`
+	Photo       *Photo `gorm:"foreignKey:PhotoID;references:ID;" json:"-" yaml:"-"`
 	Label       *Label `gorm:"foreignKey:LabelID;references:ID;" json:"Label,omitempty" yaml:"-"`
 }
 
